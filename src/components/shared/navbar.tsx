@@ -29,10 +29,10 @@ export function Navbar() {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
   }, [mobileOpen]);
 
@@ -128,7 +128,7 @@ export function Navbar() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm md:hidden"
             />
 
             {/* Side Drawer Viewport */}
@@ -137,7 +137,7 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="fixed right-0 top-0 bottom-0 w-[300px] sm:w-[360px] z-50 bg-card border-l border-border/60 p-6 flex flex-col justify-between md:hidden shadow-2xl overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-[300px] sm:w-[360px] z-[70] bg-card border-l border-border/60 p-6 flex flex-col justify-between md:hidden shadow-2xl overflow-y-auto"
             >
               <div className="flex flex-col gap-8">
                 {/* Drawer Top Header */}

@@ -44,6 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen antialiased selection:bg-primary/20">
