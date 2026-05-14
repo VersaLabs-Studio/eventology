@@ -34,8 +34,9 @@ const defaultProps: FooterCTAProps = {
   },
   secondaryButton: {
     label: "Explore Our Work",
-    href: "/studio",
+    href: "https://versalabs-studio.com",
     variant: "secondary",
+    external: true,
   },
   showGlow: true,
 };

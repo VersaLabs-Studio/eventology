@@ -44,7 +44,13 @@ export function Footer() {
         <Separator className="my-8 bg-white/10" />
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-white/40">&copy; {new Date().getFullYear()} Eventology. All rights reserved.</p>
-          <p className="text-sm text-white/40 font-medium">Architected for Ethiopia 🇪🇹</p>
+          <p className="text-sm text-white/40 font-medium">
+            Architected by{" "}
+            <a href="https://versalabs-studio.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline transition-all">
+              VersaLabs Studio
+            </a>{" "}
+            🇪🇹
+          </p>
         </div>
       </div>
     </footer>
