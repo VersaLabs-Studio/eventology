@@ -129,28 +129,30 @@ function EventDetailContent({ event }: { event: Event }) {
           </div>
 
           <div className="space-y-6">
-            <Card className="sticky top-24 shadow-md">
+            <Card className="sticky top-24 shadow-md overflow-hidden">
               <CardHeader>
-                <CardTitle>Select Tickets</CardTitle>
+                <CardTitle className="font-display font-extrabold tracking-tight">Select Tickets</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3 mb-4">
                   {event.ticketTiers.map((tier) => (
-                    <div key={tier.id} className="flex items-center justify-between p-3 rounded-lg border border-border hover:border-primary transition-colors">
-                      <div>
-                        <p className="font-medium text-sm">{tier.name}</p>
-                        <p className="text-xs text-muted-foreground">{tier.description}</p>
-                        <Progress value={(tier.sold / tier.capacity) * 100} className="mt-1" />
-                        <p className="text-xs text-muted-foreground mt-0.5">{tier.sold}/{tier.capacity} sold</p>
+                    <div key={tier.id} className="flex items-center justify-between p-3 rounded-xl border border-border/80 hover:border-primary bg-card transition-all">
+                      <div className="min-w-0 flex-1 mr-3">
+                        <p className="font-bold text-sm text-foreground truncate">{tier.name}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{tier.description}</p>
+                        <Progress value={(tier.sold / tier.capacity) * 100} className="mt-2 h-1.5" />
+                        <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-wider">{tier.sold}/{tier.capacity} sold</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-sm">{tier.price === 0 ? "Free" : formatCurrency(tier.price)}</p>
+                      <div className="shrink-0 text-right">
+                        <p className="font-extrabold text-sm text-primary">{tier.price === 0 ? "Free" : formatCurrency(tier.price)}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-                <Link href={`/register/${event.id}`}>
-                  <Button variant="accent" size="lg" className="w-full">Register Now</Button>
+                <Link href={`/register/${event.id}`} className="block">
+                  <Button variant="accent" size="lg" className="w-full min-h-[48px] rounded-xl font-extrabold text-sm shadow-accent-glow">
+                    Register Now
+                  </Button>
                 </Link>
               </CardContent>
             </Card>

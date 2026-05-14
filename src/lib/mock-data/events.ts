@@ -71,12 +71,12 @@ export const events: Event[] = [
   },
   {
     id: "evt_002",
-    slug: "ethiopian-coffee-masterclass",
-    title: "Ethiopian Coffee Masterclass",
+    slug: "ethiopian-coffee-masterclass-hawassa",
+    title: "Southern Coffee Masterclass: Hawassa Hub",
     description:
-      "<p>Dive deep into the rich traditions and modern techniques of Ethiopian coffee at the Ethiopian Coffee Masterclass, hosted at the historic Tomoca Heritage venue in Arada. This immersive workshop takes participants on a journey from bean to cup, exploring the origins, cultivation, roasting, and brewing methods that make Ethiopian coffee world-renowned.</p><p>Led by master roasters and baristas from Addis Ababa's finest coffee houses, the masterclass covers cupping sessions, manual brewing techniques, latte art, and the cultural significance of the coffee ceremony in Ethiopian society. Participants will taste rare single-origin beans from Yirgacheffe, Sidama, and Guji regions.</p><p>The workshop is designed for both coffee enthusiasts and aspiring professionals. Each attendee receives a curated coffee kit to take home, including specialty beans and brewing tools. Small class sizes ensure personalized attention and hands-on practice throughout the session.</p><p>By the end of this masterclass, you will have a profound appreciation for Ethiopian coffee and the skills to brew exceptional cups at home or in a professional setting.</p>",
+      "<p>Dive deep into the rich traditions and modern techniques of Ethiopian coffee at the Southern Coffee Masterclass, hosted at the newly opened Hawassa Industrial Park Hospitality Center in Hawassa. This immersive workshop takes participants on a journey from bean to cup, exploring the origins, cultivation, roasting, and brewing methods that make Sidama and Yirgacheffe coffee world-renowned.</p><p>Led by master roasters and baristas from the Southern Nations region, the masterclass covers cupping sessions, manual brewing techniques, latte art, and the cultural significance of the coffee ceremony in Ethiopian society. Participants will taste rare single-origin beans sourced directly from surrounding partner farms.</p><p>The workshop is designed for both coffee enthusiasts and aspiring professionals. Each attendee receives a curated coffee kit to take home, including specialty beans and brewing tools. Small class sizes ensure personalized attention and hands-on practice throughout the session.</p><p>By the end of this masterclass, you will have a profound appreciation for southern Ethiopian coffee varieties and the skills to brew exceptional cups at home or in a professional setting.</p>",
     shortDescription:
-      "An immersive workshop exploring Ethiopian coffee traditions, roasting, and brewing techniques at Tomoca Heritage.",
+      "An immersive workshop exploring southern Ethiopian coffee traditions, roasting, and brewing techniques at Hawassa Industrial Park.",
     category: categories[6],
     type: "workshop",
     status: "approved",
@@ -84,10 +84,10 @@ export const events: Event[] = [
     endDate: "2026-06-09T00:00:00+03:00",
     time: "10:00 AM",
     endTime: "4:00 PM",
-    location: "Tomoca Heritage",
-    address: "Wavell Street, Arada District, Addis Ababa",
-    subCity: "Arada",
-    coordinates: { lat: 9.04, lng: 38.74 },
+    location: "Hawassa Industrial Park Center",
+    address: "Main Boulevard, Lake View District, Hawassa",
+    subCity: "Hawassa Hub",
+    coordinates: { lat: 7.05, lng: 38.48 },
     bannerImage:
       "https://images.unsplash.com/photo-1414239778000-5d3b9c3a5b3f?w=1200&h=600&fit=crop&q=80",
     gallery: [
@@ -113,11 +113,11 @@ export const events: Event[] = [
         currency: "ETB",
         capacity: 15,
         sold: 8,
-        description: "Premium seating, signed coffee kit, and lunch at a top Addis café.",
+        description: "Premium seating, signed coffee kit, and lunch at a top café.",
       },
     ],
     ticketType: "paid",
-    tags: ["coffee", "workshop", "Ethiopian", "culinary", "culture"],
+    tags: ["coffee", "workshop", "Hawassa", "culinary", "Sidama"],
     isFeatured: true,
     views: 2800,
     registrations: 26,
@@ -126,12 +126,12 @@ export const events: Event[] = [
   },
   {
     id: "evt_003",
-    slug: "startup-pitch-night-bole",
-    title: "Startup Pitch Night: Bole",
+    slug: "startup-pitch-night-bahir-dar",
+    title: "Startup Pitch Night: Bahir Dar Innovation Hub",
     description:
-      "<p>Startup Pitch Night: Bole is Addis Ababa's premier networking and pitching event for early-stage entrepreneurs and investors. Held at the vibrant Ice Addis venue in the heart of Bole, this monthly gathering provides founders with a platform to present their ventures to a curated audience of angel investors, venture capitalists, and fellow entrepreneurs.</p><p>Each event features 8-10 carefully selected startups pitching their ideas in a fast-paced format, followed by constructive feedback from a panel of experienced judges. Beyond the pitches, the evening is designed for meaningful connections over drinks and appetizers in a relaxed, high-energy atmosphere.</p><p>Previous pitch nights have led to successful funding rounds, strategic partnerships, and valuable mentorship relationships. Whether you are looking to raise capital, find a co-founder, or simply explore the startup ecosystem, Startup Pitch Night offers an invaluable gateway into Addis Ababa's growing entrepreneurial community.</p><p>The event concludes with an open networking session where attendees can connect directly with founders, investors, and ecosystem enablers. Winners receive mentorship packages and introductions to our network of partner investors.</p>",
+      "<p>Startup Pitch Night: Bahir Dar is the premier networking and pitching event for early-stage entrepreneurs and investors in northern Ethiopia. Held at the state-of-the-art Bahir Dar University Science Center, this monthly gathering provides founders with a platform to present their ventures to a curated audience of angel investors, local venture enablers, and fellow entrepreneurs.</p><p>Each event features 8-10 carefully selected startups pitching their ideas in a fast-paced format, followed by constructive feedback from a panel of experienced judges. Beyond the pitches, the evening is designed for meaningful connections over drinks and appetizers in a relaxed, high-energy atmosphere.</p><p>Previous pitch nights have led to successful regional pilot integrations, strategic partnerships, and valuable mentorship relationships. Whether you are looking to scale smart-irrigation models, launch localized FinTech tools, or build cross-regional logistics platforms, Startup Pitch Night offers an invaluable gateway into the growing northern ecosystem.</p><p>The event concludes with an open networking session where attendees can connect directly with founders, investors, and ecosystem enablers. Winners receive cloud hosting credits and direct advisory tracks.</p>",
     shortDescription:
-      "A dynamic startup pitching event connecting early-stage founders with investors and the entrepreneurial community in Bole.",
+      "A dynamic startup pitching event connecting northern founders with investors at Bahir Dar University Science Center.",
     category: categories[1],
     type: "networking",
     status: "approved",
@@ -139,10 +139,10 @@ export const events: Event[] = [
     endDate: "2026-06-21T00:00:00+03:00",
     time: "6:00 PM",
     endTime: "10:00 PM",
-    location: "Ice Addis",
-    address: "Bole Sub-city, near Dembel City Center, Addis Ababa",
-    subCity: "Bole",
-    coordinates: { lat: 9.018, lng: 38.768 },
+    location: "Bahir Dar University Science Center",
+    address: "Poly Campus Drive, Bahir Dar",
+    subCity: "Bahir Dar Hub",
+    coordinates: { lat: 11.59, lng: 37.39 },
     bannerImage:
       "https://images.unsplash.com/photo-1556765909-7e9c2e9b8c1b?w=1200&h=600&fit=crop&q=80",
     gallery: [

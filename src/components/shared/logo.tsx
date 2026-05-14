@@ -5,40 +5,50 @@ import { cn } from "@/lib/utils";
 interface LogoProps {
   size?: "sm" | "default" | "lg";
   className?: string;
+  showText?: boolean;
 }
 
-const sizeMap = { sm: 32, default: 40, lg: 80 };
+const sizeMap = { sm: 32, default: 44, lg: 88 };
 
-export function Logo({ size = "default", className }: LogoProps) {
+export function Logo({ size = "default", className, showText = true }: LogoProps) {
   const px = sizeMap[size];
   return (
-    <Link href="/" className={cn("flex items-center gap-2", className)}>
-      <svg
-        width={px}
-        height={px}
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle cx="50" cy="50" r="45" fill="#065F46" />
-        <path
-          d="M30 70V30L50 50L70 30V70"
-          stroke="white"
-          strokeWidth="6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+    <Link 
+      href="/" 
+      className={cn(
+        "group flex items-center gap-3 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg p-1", 
+        className
+      )}
+    >
+      <div className="relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+        <img
+          src="/logo.svg"
+          alt="Eventology Logo"
+          width={px}
+          height={px}
+          className="object-contain drop-shadow-sm"
         />
-      </svg>
-      <span
-        className={cn(
-          "font-display font-bold text-primary",
-          size === "sm" && "text-lg",
-          size === "default" && "text-xl",
-          size === "lg" && "text-3xl"
-        )}
-      >
-        Eventology
-      </span>
+      </div>
+      {showText && (
+        <div className="flex flex-col">
+          <span
+            className={cn(
+              "font-display font-extrabold tracking-tight text-foreground transition-colors group-hover:text-primary leading-none",
+              size === "sm" && "text-base",
+              size === "default" && "text-xl",
+              size === "lg" && "text-3xl"
+            )}
+          >
+            Eventology
+          </span>
+          {size !== "sm" && (
+            <span className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mt-0.5 block opacity-80 group-hover:text-accent transition-colors">
+              Ethiopia
+            </span>
+          )}
+        </div>
+      )}
     </Link>
   );
 }
+

@@ -1,28 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #065F46;
+  /* Premium Apple Silicon Inspired Color Space */
+  --color-primary: #10B981;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: #84CC16;
-  --color-secondary-foreground: #052E16;
+  --color-secondary: #065F46;
+  --color-secondary-foreground: #FFFFFF;
   --color-accent: #F97316;
   --color-accent-foreground: #FFFFFF;
-  --color-background: #FAFAF9;
-  --color-foreground: #052E16;
+  
+  /* Pristine Light Mode Surfaces */
+  --color-background: #F5F5F7;
+  --color-foreground: #1D1D1F;
   --color-card: #FFFFFF;
-  --color-card-foreground: #052E16;
-  --color-muted: #F5F5F4;
-  --color-muted-foreground: #6B7280;
-  --color-border: #E5E7EB;
-  --color-ring: #065F46;
-  --color-destructive: #EF4444;
-  --color-success: #84CC16;
-  --color-warning: #F97316;
+  --color-card-foreground: #1D1D1F;
+  --color-muted: #E5E5EA;
+  --color-muted-foreground: #86868B;
+  --color-border: #D2D2D7;
+  --color-ring: #10B981;
+  
+  /* Status Utilities */
+  --color-destructive: #FF3B30;
+  --color-success: #34C759;
+  --color-warning: #FF9500;
 
-  --font-display: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  /* Typography mapping to Plus Jakarta Sans */
+  --font-display: var(--font-jakarta), sans-serif;
+  --font-body: var(--font-jakarta), sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  /* Premium Apple Radii */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -30,22 +37,28 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
-  --shadow-glow: 0 0 20px rgb(6 95 70 / 0.15);
+  /* Cinema Shadows & Glows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.03);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  --shadow-glow: 0 0 25px rgb(16 185 129 / 0.25);
+  --shadow-accent-glow: 0 0 25px rgb(249 115 22 / 0.2);
 }
 
+/* Luxury Dark Mode Layering */
 .dark {
-  --color-background: #052E16;
-  --color-foreground: #F5F5F4;
-  --color-card: #0A3D2E;
-  --color-card-foreground: #F5F5F4;
-  --color-muted: #0D4A36;
-  --color-muted-foreground: #9CA3AF;
-  --color-border: #1A5D43;
+  --color-background: #090A0F;
+  --color-foreground: #F5F5F7;
+  --color-card: #12131A;
+  --color-card-foreground: #F5F5F7;
+  --color-muted: #1E202B;
+  --color-muted-foreground: #8E92A4;
+  --color-border: #232533;
   --color-primary: #10B981;
+  --color-primary-foreground: #090A0F;
+  --color-secondary: #065F46;
+  --color-secondary-foreground: #FFFFFF;
   --color-ring: #10B981;
 }
 
@@ -63,9 +76,11 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
-::-webkit-scrollbar { width: 6px; }
+/* Beautiful custom smooth scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-muted-foreground); }
@@ -73,6 +88,22 @@ h1, h2, h3, h4, h5, h6 {
 html { scroll-behavior: smooth; }
 
 ::selection {
-  background: rgb(6 95 70 / 0.2);
+  background: rgb(16 185 129 / 0.25);
   color: var(--color-foreground);
 }
+
+/* Glassmorphism custom classes */
+.glass-panel {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-panel {
+  background-color: rgba(18, 19, 26, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+

@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const inter = Inter({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-body",
+  variable: "--font-jakarta",
   display: "swap",
 });
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-});
+
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
@@ -25,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | Eventology",
   },
   description:
-    "Discover, attend, and organize events in Addis Ababa. The modern event management platform for Ethiopia.",
+    "Discover, attend, and organize events in Addis Ababa. The premium event management platform for Ethiopia.",
   keywords: [
     "events",
     "Addis Ababa",
@@ -33,6 +29,7 @@ export const metadata: Metadata = {
     "conferences",
     "meetups",
     "ticketing",
+    "premium",
   ],
   icons: {
     icon: "/logo.svg",
@@ -47,12 +44,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable}`}
+      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
     >
-      <body>
+      <body className="min-h-screen antialiased selection:bg-primary/20">
         {children}
-        <Toaster position="bottom-right" richColors />
+        <Toaster position="bottom-right" richColors closeButton />
       </body>
     </html>
   );
 }
+
