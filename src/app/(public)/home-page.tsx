@@ -47,6 +47,11 @@ function HowItWorksCard({ icon: Icon, title, description, badge }: { icon: React
 
 export function PublicHomePage() {
   const [tab, setTab] = React.useState("all");
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const upcoming = getUpcomingEvents();
   const filtered = upcoming.filter((e) => {
@@ -186,18 +191,25 @@ export function PublicHomePage() {
             </Tabs>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayEvents.map((event, idx) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.05, duration: 0.5 }}
-              >
-                <EventCard event={event} />
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 min-h-[400px]">
+            {mounted ? (
+              displayEvents.map((event, idx) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.05, duration: 0.5 }}
+                >
+                  <EventCard event={event} />
+                </motion.div>
+              ))
+            ) : (
+              // Initial skeleton rendering state to avoid hydration mismatch
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-[380px] w-full rounded-xl bg-card border border-border/40 animate-pulse" />
+              ))
+            )}
           </div>
 
           <div className="text-center mt-12">

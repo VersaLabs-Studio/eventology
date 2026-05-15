@@ -19,6 +19,12 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Close mobile drawer automatically on path navigation changes
   React.useEffect(() => {
     setMobileOpen(false);
@@ -37,7 +43,8 @@ export function Navbar() {
   }, [mobileOpen]);
 
   return (
-    <header className="fixed md:sticky top-0 z-[60] bg-background md:bg-background/80 backdrop-blur-xl border-b border-border/60 transition-all duration-300">
+    <>
+      <header className="fixed w-full md:sticky top-0 z-[100] bg-background md:bg-background/80 backdrop-blur-xl border-b border-border/60 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           <Logo size="default" />
@@ -57,7 +64,7 @@ export function Navbar() {
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {isActive && (
+                  {isActive && mounted && (
                     <motion.div
                       layoutId="navbar-indicator"
                       className="absolute inset-0 bg-primary rounded-full -z-10 shadow-glow"
@@ -77,7 +84,7 @@ export function Navbar() {
                 <Monitor className="h-4 w-4 text-primary" />
                 <span>Switch Role</span>
               </button>
-              <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border/80 rounded-2xl shadow-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 backdrop-blur-xl">
+              <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border/80 rounded-2xl shadow-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[110] backdrop-blur-xl">
                 <div className="text-[10px] font-extrabold text-muted-foreground px-3 py-1 uppercase tracking-wider">
                   Select Context
                 </div>
@@ -116,10 +123,11 @@ export function Navbar() {
           </button>
         </div>
       </div>
+    </header>
 
       {/* iPadOS / Apple Silicon Inspired Dynamic Slide-out Drawer Panel */}
       <AnimatePresence>
-        {mobileOpen && (
+        {mobileOpen && mounted && (
           <>
             {/* Backdrop Blur Overlay */}
             <motion.div
@@ -128,7 +136,7 @@ export function Navbar() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm md:hidden"
             />
 
             {/* Side Drawer Viewport */}
@@ -137,7 +145,7 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="fixed right-0 top-0 bottom-0 w-[300px] sm:w-[360px] z-[70] bg-card border-l border-border/60 p-6 flex flex-col justify-between md:hidden shadow-2xl overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-[300px] sm:w-[360px] z-[210] bg-card border-l border-border/60 p-6 flex flex-col justify-between md:hidden shadow-2xl overflow-y-auto"
             >
               <div className="flex flex-col gap-8">
                 {/* Drawer Top Header */}
@@ -213,7 +221,7 @@ export function Navbar() {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
 
