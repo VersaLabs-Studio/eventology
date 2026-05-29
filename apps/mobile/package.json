@@ -1,0 +1,7 @@
+{
+  "name": "@eventology/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Eventology mobile app (Expo) — built on mvp-demo branch",
+  "scripts": {}
+}

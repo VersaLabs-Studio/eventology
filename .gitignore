@@ -1,10 +1,27 @@
+# Dependencies
 node_modules/
+
+# Build outputs
 .next/
+dist/
+.turbo/
+out/
+
+# Environment
 .env
 .env.local
 .env.*.local
+
+# Build info
 *.tsbuildinfo
+
+# Generated types
 next-env.d.ts
-out/
+
+# OS
 .DS_Store
 *.log
+
+# IDE
+.vscode/
+.idea/
