@@ -1,3 +1,7 @@
-// @eventology/config — Entity configs, query keys, constants
-// Populated in Phase 1
-export {};
+// ============================================================================
+// @eventology/config — Barrel Export
+// ============================================================================
+
+export * from './entity-config';
+export * from './query-keys';
+export * from './constants';

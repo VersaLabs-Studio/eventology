@@ -1,3 +1,8 @@
-// @eventology/utils — Pure utility functions
-// Populated in Phase 1
-export {};
+// ============================================================================
+// @eventology/utils — Barrel Export
+// ============================================================================
+
+export * from './cn';
+export * from './format';
+export * from './validators';
+export * from './geo';
