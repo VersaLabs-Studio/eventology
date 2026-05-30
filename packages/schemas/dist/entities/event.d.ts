@@ -1,0 +1,128 @@
+import { z } from 'zod';
+export declare const eventSchema: z.ZodObject<{
+    id: z.ZodString;
+    organizer_id: z.ZodString;
+    category_id: z.ZodString;
+    venue_id: z.ZodNullable<z.ZodString>;
+    title: z.ZodString;
+    slug: z.ZodString;
+    description: z.ZodNullable<z.ZodString>;
+    short_description: z.ZodNullable<z.ZodString>;
+    banner_image: z.ZodNullable<z.ZodString>;
+    gallery: z.ZodDefault<z.ZodArray<z.ZodString>>;
+    event_type: z.ZodEnum<{
+        conference: "conference";
+        workshop: "workshop";
+        meetup: "meetup";
+        seminar: "seminar";
+        networking: "networking";
+        concert: "concert";
+        exhibition: "exhibition";
+        training: "training";
+    }>;
+    ticket_type: z.ZodEnum<{
+        free: "free";
+        paid: "paid";
+    }>;
+    tags: z.ZodDefault<z.ZodArray<z.ZodString>>;
+    start_date: z.ZodString;
+    end_date: z.ZodString;
+    timezone: z.ZodDefault<z.ZodString>;
+    venue_name: z.ZodNullable<z.ZodString>;
+    venue_address: z.ZodNullable<z.ZodString>;
+    sub_city: z.ZodNullable<z.ZodString>;
+    latitude: z.ZodNullable<z.ZodNumber>;
+    longitude: z.ZodNullable<z.ZodNumber>;
+    location: z.ZodUnknown;
+    status: z.ZodEnum<{
+        draft: "draft";
+        pending: "pending";
+        approved: "approved";
+        rejected: "rejected";
+        cancelled: "cancelled";
+    }>;
+    rejection_reason: z.ZodNullable<z.ZodString>;
+    is_featured: z.ZodBoolean;
+    featured_until: z.ZodNullable<z.ZodString>;
+    capacity: z.ZodNumber;
+    registrations_count: z.ZodNumber;
+    views_count: z.ZodNumber;
+    metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    created_at: z.ZodString;
+    updated_at: z.ZodString;
+}, z.core.$strip>;
+export declare const createEventSchema: z.ZodObject<{
+    title: z.ZodString;
+    description: z.ZodNullable<z.ZodString>;
+    slug: z.ZodString;
+    organizer_id: z.ZodString;
+    category_id: z.ZodString;
+    venue_id: z.ZodNullable<z.ZodString>;
+    short_description: z.ZodNullable<z.ZodString>;
+    banner_image: z.ZodNullable<z.ZodString>;
+    event_type: z.ZodEnum<{
+        conference: "conference";
+        workshop: "workshop";
+        meetup: "meetup";
+        seminar: "seminar";
+        networking: "networking";
+        concert: "concert";
+        exhibition: "exhibition";
+        training: "training";
+    }>;
+    start_date: z.ZodString;
+    end_date: z.ZodString;
+    venue_name: z.ZodNullable<z.ZodString>;
+    venue_address: z.ZodNullable<z.ZodString>;
+    sub_city: z.ZodNullable<z.ZodString>;
+    latitude: z.ZodNullable<z.ZodNumber>;
+    longitude: z.ZodNullable<z.ZodNumber>;
+    ticket_type: z.ZodDefault<z.ZodEnum<{
+        free: "free";
+        paid: "paid";
+    }>>;
+    timezone: z.ZodDefault<z.ZodString>;
+    tags: z.ZodDefault<z.ZodArray<z.ZodString>>;
+    gallery: z.ZodDefault<z.ZodArray<z.ZodString>>;
+    capacity: z.ZodDefault<z.ZodNumber>;
+    metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+}, z.core.$strip>;
+export declare const updateEventSchema: z.ZodObject<{
+    title: z.ZodOptional<z.ZodString>;
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    slug: z.ZodOptional<z.ZodString>;
+    organizer_id: z.ZodOptional<z.ZodString>;
+    category_id: z.ZodOptional<z.ZodString>;
+    venue_id: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    short_description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    banner_image: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    event_type: z.ZodOptional<z.ZodEnum<{
+        conference: "conference";
+        workshop: "workshop";
+        meetup: "meetup";
+        seminar: "seminar";
+        networking: "networking";
+        concert: "concert";
+        exhibition: "exhibition";
+        training: "training";
+    }>>;
+    start_date: z.ZodOptional<z.ZodString>;
+    end_date: z.ZodOptional<z.ZodString>;
+    venue_name: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    venue_address: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    sub_city: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    latitude: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+    longitude: z.ZodOptional<z.ZodNullable<z.ZodNumber>>;
+    ticket_type: z.ZodOptional<z.ZodDefault<z.ZodEnum<{
+        free: "free";
+        paid: "paid";
+    }>>>;
+    timezone: z.ZodOptional<z.ZodDefault<z.ZodString>>;
+    tags: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodString>>>;
+    gallery: z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodString>>>;
+    capacity: z.ZodOptional<z.ZodDefault<z.ZodNumber>>;
+    metadata: z.ZodOptional<z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>>;
+}, z.core.$strip>;
+export type EventFormData = z.infer<typeof createEventSchema>;
+export type EventUpdateData = z.infer<typeof updateEventSchema>;
+//# sourceMappingURL=event.d.ts.map
