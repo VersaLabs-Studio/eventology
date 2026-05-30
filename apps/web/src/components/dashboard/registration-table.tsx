@@ -19,7 +19,7 @@ const columns: Column<Registration>[] = [
     key: "status",
     header: "Status",
     render: (reg) => {
-      const variant = reg.status === "confirmed" ? "success" : reg.status === "checked-in" ? "default" : reg.status === "cancelled" ? "destructive" : "warning";
+      const variant = reg.status === "confirmed" ? "success" : reg.status === "checked_in" ? "default" : reg.status === "cancelled" ? "destructive" : "warning";
       return <Badge variant={variant}>{reg.status}</Badge>;
     },
     sortable: true,
@@ -56,7 +56,7 @@ export function RegistrationTable() {
           <select className="h-9 rounded-lg border border-border bg-background px-3 text-sm">
             <option value="">All Statuses</option>
             <option value="confirmed">Confirmed</option>
-            <option value="checked-in">Checked In</option>
+            <option value="checked_in">Checked In</option>
             <option value="cancelled">Cancelled</option>
             <option value="waitlisted">Waitlisted</option>
           </select>

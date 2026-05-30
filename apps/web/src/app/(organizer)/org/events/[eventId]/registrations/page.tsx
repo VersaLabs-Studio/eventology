@@ -19,7 +19,7 @@ export default function RegistrationsPage() {
   if (!event) notFound();
 
   const regs = getEventRegistrations(eventId);
-  const checkedIn = regs.filter((r) => r.status === "checked-in").length;
+  const checkedIn = regs.filter((r) => r.status === "checked_in").length;
   const cancelled = regs.filter((r) => r.status === "cancelled").length;
   const waitlisted = regs.filter((r) => r.status === "waitlisted").length;
 

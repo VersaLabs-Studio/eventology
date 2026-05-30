@@ -1,6 +1,8 @@
 import { Event, Registration, PlatformStats } from "../types";
 import { events } from "./events";
 import { categories } from "./categories";
+import { registrations } from "./registrations";
+import { platformStats } from "./analytics";
 export { events } from "./events";
 export { categories } from "./categories";
 export { organizers } from "./organizers";
@@ -31,7 +33,6 @@ export function getUpcomingEvents(): Event[] {
 }
 
 export function getEventRegistrations(eventId: string): Registration[] {
-  const { registrations } = require("./registrations");
   return registrations.filter((r: Registration) => r.eventId === eventId);
 }
 
@@ -58,6 +59,5 @@ export function getOrganizerEvents(organizerId: string): Event[] {
 }
 
 export function getPlatformStats(): PlatformStats {
-  const { platformStats } = require("./analytics");
   return platformStats;
 }

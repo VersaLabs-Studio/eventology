@@ -2,7 +2,7 @@ export type EventStatus = "draft" | "pending" | "approved" | "rejected" | "cance
 export type EventType = "conference" | "workshop" | "meetup" | "seminar" | "networking" | "concert" | "exhibition" | "training";
 export type TicketType = "free" | "paid";
 export type UserRole = "attendee" | "organizer" | "admin";
-export type RegistrationStatus = "confirmed" | "cancelled" | "checked-in" | "waitlisted";
+export type RegistrationStatus = "confirmed" | "cancelled" | "checked_in" | "waitlisted";
 
 export interface Category {
   id: string;

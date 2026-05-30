@@ -54,10 +54,6 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
-      preferred_language: {
-        type: 'string',
-        defaultValue: 'en',
-      },
     },
   },
 
@@ -77,11 +73,10 @@ export const auth = betterAuth({
       );
 
       const { error } = await supabase.from('profiles').insert({
-        auth_id: user.id,
+        id: user.id,
         email: user.email,
         full_name: user.name || user.email.split('@')[0],
         role: 'attendee',
-        preferred_language: 'en',
       });
 
       if (error) {
