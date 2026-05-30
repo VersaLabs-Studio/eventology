@@ -15,7 +15,17 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@eventology/schemas": ["../../packages/schemas/src"],
+      "@eventology/schemas/*": ["../../packages/schemas/src/*"],
+      "@eventology/config": ["../../packages/config/src"],
+      "@eventology/config/*": ["../../packages/config/src/*"],
+      "@eventology/utils": ["../../packages/utils/src"],
+      "@eventology/utils/*": ["../../packages/utils/src/*"],
+      "@eventology/locales": ["../../packages/locales/src"],
+      "@eventology/locales/*": ["../../packages/locales/src/*"],
+      "@eventology/ai": ["../../packages/ai/src"],
+      "@eventology/ai/*": ["../../packages/ai/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],

@@ -51,7 +51,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // ── Organizer Routes ──────────────────────────────────────────────
-  if (path.startsWith('/org') || path.startsWith('/api/protected')) {
+  if (path.startsWith('/org')) {
     const allowedRoles = ['organizer', 'admin'];
     if (!allowedRoles.includes(session.user.role as string)) {
       return NextResponse.redirect(new URL('/', req.url));
@@ -64,6 +64,10 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
+
+  // ── Protected API Routes (any authenticated user) ─────────────────
+  // /api/protected/* only requires a valid session — no role check here.
+  // Individual API routes enforce their own authorization logic.
 
   return NextResponse.next();
 }

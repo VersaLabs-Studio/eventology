@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { Pool } from 'pg';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * better-auth server configuration.
@@ -64,7 +65,6 @@ export const auth = betterAuth({
   callbacks: {
     async onUserCreated({ user }: { user: { id: string; email: string; name?: string } }) {
       // Sync the new user to the Supabase `profiles` table
-      const { createClient } = require('@supabase/supabase-js');
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,

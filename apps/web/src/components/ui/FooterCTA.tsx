@@ -21,22 +21,21 @@ interface FooterCTAProps {
   showGlow?: boolean;
 }
 
-// Spring animation configuration per VersaLabs guidelines
+// Spring animation configuration
 const SPRING = { stiffness: 300, damping: 30 };
 
 const defaultProps: FooterCTAProps = {
-  title: "Ready to Build Something Extraordinary?",
-  description: "Let's architect your next breakthrough. From MVPs to enterprise-scale solutions, we deliver digital infrastructure that scales.",
+  title: "Discover Events Across Ethiopia",
+  description: "From tech conferences in Addis Ababa to cultural festivals in Hawassa — find your next experience on Eventology.",
   primaryButton: {
-    label: "Start Your Project",
-    href: "/contact",
+    label: "Browse Events",
+    href: "/events",
     variant: "primary",
   },
   secondaryButton: {
-    label: "Explore Our Work",
-    href: "https://versalabs-studio.com",
+    label: "Create an Event",
+    href: "/auth/signup",
     variant: "secondary",
-    external: true,
   },
   showGlow: true,
 };
