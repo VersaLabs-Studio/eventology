@@ -22,7 +22,9 @@ config.transformer.getTransformOptions = async () => ({
   },
 });
 
-// Speed: tell Metro to use Hermes bytecode output (already default for SDK 54).
-config.transformer.unstable_allowRequireContext = false;
+// NOTE: Do NOT set `transformer.unstable_allowRequireContext = false`.
+// expo-router v6 calls `require.context()` in `_ctx.android.js` to enumerate
+// routes; the polyfill gates on this flag and the default (`true`) is required.
+// This flag has no relationship to Hermes bytecode.
 
 module.exports = config;
