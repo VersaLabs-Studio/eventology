@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   featuredOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: colors.overlay,
   },
   featuredContent: {
     ...StyleSheet.absoluteFillObject,

@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: BANNER_HEIGHT * 0.4,
-    backgroundColor: "rgba(0,0,0,0.10)",
+    backgroundColor: colors.gradientTopSoft,
   },
   gradientMid: {
     position: "absolute",
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: BANNER_HEIGHT * 0.3,
-    backgroundColor: "rgba(0,0,0,0.30)",
+    backgroundColor: colors.gradientMidSoft,
   },
   gradientBase: {
     position: "absolute",
@@ -538,7 +538,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: BANNER_HEIGHT * 0.3,
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: colors.gradientBaseStrong,
   },
   bannerScrim: {
     ...StyleSheet.absoluteFillObject,
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: radius.sm,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    backgroundColor: colors.overlayLight,
   },
   featuredPillText: {
     ...typography.small,
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: spacing.xs,
     marginBottom: spacing.sm,
-    textShadowColor: "rgba(0,0,0,0.45)",
+    textShadowColor: colors.textShadow,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
@@ -660,6 +660,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.full,
+    minHeight: 44,
   },
   followButtonActive: {
     backgroundColor: colors.card,
@@ -765,7 +766,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     alignItems: "center",
     gap: 4,
-    backgroundColor: "rgba(239, 68, 68, 0.12)",
+    backgroundColor: colors.destructive + "1F",
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: radius.sm,
@@ -893,13 +894,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: colors.overlay,
     justifyContent: "center",
     alignItems: "center",
     ...shadows.sm,
   },
   floatingButtonPressed: {
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: colors.overlayPressed,
   },
 
   // ── Sticky CTA ───────────────────────────────────────────────────────────

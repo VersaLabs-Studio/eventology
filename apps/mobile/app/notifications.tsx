@@ -274,6 +274,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
     borderRadius: radius.sm,
+    minHeight: 44,
   },
   markAllButtonDisabled: {
     opacity: 0.6,

@@ -26,6 +26,15 @@ export const colors = {
   white: "#ffffff",
   black: "#000000",
   overlay: "rgba(0,0,0,0.5)",
+  // Banner gradient stops
+  gradientTopSoft: "rgba(0,0,0,0.10)",
+  gradientMidSoft: "rgba(0,0,0,0.30)",
+  gradientBaseStrong: "rgba(0,0,0,0.65)",
+  // Glassy / floating surfaces
+  overlayLight: "rgba(255,255,255,0.18)",
+  overlayPressed: "rgba(0,0,0,0.65)",
+  // Type
+  textShadow: "rgba(0,0,0,0.45)",
 } as const;
 
 export const spacing = {
