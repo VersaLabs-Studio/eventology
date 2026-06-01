@@ -254,6 +254,7 @@ const styles = StyleSheet.create({
   },
   sortPill: {
     flex: 1,
+    minHeight: 44,
     paddingVertical: spacing.sm,
     borderRadius: radius.md,
     alignItems: "center",
