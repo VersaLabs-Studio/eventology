@@ -9,6 +9,23 @@
 -- ============================================================================
 
 -- ==========================================================================
+-- SEED PREREQUISITES: decouple profiles from Supabase Auth (auth.users)
+-- --------------------------------------------------------------------------
+-- This deployment uses better-auth (apps/web/src/lib/auth.ts), NOT Supabase
+-- GoTrue. better-auth owns identity in its own `user` table and syncs new
+-- users into public.profiles via its onUserCreated callback. The original
+-- profiles.id -> auth.users(id) FK and the on_auth_user_created mirror trigger
+-- (migration 003) are Supabase-Auth artifacts: they never fire under
+-- better-auth and they block both this seed and the real signup flow. Remove
+-- them so profiles is the canonical app identity table, with referential
+-- integrity enforced at the application layer.
+-- ==========================================================================
+
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_id_fkey;
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user();
+
+-- ==========================================================================
 -- CATEGORIES (8)
 -- ==========================================================================
 

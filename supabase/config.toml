@@ -1,5 +1,4 @@
-[project]
-id = "eventology-v1"
+project_id = "eventology-v1"
 
 [api]
 enabled = true

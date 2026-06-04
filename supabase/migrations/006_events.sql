@@ -7,6 +7,11 @@
 -- on title + description. GIS index supports "events near me" queries.
 -- ============================================================================
 
+-- PostGIS and pg_trgm live in the `extensions` schema on Supabase; make
+-- their types (geometry) and opclasses (gist_geometry_ops_2d, gin_trgm_ops)
+-- visible for this transaction.
+SET search_path = public, extensions;
+
 -- Events table
 CREATE TABLE public.events (
   id                UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -86,16 +91,22 @@ CREATE TRIGGER set_events_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at();
 
--- Trigger to auto-populate PostGIS geometry from lat/lng
+-- Trigger to auto-populate PostGIS geometry from lat/lng.
+-- The `SET search_path` clause is required because triggers fire under the
+-- caller's role (anon/authenticated), whose search_path does NOT include
+-- `extensions` — without this, ST_SetSRID/ST_MakePoint would not resolve.
 CREATE OR REPLACE FUNCTION public.update_event_location()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public, extensions
+AS $$
 BEGIN
   IF NEW.latitude IS NOT NULL AND NEW.longitude IS NOT NULL THEN
     NEW.location = ST_SetSRID(ST_MakePoint(NEW.longitude, NEW.latitude), 4326);
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 CREATE TRIGGER set_event_location
   BEFORE INSERT OR UPDATE ON public.events
