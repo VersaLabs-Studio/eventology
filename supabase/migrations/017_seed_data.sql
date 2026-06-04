@@ -705,34 +705,34 @@ INSERT INTO public.audit_log (actor_id, action, target_type, target_id, target_l
 -- ==========================================================================
 
 INSERT INTO public.promo_codes (id, event_id, organizer_id, code, description, discount_type, discount_value, max_uses, starts_at, expires_at) VALUES
-  ('g1000000-0000-0000-0000-000000000001', 'e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 'TECHSUMMIT20', '20% off Addis Tech Summit tickets', 'percentage', 20, 100, now() - interval '10 days', now() + interval '15 days'),
-  ('g1000000-0000-0000-0000-000000000002', 'e1000000-0000-0000-0000-000000000007', 'c1000000-0000-0000-0000-000000000005', 'AIML100', 'ETB 100 off AI/ML Conference', 'fixed', 100, 50, now() - interval '5 days', now() + interval '20 days'),
-  ('g1000000-0000-0000-0000-000000000003', 'e1000000-0000-0000-0000-000000000037', 'c1000000-0000-0000-0000-000000000007', 'JAZZ15', '15% off Jazz Night tickets', 'percentage', 15, 30, now() - interval '3 days', now() + interval '5 days');
+  ('01000000-0000-0000-0000-000000000001', 'e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 'TECHSUMMIT20', '20% off Addis Tech Summit tickets', 'percentage', 20, 100, now() - interval '10 days', now() + interval '15 days'),
+  ('01000000-0000-0000-0000-000000000002', 'e1000000-0000-0000-0000-000000000007', 'c1000000-0000-0000-0000-000000000005', 'AIML100', 'ETB 100 off AI/ML Conference', 'fixed', 100, 50, now() - interval '5 days', now() + interval '20 days'),
+  ('01000000-0000-0000-0000-000000000003', 'e1000000-0000-0000-0000-000000000037', 'c1000000-0000-0000-0000-000000000007', 'JAZZ15', '15% off Jazz Night tickets', 'percentage', 15, 30, now() - interval '3 days', now() + interval '5 days');
 
 -- ==========================================================================
 -- SPONSORS (sample)
 -- ==========================================================================
 
 INSERT INTO public.sponsors (id, event_id, name, tier, website, is_active) VALUES
-  ('h1000000-0000-0000-0000-000000000001', 'e1000000-0000-0000-0000-000000000001', 'Ethio Telecom', 'platinum', 'https://ethiotelecom.et', true),
-  ('h1000000-0000-0000-0000-000000000002', 'e1000000-0000-0000-0000-000000000001', 'Dashen Bank', 'gold', 'https://dashenbank.com', true),
-  ('h1000000-0000-0000-0000-000000000003', 'e1000000-0000-0000-0000-000000000001', 'Kifiya Financial', 'silver', 'https://kifiya.com', true),
-  ('h1000000-0000-0000-0000-000000000004', 'e1000000-0000-0000-0000-000000000007', 'Awash Bank', 'gold', 'https://awashbank.com', true),
-  ('h1000000-0000-0000-0000-000000000005', 'e1000000-0000-0000-0000-000000000005', 'Google Developers', 'platinum', 'https://developers.google.com', true);
+  ('11000000-0000-0000-0000-000000000001', 'e1000000-0000-0000-0000-000000000001', 'Ethio Telecom', 'platinum', 'https://ethiotelecom.et', true),
+  ('11000000-0000-0000-0000-000000000002', 'e1000000-0000-0000-0000-000000000001', 'Dashen Bank', 'gold', 'https://dashenbank.com', true),
+  ('11000000-0000-0000-0000-000000000003', 'e1000000-0000-0000-0000-000000000001', 'Kifiya Financial', 'silver', 'https://kifiya.com', true),
+  ('11000000-0000-0000-0000-000000000004', 'e1000000-0000-0000-0000-000000000007', 'Awash Bank', 'gold', 'https://awashbank.com', true),
+  ('11000000-0000-0000-0000-000000000005', 'e1000000-0000-0000-0000-000000000005', 'Google Developers', 'platinum', 'https://developers.google.com', true);
 
 -- ==========================================================================
 -- CONVERSATIONS & MESSAGES (sample)
 -- ==========================================================================
 
 INSERT INTO public.conversations (id, type, event_id, subject, participant_ids, last_message_at, last_message) VALUES
-  ('i1000000-0000-0000-0000-000000000001', 'event_inquiry', 'e1000000-0000-0000-0000-000000000001', 'Question about Addis Tech Summit',
+  ('21000000-0000-0000-0000-000000000001', 'event_inquiry', 'e1000000-0000-0000-0000-000000000001', 'Question about Addis Tech Summit',
    ARRAY['b1000000-0000-0000-0000-000000000011'::UUID, 'b1000000-0000-0000-0000-000000000001'::UUID],
    now() - interval '1 hour', 'Yes, WiFi will be provided at the venue.'),
-  ('i1000000-0000-0000-0000-000000000002', 'direct', NULL, NULL,
+  ('21000000-0000-0000-0000-000000000002', 'direct', NULL, NULL,
    ARRAY['b1000000-0000-0000-0000-000000000012'::UUID, 'b1000000-0000-0000-0000-000000000010'::UUID],
    now() - interval '30 minutes', 'Looking forward to the workshop!');
 
 INSERT INTO public.messages (id, conversation_id, sender_id, type, content, created_at) VALUES
-  ('j1000000-0000-0000-0000-000000000001', 'i1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000011', 'text', 'Hi! Will there be WiFi at the venue?', now() - interval '2 hours'),
-  ('j1000000-0000-0000-0000-000000000002', 'i1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'text', 'Yes, WiFi will be provided at the venue.', now() - interval '1 hour'),
-  ('j1000000-0000-0000-0000-000000000003', 'i1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000012', 'text', 'Looking forward to the workshop!', now() - interval '30 minutes');
+  ('31000000-0000-0000-0000-000000000001', '21000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000011', 'text', 'Hi! Will there be WiFi at the venue?', now() - interval '2 hours'),
+  ('31000000-0000-0000-0000-000000000002', '21000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', 'text', 'Yes, WiFi will be provided at the venue.', now() - interval '1 hour'),
+  ('31000000-0000-0000-0000-000000000003', '21000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000012', 'text', 'Looking forward to the workshop!', now() - interval '30 minutes');
