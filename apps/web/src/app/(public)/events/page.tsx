@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
 import { EventCard } from "@/components/shared/event-card";
@@ -10,38 +10,96 @@ import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SearchBar } from "@/components/shared/search-bar";
 import { useEvents } from "@/hooks/use-events";
+import { useCategories } from "@/hooks/use-categories";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 
 const ITEMS_PER_PAGE = 12;
 
 function EventsContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [page, setPage] = React.useState(1);
-  const [sort, setSort] = React.useState("date-desc");
+  const [sort, setSort] = React.useState(searchParams.get("sort") ?? "date-desc");
+  const [search, setSearch] = React.useState(searchParams.get("search") ?? "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
 
+  // Debounced search term
+  const [debouncedSearch, setDebouncedSearch] = React.useState(search);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Initialize filters from URL params
   const [filters, setFilters] = React.useState<FilterState>({
     categories: searchParams.get("category") ? [searchParams.get("category")!] : [],
-    dateRange: null,
-    subCity: null,
-    price: "all",
-    eventTypes: [],
+    dateRange: searchParams.get("date") ? formatdateParam(searchParams.get("date")!) : null,
+    subCity: searchParams.get("city") ?? null,
+    price: (searchParams.get("price") as FilterState["price"]) ?? "all",
+    eventTypes: searchParams.get("type") ? [searchParams.get("type")!] : [],
   });
+
+  // Fetch categories from API
+  const { data: categoriesData } = useCategories();
+  const categories = (categoriesData?.data ?? []).map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    icon: c.icon ?? "",
+    description: "",
+    eventCount: 0,
+    color: c.color ?? "",
+  }));
+
+  // Map dateRange label to API param
+  const dateParam = React.useMemo(() => {
+    switch (filters.dateRange) {
+      case "Today": return "today";
+      case "This Week": return "this-week";
+      case "This Month": return "this-month";
+      case "Upcoming": return "upcoming";
+      default: return undefined;
+    }
+  }, [filters.dateRange]);
 
   // Build query options from filters + sort
   const queryOptions = React.useMemo(() => ({
     page,
     limit: ITEMS_PER_PAGE,
     sort,
+    search: debouncedSearch || undefined,
     category: filters.categories[0] ?? undefined,
-  }), [page, sort, filters.categories]);
+    date: dateParam,
+    price: filters.price !== "all" ? filters.price : undefined,
+    city: filters.subCity ?? undefined,
+    type: filters.eventTypes[0] ?? undefined,
+  }), [page, sort, debouncedSearch, filters, dateParam]);
 
   const { data, isLoading, isError } = useEvents(queryOptions);
 
   const events = data?.data ?? [];
   const total = data?.total ?? 0;
   const hasMore = page * ITEMS_PER_PAGE < total;
+
+  // Sync filters to URL params (for shareable searches)
+  React.useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set("search", debouncedSearch);
+    if (sort !== "date-desc") params.set("sort", sort);
+    if (filters.categories[0]) params.set("category", filters.categories[0]);
+    if (dateParam) params.set("date", dateParam);
+    if (filters.price !== "all") params.set("price", filters.price);
+    if (filters.subCity) params.set("city", filters.subCity);
+    if (filters.eventTypes[0]) params.set("type", filters.eventTypes[0]);
+    if (page > 1) params.set("page", String(page));
+
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [debouncedSearch, sort, filters, dateParam, page, pathname, router]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -50,9 +108,19 @@ function EventsContent() {
         description={isLoading ? "Loading events…" : `Showing ${events.length} of ${total} events`}
       />
 
+      {/* Search bar */}
+      <div className="mb-6">
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search events, organizers, or venues…"
+          className="max-w-xl"
+        />
+      </div>
+
       <div className="flex gap-8">
         <div className="hidden lg:block">
-          <FilterSidebar filters={filters} onChange={setFilters} />
+          <FilterSidebar filters={filters} onChange={(f) => { setFilters(f); setPage(1); }} categories={categories} />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -73,6 +141,7 @@ function EventsContent() {
               <option value="date-asc">Date: Oldest</option>
               <option value="popular">Most Popular</option>
               <option value="name">Name A-Z</option>
+              <option value="featured">Featured</option>
             </select>
           </div>
 
@@ -144,13 +213,24 @@ function EventsContent() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <FilterSidebar filters={filters} onChange={setFilters} />
+            <FilterSidebar filters={filters} onChange={(f) => { setFilters(f); setPage(1); }} categories={categories} />
             <Button className="w-full mt-6" onClick={() => setMobileFiltersOpen(false)}>Apply Filters</Button>
           </div>
         </div>
       )}
     </div>
   );
+}
+
+/** Maps URL date param back to display label */
+function formatdateParam(param: string): string | null {
+  switch (param) {
+    case "today": return "Today";
+    case "this-week": return "This Week";
+    case "this-month": return "This Month";
+    case "upcoming": return "Upcoming";
+    default: return null;
+  }
 }
 
 export default function EventsPage() {

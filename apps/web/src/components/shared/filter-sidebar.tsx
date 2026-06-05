@@ -2,16 +2,14 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RotateCcw, X } from "lucide-react";
-import type { Category, EventType } from "@/lib/types";
-import { categories as allCategories } from "@/lib/mock-data";
+import { RotateCcw } from "lucide-react";
+import type { Category } from "@/lib/types";
 
 const subCities = ["Bole", "Arada", "Kirkos", "Lideta", "Yeka", "Kolfe Keranio", "Nifas Silk-Lafto", "Addis Ketema", "Akaki Kality", "Gulele"];
-const eventTypes: EventType[] = ["conference", "workshop", "meetup", "seminar", "networking", "concert", "exhibition", "training"];
+const eventTypes = ["conference", "workshop", "meetup", "seminar", "networking", "concert", "exhibition", "training"];
 
 export interface FilterState {
   categories: string[];
@@ -24,10 +22,11 @@ export interface FilterState {
 interface FilterSidebarProps {
   filters: FilterState;
   onChange: (filters: FilterState) => void;
+  categories?: Category[];
   className?: string;
 }
 
-export function FilterSidebar({ filters, onChange, className }: FilterSidebarProps) {
+export function FilterSidebar({ filters, onChange, categories = [], className }: FilterSidebarProps) {
   const update = (partial: Partial<FilterState>) => {
     onChange({ ...filters, ...partial });
   };
@@ -61,24 +60,27 @@ export function FilterSidebar({ filters, onChange, className }: FilterSidebarPro
 
       <Separator />
 
-      <div>
-        <h4 className="text-sm font-medium mb-3">Categories</h4>
-        <div className="space-y-2">
-          {allCategories.map((cat) => (
-            <label key={cat.id} className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <Checkbox checked={filters.categories.includes(cat.slug)} onCheckedChange={() => toggleCategory(cat.slug)} />
-              {cat.name}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <Separator />
+      {categories.length > 0 && (
+        <>
+          <div>
+            <h4 className="text-sm font-medium mb-3">Categories</h4>
+            <div className="space-y-2">
+              {categories.map((cat) => (
+                <label key={cat.id} className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <Checkbox checked={filters.categories.includes(cat.slug)} onCheckedChange={() => toggleCategory(cat.slug)} />
+                  {cat.name}
+                </label>
+              ))}
+            </div>
+          </div>
+          <Separator />
+        </>
+      )}
 
       <div>
         <h4 className="text-sm font-medium mb-3">Date Range</h4>
         <div className="flex flex-wrap gap-2">
-          {["Today", "This Week", "This Month"].map((range) => (
+          {["Today", "This Week", "This Month", "Upcoming"].map((range) => (
             <button
               key={range}
               onClick={() => update({ dateRange: filters.dateRange === range ? null : range })}
