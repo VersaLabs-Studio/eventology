@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { NotificationRow } from '../generated/database.types';
 import { NOTIFICATION_TYPES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -25,7 +24,7 @@ export const notificationSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<NotificationRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema

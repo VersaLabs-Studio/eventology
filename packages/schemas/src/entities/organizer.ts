@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { OrganizerRow } from '../generated/database.types';
 import { VERIFICATION_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -35,7 +34,7 @@ export const organizerSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<OrganizerRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema

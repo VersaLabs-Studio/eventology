@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { EventRow } from '../generated/database.types';
 import { EVENT_STATUSES, EVENT_TYPES, TICKET_TYPES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -48,7 +47,7 @@ export const eventSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<EventRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema
@@ -81,10 +80,42 @@ export const createEventSchema = eventSchema
   );
 
 // ---------------------------------------------------------------------------
-// Update schema
+// Update schema (all fields optional, no refinement — validated at route level)
 // ---------------------------------------------------------------------------
 
-export const updateEventSchema = createEventSchema.partial();
+export const updateEventSchema = z.object({
+  organizer_id: z.string().uuid().optional(),
+  category_id: z.string().uuid().optional(),
+  venue_id: z.string().uuid().nullable().optional(),
+  title: z.string().min(1, 'Title is required').max(255).optional(),
+  slug: z
+    .string()
+    .min(1)
+    .max(255)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Invalid slug format')
+    .optional(),
+  description: z.string().nullable().optional(),
+  short_description: z.string().max(500).nullable().optional(),
+  banner_image: z.string().url().nullable().optional(),
+  gallery: z.array(z.string().url()).optional(),
+  event_type: z.enum(EVENT_TYPES).optional(),
+  ticket_type: z.enum(TICKET_TYPES).optional(),
+  tags: z.array(z.string()).optional(),
+  start_date: z.string().datetime().optional(),
+  end_date: z.string().datetime().optional(),
+  timezone: z.string().optional(),
+  venue_name: z.string().nullable().optional(),
+  venue_address: z.string().nullable().optional(),
+  sub_city: z.string().nullable().optional(),
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
+  status: z.enum(EVENT_STATUSES).optional(),
+  rejection_reason: z.string().nullable().optional(),
+  is_featured: z.boolean().optional(),
+  featured_until: z.string().datetime().nullable().optional(),
+  capacity: z.number().int().min(0).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 // ---------------------------------------------------------------------------
 // Inferred types

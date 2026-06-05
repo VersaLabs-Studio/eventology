@@ -2,8 +2,8 @@
 // @eventology/schemas — Barrel Export
 // ============================================================================
 
-// Generated database types (will be replaced by supabase gen types)
-export * from './generated/database.types';
+// Generated database types (from `supabase gen types typescript --linked`)
+export * from './database.types';
 
 // Enum constants
 export * from './enums';

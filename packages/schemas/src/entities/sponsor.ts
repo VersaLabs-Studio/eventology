@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { SponsorRow } from '../generated/database.types';
 import { SPONSOR_TIERS } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -27,7 +26,7 @@ export const sponsorSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<SponsorRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema

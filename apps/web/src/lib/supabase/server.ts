@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { createAuthedClient } from './jwt';
 
 /**
  * Creates a Supabase client for server-side usage (Server Components, Route Handlers).
@@ -31,6 +32,13 @@ export async function createClient() {
     }
   );
 }
+
+/**
+ * Creates an authenticated Supabase client that carries the caller's JWT.
+ * RLS policies resolve `auth.uid()` to the profile UUID.
+ * Use this for all protected route handlers.
+ */
+export { createAuthedClient } from './jwt';
 
 /**
  * Creates a Supabase service role client that bypasses RLS.

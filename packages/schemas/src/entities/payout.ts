@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { PayoutRow } from '../generated/database.types';
 import { PAYOUT_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -26,7 +25,7 @@ export const payoutSchema = z.object({
   notes: z.string().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<PayoutRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema

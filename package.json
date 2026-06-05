@@ -1,6 +1,7 @@
 {
   "name": "eventology",
   "private": true,
+  "packageManager": "npm@11.6.0",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo dev",

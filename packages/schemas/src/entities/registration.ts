@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { RegistrationRow } from '../generated/database.types';
 import { REGISTRATION_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -25,7 +24,7 @@ export const registrationSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<RegistrationRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema
@@ -49,6 +48,35 @@ export const createRegistrationSchema = registrationSchema
 // ---------------------------------------------------------------------------
 
 export const updateRegistrationSchema = createRegistrationSchema.partial();
+
+// ---------------------------------------------------------------------------
+// RPC result type (from create_registration_atomic)
+// ---------------------------------------------------------------------------
+
+export interface RegistrationRPCResult {
+  success: boolean;
+  error?: string;
+  message?: string;
+  registration?: {
+    id: string;
+    event_id: string;
+    user_id: string;
+    ticket_tier_id: string;
+    attendee_name: string;
+    attendee_email: string;
+    attendee_phone: string | null;
+    status: string;
+    created_at: string;
+  };
+  // ticket is always null from the RPC — issuance is handled app-side via issueTicket()
+  ticket?: {
+    id: string;
+    ticket_number: string;
+    qr_data: string;
+    tier_name: string;
+    status: string;
+  } | null;
+}
 
 // ---------------------------------------------------------------------------
 // Inferred types

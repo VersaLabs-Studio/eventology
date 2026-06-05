@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { PromoCodeRow } from '../generated/database.types';
 import { PROMO_DISCOUNT_TYPES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -34,7 +33,7 @@ export const promoCodeSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<PromoCodeRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema
@@ -65,10 +64,30 @@ export const createPromoCodeSchema = promoCodeSchema
   );
 
 // ---------------------------------------------------------------------------
-// Update schema
+// Update schema (all fields optional, no refinement — validated at route level)
 // ---------------------------------------------------------------------------
 
-export const updatePromoCodeSchema = createPromoCodeSchema.partial();
+export const updatePromoCodeSchema = z.object({
+  event_id: z.string().uuid().nullable().optional(),
+  organizer_id: z.string().uuid().nullable().optional(),
+  code: z
+    .string()
+    .min(3, 'Code must be at least 3 characters')
+    .max(50)
+    .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase alphanumeric with - or _')
+    .optional(),
+  description: z.string().max(500).nullable().optional(),
+  discount_type: z.enum(PROMO_DISCOUNT_TYPES).optional(),
+  discount_value: z.number().positive().optional(),
+  max_discount: z.number().positive().nullable().optional(),
+  max_uses: z.number().int().positive().nullable().optional(),
+  max_uses_per_user: z.number().int().positive().optional(),
+  is_active: z.boolean().optional(),
+  starts_at: z.string().datetime().optional(),
+  expires_at: z.string().datetime().nullable().optional(),
+  applicable_tiers: z.array(z.string().uuid()).nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 // ---------------------------------------------------------------------------
 // Inferred types

@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { TicketRow } from '../generated/database.types';
 import { TICKET_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -24,7 +23,7 @@ export const ticketSchema = z.object({
   issued_at: z.string().datetime(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<TicketRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema (tickets are system-generated, minimal input)
@@ -52,9 +51,18 @@ export const updateTicketSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Check-in schema (QR payload validation)
+// ---------------------------------------------------------------------------
+
+export const checkInSchema = z.object({
+  qr_data: z.string().min(1, 'QR data is required'),
+});
+
+// ---------------------------------------------------------------------------
 // Inferred types
 // ---------------------------------------------------------------------------
 
 export type TicketFormData = z.infer<typeof createTicketSchema>;
 export type TicketUpdateData = z.infer<typeof updateTicketSchema>;
+export type CheckInData = z.infer<typeof checkInSchema>;
 

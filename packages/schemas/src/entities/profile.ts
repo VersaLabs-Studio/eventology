@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { ProfileRow } from '../generated/database.types';
 import { USER_ROLES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -26,7 +25,7 @@ export const profileSchema = z.object({
   last_seen_at: z.string().datetime().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<ProfileRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema (omit auto-generated fields)

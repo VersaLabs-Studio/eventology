@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { ReviewRow } from '../generated/database.types';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
@@ -25,7 +24,7 @@ export const reviewSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<ReviewRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema

@@ -9,14 +9,15 @@ import { FilterSidebar, type FilterState } from "@/components/shared/filter-side
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { events } from "@/lib/mock-data";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useEvents } from "@/hooks/use-events";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 
 const ITEMS_PER_PAGE = 12;
 
 function EventsContent() {
   const searchParams = useSearchParams();
-  const [visibleCount, setVisibleCount] = React.useState(ITEMS_PER_PAGE);
+  const [page, setPage] = React.useState(1);
   const [sort, setSort] = React.useState("date-desc");
   const [mobileFiltersOpen, setMobileFiltersOpen] = React.useState(false);
 
@@ -28,39 +29,25 @@ function EventsContent() {
     eventTypes: [],
   });
 
-  const filtered = React.useMemo(() => {
-    let result = [...events];
-    if (filters.categories.length > 0) {
-      result = result.filter((e) => filters.categories.includes(e.category.slug));
-    }
-    if (filters.subCity) {
-      result = result.filter((e) => e.subCity.toLowerCase() === (filters.subCity as string).toLowerCase());
-    }
-    if (filters.price === "free") {
-      result = result.filter((e) => e.ticketType === "free");
-    } else if (filters.price === "paid") {
-      result = result.filter((e) => e.ticketType === "paid");
-    }
-    if (filters.eventTypes.length > 0) {
-      result = result.filter((e) => filters.eventTypes.includes(e.type));
-    }
-    switch (sort) {
-      case "date-asc": result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); break;
-      case "date-desc": result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); break;
-      case "popular": result.sort((a, b) => b.registrations - a.registrations); break;
-      case "name": result.sort((a, b) => a.title.localeCompare(b.title)); break;
-    }
-    return result;
-  }, [filters, sort]);
+  // Build query options from filters + sort
+  const queryOptions = React.useMemo(() => ({
+    page,
+    limit: ITEMS_PER_PAGE,
+    sort,
+    category: filters.categories[0] ?? undefined,
+  }), [page, sort, filters.categories]);
 
-  const displayed = filtered.slice(0, visibleCount);
-  const hasMore = visibleCount < filtered.length;
+  const { data, isLoading, isError } = useEvents(queryOptions);
+
+  const events = data?.data ?? [];
+  const total = data?.total ?? 0;
+  const hasMore = page * ITEMS_PER_PAGE < total;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <PageHeader
         title="Discover Events"
-        description={`Showing ${displayed.length} of ${filtered.length} events`}
+        description={isLoading ? "Loading events…" : `Showing ${events.length} of ${total} events`}
       />
 
       <div className="flex gap-8">
@@ -79,7 +66,7 @@ function EventsContent() {
             <div className="flex-1" />
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(e) => { setSort(e.target.value); setPage(1); }}
               className="h-9 rounded-lg border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="date-desc">Date: Newest</option>
@@ -89,12 +76,42 @@ function EventsContent() {
             </select>
           </div>
 
-          {displayed.length === 0 ? (
-            <EmptyState icon={Search} title="No events match your filters" description="Try adjusting your filter criteria" />
-          ) : (
+          {/* Loading skeleton */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Error state */}
+          {isError && (
+            <EmptyState
+              icon={Search}
+              title="Failed to load events"
+              description="Please check your connection and try again."
+            />
+          )}
+
+          {/* Empty state */}
+          {!isLoading && !isError && events.length === 0 && (
+            <EmptyState
+              icon={Search}
+              title="No events match your filters"
+              description="Try adjusting your filter criteria"
+            />
+          )}
+
+          {/* Event grid */}
+          {!isLoading && !isError && events.length > 0 && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {displayed.map((event, idx) => (
+                {events.map((event, idx) => (
                   <motion.div
                     key={event.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -107,7 +124,7 @@ function EventsContent() {
               </div>
               {hasMore && (
                 <div className="text-center mt-8">
-                  <Button variant="outline" onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}>
+                  <Button variant="outline" onClick={() => setPage((p) => p + 1)}>
                     Load More
                   </Button>
                 </div>

@@ -10,31 +10,61 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MapEmbed } from "@/components/shared/map-embed";
 import { EventCard } from "@/components/shared/event-card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { getEventBySlug, getEventsByCategory } from "@/lib/mock-data";
+import { useEventBySlug, useEvents } from "@/hooks/use-events";
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils";
 import {
   Calendar, Clock, MapPin, Share2, CheckCircle, Copy, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
-import type { Event } from "@/lib/types";
-import { notFound } from "next/navigation";
 
 export default function EventDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
-  const event = getEventBySlug(slug);
+  const { data: event, isLoading, isError } = useEventBySlug(slug);
 
-  if (!event) notFound();
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <Skeleton className="aspect-[21/9] w-full rounded-2xl" />
+        <Skeleton className="h-8 w-2/3" />
+        <Skeleton className="h-4 w-1/3" />
+        <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-8">
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-4/6" />
+          </div>
+          <Skeleton className="h-64 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !event) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+        <h1 className="font-display font-bold text-2xl mb-2">Event Not Found</h1>
+        <p className="text-muted-foreground mb-6">The event you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+        <Link href="/events">
+          <Button variant="outline">Browse Events</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return <EventDetailContent event={event} />;
 }
 
-function EventDetailContent({ event }: { event: Event }) {
+function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
   const [galleryOpen, setGalleryOpen] = React.useState<string | null>(null);
-  const similar = getEventsByCategory(event.category.slug).filter((e) => e.id !== event.id).slice(0, 3);
+
+  // Fetch similar events from the same category
+  const { data: similarData } = useEvents({ limit: 4, category: event.category.slug });
+  const similar = (similarData?.data ?? []).filter((e) => e.id !== event.id).slice(0, 3);
 
   const shareOptions = [
     { icon: Copy, label: "Copy Link", action: () => { navigator.clipboard.writeText(window.location.href); toast.success("Link copied!"); } },
@@ -84,7 +114,7 @@ function EventDetailContent({ event }: { event: Event }) {
               <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(event.date)}</span>
               <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{event.time}</span>
               <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{event.location}</span>
-              <span className="font-medium text-primary">{event.ticketType === "free" ? "Free" : `From ${formatCurrency(event.ticketTiers[0].price)}`}</span>
+              <span className="font-medium text-primary">{event.ticketType === "free" ? "Free" : `From ${formatCurrency(event.ticketTiers[0]?.price ?? 0)}`}</span>
             </div>
             <Link href={`/register/${event.id}`}>
               <Button variant="accent">Register Now</Button>
@@ -109,23 +139,29 @@ function EventDetailContent({ event }: { event: Event }) {
 
             <section className="mt-8">
               <h2 className="font-display font-semibold text-xl mb-4">Gallery</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {event.gallery.slice(0, 4).map((img, idx) => (
-                  <button key={idx} onClick={() => setGalleryOpen(img)} className="relative aspect-video rounded-lg overflow-hidden hover:opacity-90 transition-opacity">
-                    <Image src={img} alt={`Gallery ${idx + 1}`} fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" />
-                  </button>
-                ))}
-              </div>
+              {event.gallery.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  {event.gallery.slice(0, 4).map((img, idx) => (
+                    <button key={idx} onClick={() => setGalleryOpen(img)} className="relative aspect-video rounded-lg overflow-hidden hover:opacity-90 transition-opacity">
+                      <Image src={img} alt={`Gallery ${idx + 1}`} fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No gallery images yet.</p>
+              )}
             </section>
 
-            <section className="mt-8">
-              <h2 className="font-display font-semibold text-xl mb-4">You Might Also Like</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {similar.map((e) => (
-                  <EventCard key={e.id} event={e} />
-                ))}
-              </div>
-            </section>
+            {similar.length > 0 && (
+              <section className="mt-8">
+                <h2 className="font-display font-semibold text-xl mb-4">You Might Also Like</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {similar.map((e) => (
+                    <EventCard key={e.id} event={e} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -140,7 +176,7 @@ function EventDetailContent({ event }: { event: Event }) {
                       <div className="min-w-0 flex-1 mr-3">
                         <p className="font-bold text-sm text-foreground truncate">{tier.name}</p>
                         <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{tier.description}</p>
-                        <Progress value={(tier.sold / tier.capacity) * 100} className="mt-2 h-1.5" />
+                        <Progress value={tier.capacity > 0 ? (tier.sold / tier.capacity) * 100 : 0} className="mt-2 h-1.5" />
                         <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-wider">{tier.sold}/{tier.capacity} sold</p>
                       </div>
                       <div className="shrink-0 text-right">

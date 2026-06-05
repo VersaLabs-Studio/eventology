@@ -1,7 +1,27 @@
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { DashboardTopbar } from "@/components/dashboard/topbar";
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+import { auth } from '@/lib/auth';
+import { AdminSidebar } from '@/components/admin/admin-sidebar';
+import { DashboardTopbar } from '@/components/dashboard/topbar';
+
+/**
+ * Admin route-group layout — server-side role enforcement.
+ *
+ * The Edge middleware (src/middleware.ts) only checks for the presence of a
+ * session cookie; the actual role check happens here, on the Node runtime,
+ * where the `pg`-backed `auth` instance is safe to use. This is the
+ * canonical Next.js 15+ pattern: middleware = coarse auth, layouts =
+ * fine-grained authorization.
+ */
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const role = (session?.user as { role?: string } | undefined)?.role;
+
+  if (!session || role !== 'admin') {
+    redirect('/');
+  }
+
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />

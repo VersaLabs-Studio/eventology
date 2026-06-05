@@ -6,7 +6,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { AuditLogRow } from '../generated/database.types';
 import { AUDIT_ACTIONS } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -26,7 +25,7 @@ export const auditLogSchema = z.object({
   ip_address: z.string().nullable(),
   user_agent: z.string().nullable(),
   created_at: z.string().datetime(),
-}) satisfies z.ZodType<AuditLogRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema (audit logs are insert-only)

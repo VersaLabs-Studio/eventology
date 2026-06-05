@@ -67,6 +67,7 @@ export const REGISTRATION_STATUSES: readonly RegistrationStatus[] = [
   'cancelled',
   'checked_in',
   'waitlisted',
+  'pending_payment',
 ] as const;
 
 export const TICKET_STATUSES: readonly TicketStatus[] = ['valid', 'used', 'cancelled'] as const;

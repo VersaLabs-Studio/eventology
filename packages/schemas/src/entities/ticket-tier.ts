@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { z } from 'zod';
-import type { TicketTierRow } from '../generated/database.types';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
@@ -23,7 +22,7 @@ export const ticketTierSchema = z.object({
   is_active: z.boolean(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
-}) satisfies z.ZodType<TicketTierRow>;
+});
 
 // ---------------------------------------------------------------------------
 // Create schema
