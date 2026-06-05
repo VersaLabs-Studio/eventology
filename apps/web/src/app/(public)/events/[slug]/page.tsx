@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapEmbed } from "@/components/shared/map-embed";
+import dynamic from "next/dynamic";
 import { EventCard } from "@/components/shared/event-card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEventBySlug, useEvents } from "@/hooks/use-events";
@@ -20,6 +20,12 @@ import {
   Calendar, Clock, MapPin, Share2, CheckCircle, Copy, ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
+
+// Dynamic import — Leaflet touches window, so it must be client-only
+const VenueMap = dynamic(
+  () => import("@/components/shared/venue-map").then((mod) => mod.VenueMap),
+  { ssr: false, loading: () => <Skeleton className="h-[200px] w-full rounded-xl" /> }
+);
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -215,7 +221,13 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
             <Card>
               <CardContent className="p-4">
                 <h4 className="font-medium text-sm mb-2">Location</h4>
-                <MapEmbed location={event.location} coordinates={event.coordinates} />
+                <VenueMap
+                  lat={event.coordinates.lat}
+                  lng={event.coordinates.lng}
+                  title={event.location}
+                  address={event.address}
+                  height="200px"
+                />
                 <p className="text-xs text-muted-foreground mt-2">{event.address}, {event.subCity}</p>
               </CardContent>
             </Card>

@@ -53,7 +53,15 @@ export type EventUpdateData = Partial<EventFormData> & {
 // List hook — returns enriched Event[] with joined relations
 // ---------------------------------------------------------------------------
 
-export function useEvents(options?: ListOptions) {
+export function useEvents(options?: ListOptions & {
+  date?: string;
+  from?: string;
+  to?: string;
+  price?: string;
+  city?: string;
+  venue?: string;
+  type?: string;
+}) {
   return useQuery<ListResponse<Event>>({
     queryKey: EventKeys.list(options),
     queryFn: async () => {
@@ -63,6 +71,13 @@ export function useEvents(options?: ListOptions) {
       if (options?.search) params.set('search', options.search);
       if (options?.category) params.set('category', options.category);
       if (options?.sort) params.set('sort', options.sort);
+      if (options?.date) params.set('date', options.date);
+      if (options?.from) params.set('from', options.from);
+      if (options?.to) params.set('to', options.to);
+      if (options?.price) params.set('price', options.price);
+      if (options?.city) params.set('city', options.city);
+      if (options?.venue) params.set('venue', options.venue);
+      if (options?.type) params.set('type', options.type);
 
       const url = params.toString()
         ? `/api/public/events?${params}`
