@@ -38,6 +38,9 @@ const SERVER_CONTROLLED_FIELDS = new Set([
   'checked_in_at',
   'moderated_at',
   'moderated_by',
+  'is_approved', // D10-001: reviews moderation — forced to false on create
+  'is_flagged',  // D10-001: reviews moderation — forced to false on create
+  'flag_reason', // D10-001: reviews moderation — forced to null on create
   'last_message_at',
   'last_seen_at',
   'last_message',

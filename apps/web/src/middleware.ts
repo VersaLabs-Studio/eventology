@@ -49,6 +49,7 @@ export async function middleware(req: NextRequest) {
     '/auth',
     '/api/public',
     '/api/webhooks',
+    '/api/auth',
   ];
   const isPublicRoute = publicPaths.some(
     (publicPath) => path === publicPath || path.startsWith(`${publicPath}/`)

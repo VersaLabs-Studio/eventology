@@ -27,7 +27,7 @@ import { phoneNumber } from 'better-auth/plugins/phone-number';
  */
 export const authOptions: BetterAuthOptions = {
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+  baseURL: (process.env.BETTER_AUTH_URL || 'http://localhost:3000') + '/api/auth',
 
   // ── Email + Password ──────────────────────────────────────────────
   emailAndPassword: {
