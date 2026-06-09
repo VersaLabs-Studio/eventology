@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { QRCode } from "@/components/shared/qr-code";
 import { Calendar, MapPin, Clock, Download, CalendarPlus } from "lucide-react";
 import { formatDate, formatTime } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { downloadSingleEventICS, getGoogleCalendarLink } from "@/lib/calendar";
 import type { Ticket } from "@/lib/types";
 
 interface TicketViewProps {
@@ -66,8 +73,46 @@ export function TicketView({ ticket }: TicketViewProps) {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="default" className="flex-1"><Download className="mr-2 h-4 w-4" />Save Ticket</Button>
-            <Button variant="outline" className="flex-1"><CalendarPlus className="mr-2 h-4 w-4" />Add to Calendar</Button>
+            <Button variant="default" className="flex-1" onClick={() => window.print()}><Download className="mr-2 h-4 w-4" />Print / Save</Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex-1">
+                  <CalendarPlus className="mr-2 h-4 w-4" />Add to Calendar
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-card border border-border">
+                <DropdownMenuItem className="cursor-pointer hover:bg-muted" onClick={() => {
+                  downloadSingleEventICS({
+                    id: event.id,
+                    title: event.title,
+                    description: event.description,
+                    short_description: event.shortDescription,
+                    start_date: event.date,
+                    end_date: event.endDate,
+                    venue_name: event.location,
+                    venue_address: event.address,
+                    slug: event.slug,
+                  });
+                }}>
+                  Download ICS File
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer hover:bg-muted" onClick={() => {
+                  const link = getGoogleCalendarLink({
+                    title: event.title,
+                    description: event.description,
+                    short_description: event.shortDescription,
+                    start_date: event.date,
+                    end_date: event.endDate,
+                    venue_name: event.location,
+                    venue_address: event.address,
+                    slug: event.slug,
+                  });
+                  window.open(link, '_blank');
+                }}>
+                  Google Calendar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardContent>
       </Card>

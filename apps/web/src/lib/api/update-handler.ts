@@ -38,6 +38,9 @@ const SERVER_CONTROLLED_FIELDS = new Set([
   'checked_in_at',
   'moderated_at',
   'moderated_by',
+  'is_approved', // D10-001: reviews moderation — admin-only via separate route
+  'is_flagged',  // D10-001: reviews moderation — admin-only via separate route
+  'flag_reason', // D10-001: reviews moderation — admin-only via separate route
   'last_message_at',
   'last_seen_at',
   'last_message',
