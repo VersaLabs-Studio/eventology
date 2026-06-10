@@ -1,13 +1,56 @@
 # Handoff → OpenCode Mesh — Aesthetic Overhaul & Resiliency Hardening
 
 > Source of truth: `IMPLEMENTATION_PLAN_OVERHAUL.md` (Apple-Silicon aesthetic +
-> resiliency hardening), governed by the Architectural DNA (Six Pillars) and the
+> resiliency hardening), governed by the **restored 5-part master docs**
+> (`docs/V1_MASTER_PART1…PART5`), the Architectural DNA (Six Pillars) and the
 > `premium-ui` standard. **This is a web-only polish phase.** Web Phase 2 (Days
 > 6–10) is merged into `dev` and auditor-approved (tag `phase3-day10`).
 >
 > **Sequencing:** Day 9 (mobile real-data) stays **deferred**. The Expo app lives
 > on the untouched `mvp-demo` branch — do **not** touch `mvp-demo` or `apps/mobile`.
 > Branch from `dev`, build on `feat/overhaul-aesthetic`, merge back to `dev`.
+
+---
+
+## MASTER-DOC ALIGNMENT (read this before the overhaul doc)
+
+The five `V1_MASTER_PART*` docs were lost from the repo and have now been restored
+(2026-06-10). This phase is governed by them. Key reconciliations:
+
+1. **Where this sits in the master timeline.** Per Part 4, the master forward track
+   after Day 10 is **Day 11 (Chapa payments) → 12 (revenue/payouts/refunds/promo) →
+   13 (comms: email/SMS/push) → 14 (full AI deployment) → 15 (messaging/i18n) →
+   16–22 (admin + organizer + mobile completion, QA, launch).** This Aesthetic
+   Overhaul is **not** a master day — it's an out-of-band **hardening interlude** on
+   the Phase-2-complete web app, triggered by the manual walkthrough. When it merges
+   to `dev` and re-scores green, **the master Day 11+ track resumes.** Don't pull
+   payments/AI/i18n work into this phase.
+2. **Platform identity is AI-NATIVE (Part 1 §1, Part 2 §2, Part 3 §5).** This phase is
+   purely visual/resiliency, but the AI surfaces are coming (Day 14): a floating
+   `ChatWidget`, "Recommended For You" / "Events Like This" sections, AI summary
+   toggles. When polishing, **leave room for / don't delete** these mount points, and
+   make the glass/motion system reusable enough that the chat widget and AI panels
+   inherit it for free later.
+3. **Palette = sanctioned upgrade, not a redesign.** Part 5 rule #8: *"Do NOT redesign
+   — upgrade."* The demo accent was `#16a34a` (Part 4 Day-0 theme); the overhaul
+   **upgrades** it to vibrant emerald `#10B981`/`#059669` + a deep-obsidian dark
+   theme. That's allowed — it's an evolution of the same identity. Apply it through
+   OKLCH semantic tokens (see READ FIRST below), not scattered hex.
+4. **Typography is already chosen.** Plus Jakarta Sans is the typeface in both the
+   master mobile theme (Part 4 Day 0) and `IMPLEMENTATION_PLAN_OVERHAUL` §1.2 — mount
+   it once on web (OVH-001), no new font decisions.
+5. **This handoff is the working design-system spec.** Part 2 §8 ("Design System
+   Carry-Forward") and Part 2 §6.2+ were truncated in the recovery backup (see the
+   markers in those files). Until they're re-exported from Notion, **OVH-001…005 +
+   the `premium-ui` skill are the authority** for tokens, glass, motion, and
+   responsiveness. Flag, don't invent, anything those truncated sections would have
+   covered.
+6. **Branch naming.** Master Part 1 §4.1 calls the integration branch `develop`; the
+   live repo uses **`dev`** as its canonical alias. Branch `feat/overhaul-aesthetic`
+   off `dev`, `--no-ff` merge back to `dev`.
+7. **Constraints inherited from Part 5 §5.** No `any` (§5.3); component/file boundary
+   isolation (§5.2 — `components/<tier>/…`, shared in `components/shared/`); standard
+   response/`cn()` conventions. The overhaul must respect these, not bypass them.
 
 ---
 
@@ -127,6 +170,10 @@ P1 Schema-First · P2 Factory · P3 Modularization · P4 Premium UI · P5 Docs �
 - One centralized font mount; one reusable glow/shadow token.
 - Don't regress Days 6–10 behavior; this is visual + resiliency only.
 - **Don't touch `mvp-demo` or `apps/mobile`.** Web only.
+- **Don't regress AI mount points.** Preserve the `ChatWidget` / recommendation /
+  AI-summary surfaces the master Day-14 AI work will fill; polish them, don't remove.
+- **Stay in scope.** No payments/AI/i18n/messaging work — those are master Days 11–15
+  and resume after this interlude merges to `dev`.
 - Branch `feat/overhaul-aesthetic` off `dev`; `--no-ff` merge back to `dev` after
   the brain verifies the build is green and re-scores. Conventional Commits +
   `Co-Authored-By: Claude Opus 4.8` trailer.
