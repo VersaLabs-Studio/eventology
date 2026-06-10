@@ -13,10 +13,10 @@
 > **Status:** ✅ ARCHITECT APPROVED
 
 <!-- RECOVERY NOTE (2026-06-10): Restored verbatim from Kidus's Notion backup after the
-docs/ master set was discarded. The backup copy is TRUNCATED partway through Day 17 —
-see the marker near the end. Day 17 (remainder), Day 18–22, §7 Testing & Verification
-Matrix, §8 Risk Register, and §9 Milestone Checklist were NOT captured and must be
-re-exported from Notion. -->
+docs/ master set was discarded. Initial recovery was truncated mid-Day-17; the remainder
+(Day 17 body, Days 18–22, §7 Testing & Verification Matrix, §8 Risk Register, §9
+Milestone Checklist) was re-exported and folded in the same day. This file is now
+COMPLETE. -->
 
 ---
 
@@ -620,24 +620,150 @@ These components already exist in the demo and should be migrated to `apps/web/s
 ### Day 17 (Tuesday): Organizer Dashboard Completion
 
 1. Organizer profile management
+2. Live check-in dashboard with real-time counter (Supabase Realtime)
+3. QR check-in system (web: camera scanner component, mobile: native expo-camera)
+4. Per-event analytics with AI narration
+5. Team management (invite members, assign roles)
+6. Sponsor management (CRUD sponsors, track impressions/clicks)
+7. Draft & preview mode for events
 
-<!-- ⚠️ RECOVERY TRUNCATION (2026-06-10): The Notion backup pasted for recovery ended
-mid-Day-17. Everything below was NOT captured and must be re-exported from Notion:
-  • Day 17 (remainder): live check-in dashboard, QR scan, team mgmt, sponsors, etc.
-    (per Part 5 §3 startup message, Day 17 = "live check-in, QR scan, team mgmt, sponsors")
-  • Day 18: Mobile app completion (payments, QR scanner, offline tickets, GPS)
-  • Day 19: Comprehensive seed data + unit tests + integration tests
-  • Day 20: Full QA (cross-browser, responsive, performance, accessibility, error states)
-  • Day 21–22: Production deployment + smoke tests
-  • §7 Testing & Verification Matrix
-  • §8 Risk Register
-  • §9 Milestone Checklist
-The Day 16–22 one-line summaries in Part 5 §3 (Agent Startup Message) are the best
-surviving outline until the full text is re-exported. -->
+### Day 18 (Wednesday): Mobile App Completion
+
+1. Payment flow in mobile (Chapa web view)
+2. QR scanner screen (expo-camera barcode)
+3. Offline ticket caching (AsyncStorage)
+4. Push notification handling
+5. “Events Near Me” with GPS (expo-location)
+6. Profile & settings screen
+7. Organizer mobile views (event list, check-in scanner, basic analytics)
+
+### Day 19 (Thursday): Seed Data & Testing Setup
+
+**Priority 0 — Testing is non-negotiable.**
+
+1. **Comprehensive seed data generation:**
+    - 50+ events across 8 categories, 6 Ethiopian cities
+    - 10+ organizers (mix of verified/unverified/pending)
+    - 200+ registrations (confirmed, checked-in, cancelled, waitlisted)
+    - 30+ payments (completed, refunded, pending)
+    - 20+ reviews with varied ratings
+    - 5+ promo codes (active, expired, usage-limited)
+    - 50+ audit log entries
+    - 30+ notifications (read/unread)
+    - Sample conversations and messages
+2. **Unit tests:**
+    - Zod schema validation tests (valid + invalid inputs)
+    - Utility function tests (formatters, validators, geo helpers)
+    - AI service function tests (mock OpenRouter responses)
+3. **Integration tests:**
+    - Auth flow (signup → login → session → role check → logout)
+    - Event CRUD (create → list → detail → update → cancel)
+    - Registration flow (register → ticket generation → QR validation)
+    - Payment flow (init → webhook → ticket creation → commission calculation)
+    - Waitlist flow (register → full → waitlist → cancel → auto-promote)
+
+### Day 20 (Friday): Full QA & Polish
+
+1. **Cross-browser testing:** Chrome, Firefox, Safari, Edge
+2. **Mobile device testing:** iOS (iPhone), Android (various sizes)
+3. **Responsive audit:** All pages at 320px, 375px, 768px, 1024px, 1440px
+4. **Performance audit:** Lighthouse score ≥90 on all metrics
+5. **Accessibility audit:** Tab navigation, screen reader, color contrast
+6. **Error state coverage:** Every form has proper error messages
+7. **Empty state coverage:** Every list/grid has proper zero-data state
+8. **Loading state coverage:** Every async operation shows loading indicator
+9. **Animation polish:** All transitions smooth, no jank
+10. **Final design review:** Match the approved demo aesthetic
+
+### Day 21–22 (Weekend): Launch Prep & Deployment
+
+1. **Production environment variables set on Vercel**
+2. **Supabase production settings verified** (RLS enabled, storage policies set)
+3. **Chapa switched to production mode** (if ready)
+4. **DNS/domain configuration** (eventology-nu.vercel.app as production)
+5. **Monitoring setup:** Vercel analytics, error tracking
+6. **Final `turbo run build`** — must pass with ZERO errors and ZERO warnings
+7. **Deploy to production**
+8. **Mobile app:** EAS Build for internal distribution (TestFlight + Play Store internal)
+9. **Smoke test all critical paths on production**
 
 ---
 
-> **Next Document:** V1_MASTER_PART5_HANDOVER.md — Agent startup message, session resumption protocol, operating constraints, and quick reference.
+## 7. Testing & Verification Matrix
+
+> **Priority 0 — No feature ships without verification.**
+
+| Test Type | Scope | Tool | When |
+| --- | --- | --- | --- |
+| **Type Safety** | All packages | TypeScript strict mode | Continuous |
+| **Schema Validation** | All entity schemas | Zod + Vitest | After schema authoring |
+| **Unit Tests** | Utilities, formatters, validators | Vitest | After each utility module |
+| **Integration Tests** | API endpoints | Vitest + supertest | After each API route |
+| **Component Tests** | UI primitives | Vitest + React Testing Library | After each component |
+| **E2E Tests** | Critical user flows | Playwright | End of Week 3 |
+| **Manual QA** | All pages, all viewports | Browser DevTools | End of Week 4 |
+| **Mobile Testing** | All screens | Expo Go + physical devices | Continuous |
+| **AI Testing** | All AI service functions | Mock responses + live tests | After each AI feature |
+| **Performance** | All pages | Lighthouse CI | End of Week 4 |
+| **Security** | Auth, RLS, API | Manual audit | End of Week 4 |
+
+### Critical Path Tests (Must Pass Before Launch)
+
+```
+✅ User can sign up, log in, and see role-appropriate content
+✅ User can browse events, search, filter
+✅ User can register for a free event and receive QR ticket
+✅ User can pay for a paid event via Chapa and receive QR ticket
+✅ Organizer can create, edit, clone, and cancel events
+✅ Organizer can view registrations and check in attendees via QR scan
+✅ Organizer can view revenue and request payouts
+✅ Admin can approve/reject events
+✅ Admin can verify organizers
+✅ Admin can view platform analytics
+✅ AI chatbot responds accurately on all tiers
+✅ Email, SMS, and push notifications deliver
+✅ Mobile app mirrors web functionality
+✅ i18n works (EN ↔ AM switch)
+✅ Offline ticket access works on mobile
+```
+
+---
+
+## 8. Risk Register
+
+| Risk | Probability | Impact | Mitigation |
+| --- | --- | --- | --- |
+| OpenRouter free models rate-limited or unavailable | MEDIUM | HIGH | 8-model fallback chain + response caching (24h TTL) |
+| Chapa API downtime during testing | LOW | HIGH | Use Chapa test mode; mock payment flow as fallback |
+| Africa’s Talking Ethiopian SMS delivery issues | MEDIUM | MEDIUM | Afro Message as fallback; email as ultimate fallback |
+| Supabase free tier limitations | LOW | MEDIUM | Monitor usage; upgrade plan if needed |
+| better-auth + Supabase RLS integration complexity | MEDIUM | HIGH | Test RLS policies independently; document auth↔︎RLS bridge pattern |
+| Expo build failures on EAS | LOW | MEDIUM | Test builds early in Week 1; maintain simple native module list |
+| Scope creep from AI feature complexity | MEDIUM | MEDIUM | AI features have clear scope in Part 3; defer enhancements to V2 |
+| PostGIS spatial query performance | LOW | LOW | Index optimization; limit radius to 50km default |
+
+---
+
+## 9. Milestone Checklist
+
+| Milestone | Target Date | Gate Criteria |
+| --- | --- | --- |
+| **M0: Day 0 Complete** | May 26 | Branches set, monorepo initialized, Supabase project live |
+| **M1: Schema Complete** | May 28 | All migrations applied, types generated, schemas authored |
+| **M2: Auth Working** | May 29 | Login, signup, role protection functional |
+| **M3: Golden Template** | June 2 | Events CRUD end-to-end, golden template established |
+| **M4: Registration Flow** | June 3 | Register → ticket → QR complete |
+| **M5: Mobile Core** | June 5 | 5 mobile screens functional with real data |
+| **M6: Payments Live** | June 9 | Chapa flow working in test mode |
+| **M7: AI Deployed** | June 12 | All AI features functional across 3 tiers |
+| **M8: Communications** | June 13 | Email + SMS + push delivering |
+| **M9: Admin Complete** | June 16 | Full admin panel functional |
+| **M10: Testing Pass** | June 19 | All critical path tests passing |
+| **M11: Production Deploy** | June 22 | V1 live on production |
+
+---
+
+> **Next Document:** V1_MASTER_PART5_HANDOVER.md — Cross-agent session handover protocol with startup messages and session resumption instructions.
 
 ---
 

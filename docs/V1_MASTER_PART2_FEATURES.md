@@ -13,10 +13,9 @@
 > **Platform Identity:** AI-NATIVE LLM-POWERED EVENT MANAGEMENT SYSTEM
 
 <!-- RECOVERY NOTE (2026-06-10): Restored verbatim from Kidus's Notion backup after the
-docs/ master set was discarded. The backup copy is TRUNCATED at §6.2 (AI Workflow
-Agents) — see the marker at the end of this file. Sections §6.2 onward and §7–§9
-(Mobile App feature mapping, Design System Carry-Forward, Data Seeding Requirements)
-were not captured in this recovery and need to be re-exported from Notion. -->
+docs/ master set was discarded. Initial recovery was truncated at §6.2; the remaining
+sections (§6.2 body, §6.3–6.4, §7 Mobile, §8 Design System Carry-Forward, §9 Data
+Seeding) were re-exported and folded in the same day. This file is now COMPLETE. -->
 
 ---
 
@@ -980,15 +979,206 @@ Covered in §5.5 above.
 
 ### 6.2 AI Workflow Agents
 
-<!-- ⚠️ RECOVERY TRUNCATION (2026-06-10): The Notion backup pasted for recovery ended
-here. Everything below was NOT captured and must be re-exported from Notion:
-  • §6.2 AI Workflow Agents (body)  • §6.3+ remaining platform-wide AI features
-  • §7 Mobile App (Expo) Feature Mapping
-  • §8 Design System Carry-Forward  ← referenced by the Aesthetic Overhaul handoff
-  • §9 Data Seeding Requirements
-Until re-exported, treat HANDOFF_OVERHAUL_AESTHETIC_RESILIENCY.md + the `premium-ui`
-skill as the working design-system spec, and Part 1's "Mock Data Seeding" directive +
-Part 4 Day 19 as the seeding spec. -->
+Automated background tasks running as Supabase Edge Functions:
+
+| Agent | Trigger | Action |
+| --- | --- | --- |
+| **Reminder Agent** | Cron: every 15 minutes | Check events starting in 24h/1h → send notifications |
+| **Waitlist Agent** | DB trigger: registration cancelled | Auto-promote next waitlisted → create ticket → notify |
+| **Moderation Agent** | DB trigger: event status=‘pending_review’ | Auto-scan content → flag or auto-approve |
+| **Recap Agent** | Cron: daily at midnight | Find events ended in last 24h → generate recaps |
+| **Stale Draft Agent** | Cron: daily at 9am EAT | Find drafts older than 14 days → notify organizer |
+| **Trending Agent** | Cron: every hour | Analyze registration velocity → suggest featuring |
+
+### 6.3 AI Customer Support Chatbot
+
+- Global floating chat widget on all pages
+- Context-aware: adapts personality based on current page/tier
+- Conversation history persisted in Supabase
+- Escalation to human support when AI confidence is low
+
+### 6.4 AI Content Generation Pipeline
+
+Shared service powering all AI content generation:
+- Event descriptions, marketing copy, social posts
+- Email templates, analytics narratives, reports
+- Event recaps, platform health summaries
+- All go through the same OpenRouter client with fallback chain
+
+---
+
+## 7. Mobile App (Expo) Feature Mapping
+
+### 7.1 Web → Mobile Feature Parity
+
+| Web Feature | Mobile Equivalent | Mobile-Specific Notes |
+| --- | --- | --- |
+| Event Discovery Homepage | Home tab | Bottom sheet filters instead of sidebar |
+| Event Detail Page | Event detail screen | Full-screen banner with parallax |
+| Smart Search | Search tab | Voice search integration possible (V2) |
+| Registration Flow | Register screen | Bottom sheet payment flow |
+| Digital Ticket | Tickets tab | Fullscreen QR with brightness boost |
+| My Events | Profile > My Events |  |
+| Reviews & Ratings | Review bottom sheet | Star input with haptic feedback |
+| AI Chatbot | FAB button → Bottom sheet |  |
+| QR Check-In | Scanner screen (organizer) | Native camera with expo-camera |
+| Organizer Dashboard | Limited dashboard views | Key metrics + check-in scanner |
+
+### 7.2 Mobile-Only Features
+
+| Feature | Package | Description |
+| --- | --- | --- |
+| **Push Notifications** | `expo-notifications` | All notification types from §6.2 |
+| **Native QR Scanner** | `expo-camera` | Barcode scanning for check-in |
+| **Offline Ticket Access** | `@react-native-async-storage/async-storage` | Cache tickets locally for offline access |
+| **Events Near Me (GPS)** | `expo-location` | Background location for proximity events |
+| **Biometric Auth** | `expo-local-authentication` | Face ID / fingerprint for app unlock |
+| **Share Sheet** | `expo-sharing` | Native OS share sheet for events/tickets |
+| **Deep Linking** | `expo-linking` | Open specific event/ticket from URL or notification |
+
+---
+
+## 8. Design System Carry-Forward
+
+### 8.1 Existing UI Primitives (20 — migrate from demo)
+
+| # | Component | Status |
+| --- | --- | --- |
+| 1 | Button | ✅ Carry forward |
+| 2 | Card | ✅ Carry forward |
+| 3 | Badge | ✅ Carry forward |
+| 4 | Input | ✅ Carry forward |
+| 5 | Textarea | ✅ Carry forward |
+| 6 | Select | ✅ Carry forward |
+| 7 | Dialog | ✅ Carry forward |
+| 8 | DropdownMenu | ✅ Carry forward |
+| 9 | Tabs | ✅ Carry forward |
+| 10 | Avatar | ✅ Carry forward |
+| 11 | Skeleton | ✅ Carry forward |
+| 12 | Separator | ✅ Carry forward |
+| 13 | Tooltip | ✅ Carry forward |
+| 14 | Switch | ✅ Carry forward |
+| 15 | Progress | ✅ Carry forward |
+| 16 | DataTable | ✅ Carry forward |
+| 17 | Chart | ✅ Carry forward |
+| 18 | Checkbox | ✅ Carry forward |
+| 19 | Label | ✅ Carry forward |
+| 20 | FooterCTA | ✅ Carry forward |
+
+### 8.2 New UI Primitives (15 — build for V1)
+
+| # | Component | Purpose | Dependency |
+| --- | --- | --- | --- |
+| 21 | FileUpload | Image/doc upload with drag-drop and preview | None (custom) |
+| 22 | RichTextEditor | Event description editor | TipTap or Lexical |
+| 23 | DateTimePicker | Event date/time selection | react-day-picker |
+| 24 | MultiSelect | Tag selection, multi-category filter | Custom or cmdk |
+| 25 | Stepper | Multi-step form wizard | Custom |
+| 26 | MapPicker | Venue location selection | react-leaflet |
+| 27 | QRCode | QR code display | qrcode.react (existing) |
+| 28 | ChatWidget | AI chatbot floating widget | Custom |
+| 29 | LanguageSwitcher | EN/AM toggle | Custom |
+| 30 | NotificationBell | Header notification dropdown | Custom |
+| 31 | SearchCombobox | Advanced search with suggestions | cmdk |
+| 32 | StarRating | Review star input | Custom |
+| 33 | StatCard | Dashboard metric with trend indicator | Custom |
+| 34 | EmptyState | Zero-data state illustrations | Custom |
+| 35 | Pagination | Cursor-based pagination controls | Custom |
+
+### 8.3 Design Tokens
+
+```css
+/* Colors — OKLCH for perceptual uniformity */
+--color-primary: oklch(0.55 0.18 145);        /* Eventology green */
+--color-primary-hover: oklch(0.50 0.20 145);
+--color-accent: oklch(0.65 0.15 230);          /* Sky blue */
+--color-background: oklch(0.98 0 0);           /* Near white */
+--color-foreground: oklch(0.15 0 0);           /* Near black */
+--color-muted: oklch(0.55 0 0);                /* Gray text */
+--color-card: oklch(1.0 0 0);                  /* White cards */
+--color-border: oklch(0.90 0 0);               /* Light border */
+--color-destructive: oklch(0.55 0.20 25);      /* Red */
+--color-warning: oklch(0.70 0.15 85);          /* Amber */
+--color-success: oklch(0.55 0.18 145);         /* Green (same as primary) */
+
+/* Typography — Plus Jakarta Sans */
+--font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+--font-display: 800;  /* ExtraBold for headings */
+--font-heading: 700;  /* Bold for subheadings */
+--font-body: 400;     /* Regular for body */
+--font-medium: 500;   /* Medium for labels */
+
+/* Spacing — 4px grid */
+--space-1: 4px;
+--space-2: 8px;
+--space-3: 12px;
+--space-4: 16px;
+--space-5: 20px;
+--space-6: 24px;
+--space-8: 32px;
+--space-10: 40px;
+--space-12: 48px;
+--space-16: 64px;
+
+/* Border Radius */
+--radius-sm: 6px;
+--radius-md: 8px;
+--radius-lg: 12px;
+--radius-xl: 16px;
+--radius-full: 9999px;
+
+/* Animation — Framer Motion spring presets */
+spring.snappy = { type: "spring", stiffness: 400, damping: 30 }
+spring.gentle = { type: "spring", stiffness: 200, damping: 20 }
+spring.bouncy = { type: "spring", stiffness: 300, damping: 15 }
+```
+
+### 8.4 Theme Rules
+
+- **Light mode primary** — All public-facing pages default to light mode
+- **Dark mode secondary** — Admin panel and organizer dashboard support dark mode toggle
+- **Mobile adaptation:** 44px minimum touch targets, bottom sheet patterns for modals, haptic feedback on key actions
+
+> **Overhaul reconciliation (2026-06-10):** `IMPLEMENTATION_PLAN_OVERHAUL.md` upgrades
+> the primary token from this green (`oklch(0.55 0.18 145)`) to vibrant emerald
+> (`#10B981`/`#059669` → OKLCH) and adds a deep-obsidian dark surface set. Per Part 5
+> rule #8 ("upgrade, don't redesign"), the overhaul changes the token *values* while
+> keeping these token *names* and the §8.4 light-primary / dark-secondary split intact.
+
+---
+
+## 9. Data Seeding Requirements
+
+### 9.1 Seed Data Specification
+
+The testing team and internal audit require comprehensive, realistic mock data. All seed data goes in `supabase/migrations/017_seed_data.sql`.
+
+| Entity | Count | Distribution |
+| --- | --- | --- |
+| **Profiles** | 50+ | 40 attendees, 8 organizers, 2 admins |
+| **Organizers** | 10 | 4 verified, 3 pending, 2 approved-unverified, 1 rejected |
+| **Categories** | 8 | Conference, Workshop, Meetup, Seminar, Networking, Concert, Exhibition, Training |
+| **Venues** | 12 | 6 in Addis Ababa (various sub-cities), 2 in Hawassa, 1 in Bahir Dar, 1 in Adama, 1 in Dire Dawa, 1 in Jimma |
+| **Events** | 50+ | 20 approved, 10 pending, 5 draft, 5 rejected, 5 cancelled, 5 completed — spread across categories and cities |
+| **Ticket Tiers** | 100+ | 2-3 tiers per event (Free, Early Bird, General, VIP) |
+| **Registrations** | 200+ | 150 confirmed, 20 checked_in, 15 cancelled, 10 waitlisted, 5 no_show |
+| **Tickets** | 170+ | Matching confirmed + checked_in registrations |
+| **Payments** | 80+ | 60 completed, 10 pending, 5 failed, 5 refunded |
+| **Reviews** | 40+ | Ratings 1-5 distributed normally (mean ~4.0) |
+| **Promo Codes** | 8 | 3 active (percentage), 2 active (fixed), 2 expired, 1 maxed out |
+| **Sponsors** | 15 | 2 platinum, 4 gold, 5 silver, 4 bronze — distributed across 5 events |
+| **Notifications** | 50+ | Mixed types, 30 unread |
+| **Audit Log** | 30+ | Various admin actions with timestamps |
+| **Messages** | 20+ | Sample organizer broadcasts |
+
+### 9.2 Seed Data Content Guidelines
+
+- **Event titles:** Use realistic Ethiopian event names (e.g., “Addis Tech Summit 2026”, “Ethiopian Coffee Festival”, “Hawassa Business Networking Night”)
+- **Organizer names:** Use realistic organization names (e.g., “Addis TechHub”, “Ethiopian Business Association”, “Creative Ethiopia”)
+- **Locations:** Use real Addis Ababa sub-cities (Bole, Kirkos, Arada, Yeka, Lideta, Nifas Silk-Lafto, Kolfe Keranio, Addis Ketema, Akaki Kality, Gulele)
+- **Coordinates:** Use real GPS coordinates for Ethiopian cities
+- **Prices:** ETB currency, realistic ranges (500-5000 ETB for paid tiers)
+- **Dates:** Events spread across the next 3 months + 5 past events with reviews
 
 ---
 
