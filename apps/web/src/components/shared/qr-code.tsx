@@ -18,8 +18,8 @@ export function QRCode({ data, size = 160, className }: QRCodeProps) {
         <QRCodeSVG
           value={data}
           size={size}
-          fgColor="#065F46"
-          bgColor="#FFFFFF"
+          fgColor="#065F46"  /* deep emerald — QR library requires hex */
+          bgColor="#FFFFFF"  /* white — QR library requires hex */
           level="M"
         />
       </CardContent>

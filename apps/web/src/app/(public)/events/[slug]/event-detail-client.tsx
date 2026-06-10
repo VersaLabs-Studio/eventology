@@ -12,11 +12,12 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
 import { EventCard } from "@/components/shared/event-card";
+import { FallbackImage } from "@/components/shared/fallback-image";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEventBySlug, useEvents } from "@/hooks/use-events";
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils";
 import {
-  Calendar, Clock, MapPin, Share2, CheckCircle, Copy, ExternalLink, CalendarPlus, Download, Check
+  Calendar, Clock, MapPin, Share2, CheckCircle, Copy, ExternalLink, CalendarPlus, Download, Check, AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -125,16 +126,24 @@ export default function EventDetailClient({ slug }: EventDetailClientProps) {
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <Skeleton className="aspect-[21/9] w-full rounded-2xl" />
-        <Skeleton className="h-8 w-2/3" />
-        <Skeleton className="h-4 w-1/3" />
+        {/* Banner skeleton with shimmer */}
+        <div className="relative aspect-[21/9] w-full rounded-2xl overflow-hidden bg-muted/50">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        </div>
+        <div className="space-y-3">
+          <Skeleton className="h-8 w-2/3" />
+          <Skeleton className="h-4 w-1/3" />
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-8">
           <div className="space-y-4">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" />
             <Skeleton className="h-4 w-4/6" />
           </div>
-          <Skeleton className="h-64 w-full rounded-xl" />
+          <div className="space-y-4">
+            <Skeleton className="h-64 w-full rounded-xl" />
+            <Skeleton className="h-32 w-full rounded-xl" />
+          </div>
         </div>
       </div>
     );
@@ -142,12 +151,25 @@ export default function EventDetailClient({ slug }: EventDetailClientProps) {
 
   if (isError || !event) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-        <h1 className="font-display font-bold text-2xl mb-2">Event Not Found</h1>
-        <p className="text-muted-foreground mb-6">The event you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-        <Link href="/events">
-          <Button variant="outline">Browse Events</Button>
-        </Link>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="font-display font-bold text-2xl text-foreground">Event Not Found</h1>
+          <p className="text-muted-foreground max-w-md">
+            The event you&apos;re looking for doesn&apos;t exist or has been removed.
+          </p>
+          <Link href="/events">
+            <Button variant="outline" className="min-h-[44px] rounded-xl font-bold">
+              Browse Events
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     );
   }
@@ -218,30 +240,36 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="relative aspect-[21/9] rounded-2xl overflow-hidden mb-6">
-          <Image src={event.bannerImage} alt={event.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 1024px" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
+          <FallbackImage
+            src={event.bannerImage}
+            alt={event.title}
+            categoryHint={event.category?.slug || "default"}
+            aspectRatio="none"
+            className="w-full h-full rounded-none"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />
+          <div className="absolute bottom-4 left-4 right-4 z-20">
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary">{event.category.name}</Badge>
-              {event.isFeatured && <Badge variant="accent">Featured</Badge>}
+              <Badge variant="secondary" className="backdrop-blur-md bg-secondary/90 text-white border-none">{event.category.name}</Badge>
+              {event.isFeatured && <Badge variant="accent" className="shadow-accent-glow border-none">Featured</Badge>}
             </div>
-            <h1 className="font-display font-bold text-3xl text-white">{event.title}</h1>
-            <div className="flex items-center gap-3 mt-1 text-sm text-white/70">
+            <h1 className="font-display font-bold text-3xl text-white drop-shadow-lg">{event.title}</h1>
+            <div className="flex items-center gap-3 mt-1 text-sm text-white/80">
               <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{formatDate(event.date)}</span>
               <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{event.location}</span>
             </div>
           </div>
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-4 right-4 z-20">
             <div className="relative group">
-              <button className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors">
+              <button className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors border border-white/20">
                 <Share2 className="h-4 w-4 text-white" />
               </button>
-              <div className="absolute right-0 top-12 w-48 bg-card rounded-xl border border-border shadow-lg p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+              <div className="absolute right-0 top-12 w-48 bg-card/95 backdrop-blur-xl rounded-xl border border-border shadow-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
                 {shareOptions.map((opt) => (
                   <button
                     key={opt.label}
                     onClick={opt.action}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors text-left font-medium"
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors text-left font-medium min-h-[36px]"
                   >
                     <opt.icon className="h-4 w-4 shrink-0" /> {opt.label}
                   </button>
@@ -251,7 +279,8 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
           </div>
         </div>
 
-        <div className="sticky top-16 z-30 bg-card/80 backdrop-blur-xl border-b border-border -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 mb-6">
+        {/* Sticky detail bar — glassmorphism */}
+        <div className="sticky top-16 z-30 backdrop-blur-xl bg-background/80 border-b border-border/60 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 mb-6">
           <div className="max-w-5xl mx-auto flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(event.date)}</span>
@@ -266,7 +295,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-9 w-9 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-colors"
+                    className="h-9 w-9 rounded-lg bg-muted/50 hover:bg-muted border border-border/50 text-foreground hover:text-primary transition-colors"
                     aria-label="Add to Calendar"
                   >
                     <CalendarPlus className="h-4 w-4" />
@@ -282,22 +311,22 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-9 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold flex items-center gap-1.5 hover:bg-white/20 transition-colors"
+                    className="h-9 rounded-lg bg-muted/50 hover:bg-muted border border-border/50 text-foreground font-bold flex items-center gap-1.5 transition-colors"
                   >
                     <CalendarPlus className="h-4 w-4" />
-                    <span>Add to Calendar</span>
+                    <span className="hidden sm:inline">Add to Calendar</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
                   sideOffset={8}
-                  className="w-64 bg-card border border-border shadow-xl rounded-xl p-2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+                  className="w-64 bg-card/95 backdrop-blur-xl border border-border shadow-xl rounded-xl p-2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
                 >
                   <AnimatePresence mode="popLayout">
                     <CalendarDropdownItem
                       icon={Download}
-                      iconBg="bg-blue-500/20"
-                      iconColor="text-blue-500"
+                      iconBg="bg-primary/15"
+                      iconColor="text-primary"
                       label="Download ICS File"
                       description="Save to Apple Calendar, Outlook, or any calendar app"
                       onClick={() => {
@@ -317,8 +346,8 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
                     />
                     <CalendarDropdownItem
                       icon={Calendar}
-                      iconBg="bg-green-500/20"
-                      iconColor="text-green-500"
+                      iconBg="bg-success/15"
+                      iconColor="text-success"
                       label="Google Calendar"
                       description="Open in Google Calendar web app"
                       onClick={() => {
@@ -341,7 +370,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
               </DropdownMenu>
 
               <Link href={`/register/${event.id}`}>
-                <Button variant="accent" size="sm" className="font-bold h-9 rounded-lg">Register Now</Button>
+                <Button variant="accent" size="sm" className="font-bold h-9 rounded-lg min-h-[44px]">Register Now</Button>
               </Link>
             </div>
           </div>
@@ -367,13 +396,21 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
               {event.gallery.length > 0 ? (
                 <div className="grid grid-cols-2 gap-3">
                   {event.gallery.slice(0, 4).map((img, idx) => (
-                    <button key={idx} onClick={() => setGalleryOpen(img)} className="relative aspect-video rounded-lg overflow-hidden hover:opacity-90 transition-opacity">
-                      <Image src={img} alt={`Gallery ${idx + 1}`} fill className="object-cover" sizes="(max-width: 768px) 50vw, 300px" />
+                    <button key={idx} onClick={() => setGalleryOpen(img)} className="relative aspect-video rounded-xl overflow-hidden hover:opacity-90 transition-opacity border border-border/40">
+                      <FallbackImage
+                        src={img}
+                        alt={`Gallery ${idx + 1}`}
+                        categoryHint={event.category?.slug || "default"}
+                        aspectRatio="video"
+                        className="w-full h-full rounded-none"
+                      />
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No gallery images yet.</p>
+                <div className="text-center py-8 rounded-xl bg-muted/30 border border-border/40">
+                  <p className="text-sm text-muted-foreground">No gallery images yet.</p>
+                </div>
               )}
             </section>
 
@@ -383,7 +420,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
             {similar.length > 0 && (
               <section className="mt-12">
                 <h2 className="font-display font-semibold text-xl mb-4">You Might Also Like</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {similar.map((e) => (
                     <EventCard key={e.id} event={e} />
                   ))}
@@ -393,7 +430,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
           </div>
 
           <div className="space-y-6">
-            <Card className="sticky top-24 shadow-md overflow-hidden">
+            <Card className="sticky top-24 shadow-lg overflow-hidden border-border/60">
               <CardHeader>
                 <CardTitle className="font-display font-extrabold tracking-tight">Select Tickets</CardTitle>
               </CardHeader>
@@ -458,10 +495,15 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
       </motion.div>
 
       <Dialog open={!!galleryOpen} onOpenChange={() => setGalleryOpen(null)}>
-        <DialogContent className="max-w-3xl p-2">
+        <DialogContent className="max-w-3xl p-2 bg-card/95 backdrop-blur-xl border-border/60">
           {galleryOpen && (
             <div className="relative aspect-video">
-              <Image src={galleryOpen} alt="Gallery" fill className="object-cover rounded-lg" />
+              <FallbackImage
+                src={galleryOpen}
+                alt="Gallery"
+                aspectRatio="video"
+                className="w-full h-full rounded-lg"
+              />
             </div>
           )}
         </DialogContent>

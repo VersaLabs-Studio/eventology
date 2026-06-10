@@ -54,7 +54,7 @@ export default function FooterCTA(props: FooterCTAProps = {}) {
     <section className={`relative overflow-hidden ${className}`}>
       {/* Animated gradient glow - optional per prop */}
       {showGlow && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-br from-violet-500/6 via-white/[0.02] to-indigo-500/6 blur-[100px] rounded-full pointer-events-none animate-glow-pulse" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-br from-primary/6 via-transparent to-accent/6 blur-[100px] rounded-full pointer-events-none animate-glow-pulse" />
       )}
 
       <div className="relative z-10 px-6 py-16">
@@ -67,13 +67,13 @@ export default function FooterCTA(props: FooterCTAProps = {}) {
           >
             {/* Title with gradient text effect */}
             <h2 className="text-3xl md:text-4xl font-bold tracking-tighter mb-4">
-              <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
                 {title}
               </span>
             </h2>
 
             {/* Description */}
-            <p className="text-base text-zinc-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
               {description}
             </p>
 
@@ -85,7 +85,7 @@ export default function FooterCTA(props: FooterCTAProps = {}) {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={SPRING}
-                    className="group flex items-center justify-center h-12 px-8 rounded-full bg-white text-black text-[15px] font-semibold transition-colors hover:bg-zinc-200 shadow-lg shadow-white/10"
+                    className="group flex items-center justify-center h-12 px-8 rounded-full bg-primary text-primary-foreground text-[15px] font-semibold transition-colors hover:bg-primary/90 shadow-glow min-h-[44px]"
                   >
                     {primaryButton.label}
                     {primaryButton.icon !== false && (
@@ -98,10 +98,10 @@ export default function FooterCTA(props: FooterCTAProps = {}) {
               {secondaryButton && (
                 <Link href={secondaryButton.href} {...(secondaryButton.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
                   <motion.div
-                    whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     transition={SPRING}
-                    className="group flex items-center justify-center h-12 px-8 rounded-full border border-white/[0.08] bg-white/[0.02] backdrop-blur-sm text-white text-[15px] font-medium transition-all hover:border-white/[0.15] hover:bg-white/[0.04]"
+                    className="group flex items-center justify-center h-12 px-8 rounded-full border border-border/20 bg-card/10 backdrop-blur-sm text-foreground text-[15px] font-medium transition-all hover:border-border/40 hover:bg-card/20 min-h-[44px]"
                   >
                     {secondaryButton.label}
                     {secondaryButton.icon !== false && secondaryButton.external && (

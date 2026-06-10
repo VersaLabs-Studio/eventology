@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065F46" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1E202B" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <circle cx="680" cy="100" r="80" fill="#10B981" opacity="0.12"/>
+  <text x="400" y="240" text-anchor="middle" font-family="system-ui" font-size="48" font-weight="800" fill="white" opacity="0.9">Education Event</text>
+  <text x="400" y="290" text-anchor="middle" font-family="system-ui" font-size="16" fill="white" opacity="0.6">Eventology Discovery</text>
+</svg>

@@ -13,7 +13,7 @@ export function AnalyticsCharts() {
           <CardTitle>Views Over Time</CardTitle>
         </CardHeader>
         <CardContent>
-          <AreaChartComponent data={viewsOverTime} color="#065F46" />
+          <AreaChartComponent data={viewsOverTime} color="#065F46" /> {/* Recharts requires hex */}
         </CardContent>
       </Card>
       <Card>
@@ -21,7 +21,7 @@ export function AnalyticsCharts() {
           <CardTitle>Registration Trend</CardTitle>
         </CardHeader>
         <CardContent>
-          <BarChartComponent data={registrationTrends} color="#84CC16" />
+          <BarChartComponent data={registrationTrends} color="#84CC16" /> {/* Recharts requires hex */}
         </CardContent>
       </Card>
       <Card>
@@ -37,7 +37,7 @@ export function AnalyticsCharts() {
           <CardTitle>Registrations by Sub-City</CardTitle>
         </CardHeader>
         <CardContent>
-          <BarChartComponent data={subCityDistribution} color="#F97316" />
+          <BarChartComponent data={subCityDistribution} color="#F97316" /> {/* Recharts requires hex */}
         </CardContent>
       </Card>
     </div>
