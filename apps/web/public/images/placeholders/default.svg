@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#065F46" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#10B981" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#1E202B" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#bg)"/>
+  <circle cx="650" cy="100" r="100" fill="#10B981" opacity="0.12"/>
+  <circle cx="150" cy="400" r="70" fill="#F97316" opacity="0.08"/>
+  <text x="400" y="230" text-anchor="middle" font-family="system-ui" font-size="56" font-weight="900" fill="white" opacity="0.9">∞</text>
+  <text x="400" y="280" text-anchor="middle" font-family="system-ui" font-size="18" font-weight="700" fill="white" opacity="0.7">Eventology</text>
+  <text x="400" y="310" text-anchor="middle" font-family="system-ui" font-size="12" fill="white" opacity="0.4">Endless Events, One Platform</text>
+</svg>

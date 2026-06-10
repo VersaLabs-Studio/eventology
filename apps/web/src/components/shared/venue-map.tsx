@@ -12,6 +12,20 @@ import "leaflet/dist/leaflet.css";
 // Guards null lat/lng gracefully.
 // ============================================================================
 
+/** Dynamic imports of react-leaflet components — `any` is unavoidable here
+ *  because react-leaflet's generic ForwardRefExoticComponent types are
+ *  incompatible with any generic wrapper. Type safety is enforced at the
+ *  JSX call site where concrete props are passed. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type LeafletComponent = React.ComponentType<any>;
+
+interface LeafletComponents {
+  MapContainer: LeafletComponent;
+  TileLayer: LeafletComponent;
+  Marker: LeafletComponent;
+  Popup: LeafletComponent;
+}
+
 interface LeafletMapProps {
   lat: number;
   lng: number;
@@ -27,22 +41,20 @@ interface LeafletMapProps {
  * Uses react-leaflet to render an OpenStreetMap tile layer.
  */
 function LeafletMapInner({ lat, lng, title, address, zoom = 15, className, height = "300px" }: LeafletMapProps) {
-  const [MapContainer, setMapContainer] = React.useState<React.ComponentType<any> | null>(null);
-  const [TileLayer, setTileLayer] = React.useState<React.ComponentType<any> | null>(null);
-  const [Marker, setMarker] = React.useState<React.ComponentType<any> | null>(null);
-  const [Popup, setPopup] = React.useState<React.ComponentType<any> | null>(null);
-  const [icon, setIcon] = React.useState<any>(null);
+  const [components, setComponents] = React.useState<LeafletComponents | null>(null);
+  const [icon, setIcon] = React.useState<InstanceType<typeof import("leaflet").Icon> | null>(null);
 
   React.useEffect(() => {
-    // Dynamic import of react-leaflet components
     Promise.all([
       import("react-leaflet"),
       import("leaflet"),
     ]).then(([rl, L]) => {
-      setMapContainer(() => rl.MapContainer);
-      setTileLayer(() => rl.TileLayer);
-      setMarker(() => rl.Marker);
-      setPopup(() => rl.Popup);
+      setComponents({
+        MapContainer: rl.MapContainer,
+        TileLayer: rl.TileLayer,
+        Marker: rl.Marker,
+        Popup: rl.Popup,
+      });
       setIcon(
         new L.Icon({
           iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -57,7 +69,7 @@ function LeafletMapInner({ lat, lng, title, address, zoom = 15, className, heigh
     });
   }, []);
 
-  if (!MapContainer || !TileLayer || !Marker || !Popup || !icon) {
+  if (!components || !icon) {
     return (
       <div
         className={cn("bg-muted rounded-xl flex items-center justify-center", className)}
@@ -67,6 +79,8 @@ function LeafletMapInner({ lat, lng, title, address, zoom = 15, className, heigh
       </div>
     );
   }
+
+  const { MapContainer, TileLayer, Marker, Popup } = components;
 
   return (
     <div className={cn("rounded-xl overflow-hidden", className)} style={{ height }}>

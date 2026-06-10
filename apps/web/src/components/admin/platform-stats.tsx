@@ -29,11 +29,11 @@ export function PlatformStats() {
         </div>
         <div className="bg-card rounded-xl border border-border shadow-sm p-5">
           <h3 className="font-display font-semibold text-sm mb-4">Events by Sub-City</h3>
-          <BarChartComponent data={subCityDistribution} color="#F97316" />
+          <BarChartComponent data={subCityDistribution} color="#F97316" /> {/* Recharts requires hex */}
         </div>
         <div className="bg-card rounded-xl border border-border shadow-sm p-5">
           <h3 className="font-display font-semibold text-sm mb-4">Daily Active Users</h3>
-          <AreaChartComponent data={dailyActiveUsers} color="#8B5CF6" />
+          <AreaChartComponent data={dailyActiveUsers} color="#8B5CF6" /> {/* Recharts requires hex */}
         </div>
       </div>
     </div>

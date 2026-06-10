@@ -74,7 +74,7 @@ export function EventReviews({ event }: EventReviewsProps) {
           setContent("");
           refetch();
         },
-        onError: (err: any) => {
+        onError: (err: Error & { status?: number; code?: string }) => {
           if (err.status === 409 || err.code === "ALREADY_REVIEWED") {
             toast.error("You have already reviewed this event.");
           } else {
