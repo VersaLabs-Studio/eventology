@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { createRegistrationSchema, type RegistrationRPCResult } from '@eventology/schemas';
 import { getPaymentProvider } from '@/lib/payments';
 import { issueTicket } from '@/lib/tickets/issue-ticket';
+import { PLATFORM_COMMISSION_RATE } from '@eventology/config';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -122,6 +123,10 @@ export async function POST(req: NextRequest) {
     const provider = getPaymentProvider();
 
     if (tierCheck.price > 0) {
+      // Compute commission split (money-safe: round to 2 decimal places)
+      const platformFee = Math.round(tierCheck.price * PLATFORM_COMMISSION_RATE * 100) / 10000;
+      const organizerAmount = Math.round((tierCheck.price - platformFee) * 100) / 100;
+
       // Create payment record via service-role (system op — justified)
       const { data: payment, error: paymentError } = await serviceClient
         .from('payments')
@@ -133,6 +138,8 @@ export async function POST(req: NextRequest) {
           currency: tierCheck.currency,
           method: 'chapa', // Default method
           status: 'pending',
+          platform_fee: platformFee,
+          organizer_amount: organizerAmount,
         })
         .select()
         .single();

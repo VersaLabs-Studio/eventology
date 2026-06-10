@@ -28,6 +28,8 @@ export interface PaymentVerifyResult {
 export interface PaymentWebhookResult {
   /** Whether the webhook was valid and processed */
   success: boolean;
+  /** The provider's transaction reference (tx_ref for Chapa) */
+  txRef?: string;
   /** The registration ID associated with the payment */
   registrationId?: string;
   /** Error message if processing failed */

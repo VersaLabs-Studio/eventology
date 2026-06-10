@@ -1,6 +1,6 @@
 // ============================================================================
 // @eventology/schemas — Payment Zod Schemas
-// Source: 008_payments.sql
+// Source: 008_payments.sql + 024_payment_commission.sql
 // ============================================================================
 
 import { z } from 'zod';
@@ -19,6 +19,8 @@ export const paymentSchema = z.object({
   currency: z.string().min(3).max(3),
   method: z.enum(PAYMENT_METHODS),
   status: z.enum(PAYMENT_STATUSES),
+  platform_fee: z.number().min(0),
+  organizer_amount: z.number().min(0),
   provider: z.string().nullable(),
   provider_ref: z.string().nullable(),
   provider_metadata: z.record(z.string(), z.unknown()).default({}),
@@ -45,6 +47,8 @@ export const createPaymentSchema = paymentSchema
   .extend({
     currency: z.string().min(3).max(3).default('ETB'),
     method: z.enum(PAYMENT_METHODS).default('pay_at_door'),
+    platform_fee: z.number().min(0).default(0),
+    organizer_amount: z.number().min(0).default(0),
     provider_metadata: z.record(z.string(), z.unknown()).default({}),
   });
 
