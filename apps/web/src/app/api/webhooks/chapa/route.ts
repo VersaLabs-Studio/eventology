@@ -46,6 +46,20 @@ export async function POST(req: NextRequest) {
   // cross-table writes (payments → registrations → tickets)
   const supabase = createServiceClient();
 
+  // S6: Server-side verify — don't trust webhook body alone.
+  // Query Chapa's verify endpoint to confirm the payment is actually settled
+  // before issuing tickets. This prevents spoofed webhooks from triggering
+  // ticket issuance even if HMAC verification were bypassed.
+  // TODO: Add an amount cross-check against the local payments row once
+  //       Day 12 adds a `provider_amount` denormalized column.
+  const verifyResult = await provider.verify(webhookResult.txRef);
+  if (!verifyResult.success) {
+    return NextResponse.json(
+      { error: { code: 'VERIFY_FAILED', message: verifyResult.error ?? 'Server-side verification failed' } } satisfies ErrorEnvelope,
+      { status: 402 }
+    );
+  }
+
   // Look up payment by provider_ref to get registration_id
   const { data: payment, error: paymentError } = await supabase
     .from('payments')

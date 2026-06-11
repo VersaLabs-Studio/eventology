@@ -125,7 +125,9 @@ export class ChapaProvider implements PaymentProvider {
 
   /**
    * Processes a Chapa webhook callback.
-   * Verifies HMAC-SHA256 signature (constant-time), parses tx_ref via Zod.
+   * Signature is MANDATORY — missing signature returns 401.
+   * Verifies HMAC-SHA256 signature (constant-time), parses tx_ref via Zod,
+   * and only accepts status === 'success' to prevent premature confirmation.
    */
   async webhook(
     payload: unknown,
@@ -134,22 +136,24 @@ export class ChapaProvider implements PaymentProvider {
     // Import crypto dynamically (Node.js module, not available in Edge)
     const crypto = await import('node:crypto');
 
+    // H1: Signature is mandatory for Chapa. Missing/empty → fail closed (401 via route).
+    if (!signature || signature.trim() === '') {
+      return { success: false, error: 'Missing webhook signature' };
+    }
+
     const rawBody = typeof payload === 'string' ? payload : JSON.stringify(payload);
 
     // Verify HMAC-SHA256 signature (constant-time comparison)
-    if (signature) {
-      const expectedSig = crypto
-        .createHmac('sha256', this.webhookSecret)
-        .update(rawBody)
-        .digest('hex');
+    const expectedSig = crypto
+      .createHmac('sha256', this.webhookSecret)
+      .update(rawBody)
+      .digest('hex');
 
-      // Constant-time comparison to prevent timing attacks
-      const sigBuf = Buffer.from(signature, 'hex');
-      const expectedBuf = Buffer.from(expectedSig, 'hex');
+    const sigBuf = Buffer.from(signature, 'hex');
+    const expectedBuf = Buffer.from(expectedSig, 'hex');
 
-      if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
-        return { success: false, error: 'Invalid webhook signature' };
-      }
+    if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+      return { success: false, error: 'Invalid webhook signature' };
     }
 
     // Parse and validate webhook payload with Zod (external payloads must not be trusted)
@@ -163,6 +167,12 @@ export class ChapaProvider implements PaymentProvider {
     const result = chapaWebhookPayloadSchema.safeParse(parsed);
     if (!result.success) {
       return { success: false, error: `Invalid webhook payload: ${result.error.message}` };
+    }
+
+    // H2: Only accept 'success' status. Non-terminal statuses (e.g. 'pending') must
+    // NOT trigger ticket issuance. 'failed'/'cancelled' are explicit non-success.
+    if (result.data.status !== 'success') {
+      return { success: false, error: `Payment not successful (status: ${result.data.status})` };
     }
 
     return {
