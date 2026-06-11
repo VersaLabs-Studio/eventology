@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Search, Bell, Moon, Sun } from "lucide-react";
+import { Search, Moon, Sun } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import { NotificationBell } from "@/components/comms/notification-bell";
 
 interface TopbarProps {
   breadcrumb?: string;
@@ -22,10 +23,7 @@ export function DashboardTopbar({ breadcrumb, onToggleTheme, isDark }: TopbarPro
         <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors">
           <Search className="h-4 w-4 text-muted-foreground" />
         </button>
-        <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors relative">
-          <Bell className="h-4 w-4 text-muted-foreground" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
-        </button>
+        <NotificationBell />
         {onToggleTheme && (
           <button onClick={onToggleTheme} className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors">
             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

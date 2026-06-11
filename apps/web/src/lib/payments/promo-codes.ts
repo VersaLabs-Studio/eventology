@@ -22,6 +22,7 @@ export interface PromoApplicationResult {
   discount_type?: 'percentage' | 'fixed';
   discount_value?: number;
   max_discount?: number | null;
+  redemption_id?: string;
   error_message?: string;
 }
 
@@ -119,6 +120,7 @@ export async function applyPromoCode(
     discount_type: row?.discount_type ?? undefined,
     discount_value: row?.discount_value !== undefined ? Number(row.discount_value) : undefined,
     max_discount: row?.max_discount !== undefined ? Number(row.max_discount) : undefined,
+    redemption_id: row?.redemption_id ?? undefined,
     error_message: row?.error_message ?? undefined,
   };
 }

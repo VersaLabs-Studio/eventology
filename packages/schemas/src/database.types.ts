@@ -573,6 +573,191 @@ export type Database = {
           },
         ]
       }
+      notification_deliveries: {
+        Row: {
+          attempts: number
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at: string
+          error: string | null
+          id: string
+          notification_id: string
+          provider: string | null
+          provider_ref: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          channel: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          error?: string | null
+          id?: string
+          notification_id: string
+          provider?: string | null
+          provider_ref?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          channel?: Database["public"]["Enums"]["notification_channel"]
+          created_at?: string
+          error?: string | null
+          id?: string
+          notification_id?: string
+          provider?: string | null
+          provider_ref?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email_enabled: boolean
+          locale: string
+          marketing_opt_in: boolean
+          profile_id: string
+          push_enabled: boolean
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          sms_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean
+          locale?: string
+          marketing_opt_in?: boolean
+          profile_id: string
+          push_enabled?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          sms_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean
+          locale?: string
+          marketing_opt_in?: boolean
+          profile_id?: string
+          push_enabled?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          sms_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          last_seen: string
+          platform: string
+          profile_id: string
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_seen?: string
+          platform: string
+          profile_id: string
+          token: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_seen?: string
+          platform?: string
+          profile_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_tokens_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promo_redemptions: {
+        Row: {
+          event_id: string
+          id: string
+          payment_id: string | null
+          promo_id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          payment_id?: string | null
+          promo_id: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          payment_id?: string | null
+          promo_id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_redemptions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_redemptions_promo_id_fkey"
+            columns: ["promo_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_redemptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizer_team_members: {
         Row: {
           accepted_at: string | null
@@ -1516,6 +1701,39 @@ export type Database = {
       is_event_organizer: { Args: { p_event_id: string }; Returns: boolean }
       is_organizer: { Args: { p_organizer_id: string }; Returns: boolean }
       is_team_member: { Args: { p_organizer_id: string }; Returns: boolean }
+      apply_promo_code: {
+        Args: { p_code: string; p_event_id: string; p_user_id: string }
+        Returns: {
+          discount_type: Database["public"]["Enums"]["promo_discount_type"]
+          discount_value: number
+          error_message: string
+          max_discount: number
+          promo_id: string
+          redemption_id: string
+          success: boolean
+        }[]
+      }
+      begin_payout_processing: { Args: { p_payout_id: string }; Returns: number }
+      begin_refund: { Args: { p_payment_id: string }; Returns: number }
+      decrement_ticket_tier_sold_count: {
+        Args: { p_tier_id: string }
+        Returns: undefined
+      }
+      release_promo_code: { Args: { p_redemption_id: string }; Returns: number }
+      request_payout_atomic: {
+        Args: {
+          p_amount: number
+          p_bank_account: Json
+          p_currency: string
+          p_event_id: string
+          p_organizer_id: string
+        }
+        Returns: {
+          error_message: string
+          payout_id: string
+          success: boolean
+        }[]
+      }
       validate_promo_code: {
         Args: { p_code: string; p_event_id: string; p_user_id: string }
         Returns: {
@@ -1554,6 +1772,7 @@ export type Database = {
         | "training"
       featured_duration: "7_days" | "14_days" | "30_days"
       message_type: "text" | "image" | "system"
+      notification_channel: "email" | "sms" | "push"
       notification_type:
         | "registration_confirmed"
         | "event_reminder"
@@ -1564,8 +1783,16 @@ export type Database = {
         | "payment_received"
         | "message_received"
         | "system_announcement"
+        | "payment_completed"
+        | "refund_processed"
+        | "payout_update"
       payment_method: "pay_at_door" | "chapa" | "telebirr" | "bank_transfer"
-      payment_status: "pending" | "completed" | "failed" | "refunded"
+      payment_status:
+        | "pending"
+        | "completed"
+        | "failed"
+        | "refunded"
+        | "refund_pending"
       payout_status: "pending" | "processing" | "completed" | "failed"
       promo_discount_type: "percentage" | "fixed"
       registration_status:
@@ -1739,6 +1966,7 @@ export const Constants = {
       ],
       featured_duration: ["7_days", "14_days", "30_days"],
       message_type: ["text", "image", "system"],
+      notification_channel: ["email", "sms", "push"],
       notification_type: [
         "registration_confirmed",
         "event_reminder",
@@ -1749,9 +1977,18 @@ export const Constants = {
         "payment_received",
         "message_received",
         "system_announcement",
+        "payment_completed",
+        "refund_processed",
+        "payout_update",
       ],
       payment_method: ["pay_at_door", "chapa", "telebirr", "bank_transfer"],
-      payment_status: ["pending", "completed", "failed", "refunded"],
+      payment_status: [
+        "pending",
+        "completed",
+        "failed",
+        "refunded",
+        "refund_pending",
+      ],
       payout_status: ["pending", "processing", "completed", "failed"],
       promo_discount_type: ["percentage", "fixed"],
       registration_status: [

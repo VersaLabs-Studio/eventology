@@ -8,6 +8,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getPaymentProvider } from './index';
+import { notifyRefundProcessed } from '@/lib/comms/domain-notify';
 
 export interface RefundResult {
   success: boolean;
@@ -24,17 +25,30 @@ export interface RefundInput {
 /**
  * Processes a full refund for a payment.
  * Flow:
- * 1. Load payment + verify it's refundable (status = 'completed')
+ * 0. Load payment + idempotency / concurrent-refund / status checks
+ *      - status='refunded'      → success, no-op (idempotent)
+ *      - status='refund_pending' → CONCURRENT_REFUND (in flight elsewhere)
+ *      - status<>'completed'    → INVALID_STATUS
+ * 1. FIN-2: Guarded state transition (begin_refund RPC) — atomically flips
+ *    status 'completed' → 'refund_pending' IFF the current status is
+ *    'completed'. Returns 1 if we won the race, 0 if not. Concurrent
+ *    refund requests can never both win; only the first proceeds to
+ *    the provider.
  * 2. Call provider.refund() (stub instant / Chapa config-deferred)
- * 3. Flip payment → status='refunded', set audit columns
- * 4. Void the ticket (status='cancelled')
- * 5. Cancel the registration
- * 6. Free capacity (ticket_tiers.sold_count decrement)
+ * 3. On provider failure: roll status 'refund_pending' → 'completed'
+ *    (only if still refund_pending — never clobber a concurrent
+ *    successful flip to 'refunded') so a retry can win the gate again.
+ * 4. On provider success: flip payment → status='refunded', set audit
+ *    columns
+ * 5. Void the ticket (status='cancelled')
+ * 6. Cancel the registration
+ * 7. Free capacity (ticket_tiers.sold_count decrement)
+ * 8. Fire refund_processed notification (best-effort)
  *
- * Idempotent: if payment is already refunded, returns success with no side-effects.
- *
- * Service-role justified: cross-table writes (payments + tickets + registrations +
- * ticket_tiers) that RLS can't express.
+ * Idempotent: if payment is already refunded, returns success with no
+ * side-effects. The 'refund_pending' state is treated as in-flight and
+ * returns CONCURRENT_REFUND — callers can surface a friendly "already
+ * being processed" message without re-entering the provider call.
  */
 export async function processRefund(
   supabase: SupabaseClient,
@@ -56,6 +70,20 @@ export async function processRefund(
     return { success: true, message: 'Payment already refunded' };
   }
 
+  // FIN-2: 'refund_pending' means another caller is mid-flight on this
+  // payment — don't re-enter. Return CONCURRENT_REFUND so the caller
+  // can surface a friendly "already being processed" message instead
+  // of stomping on the in-progress provider call. A retry by the user
+  // will see the final state (refunded or completed) once the in-flight
+  // call resolves.
+  if (payment.status === 'refund_pending') {
+    return {
+      success: false,
+      message: 'Refund already in progress for this payment',
+      error: 'CONCURRENT_REFUND',
+    };
+  }
+
   if (payment.status !== 'completed') {
     return {
       success: false,
@@ -64,7 +92,41 @@ export async function processRefund(
     };
   }
 
-  // 2. Call provider refund (V1: full amount)
+  // FIN-2: Guarded state transition BEFORE the provider call.
+  // begin_refund() atomically flips status 'completed' → 'refund_pending'
+  // IFF the current status is 'completed'. Returns 1 if we won the race,
+  // 0 if another caller already won (status was no longer 'completed' —
+  // it's now 'refund_pending' or 'refunded'). This prevents two
+  // concurrent refunds from both calling provider.refund() on the same
+  // payment.
+  const { data: gateRows, error: gateError } = await supabase
+    .rpc('begin_refund', { p_payment_id: payment.id });
+
+  if (gateError) {
+    return {
+      success: false,
+      message: `Refund gate error: ${gateError.message}`,
+      error: 'GATE_ERROR',
+    };
+  }
+
+  // Supabase RPC returns an array of rows; the SETOF INTEGER function
+  // returns [{ begin_refund: 0/1 }] or [0/1] depending on the type
+  // inference. Handle both.
+  const gateValue = Array.isArray(gateRows)
+    ? Number(gateRows[0]?.begin_refund ?? gateRows[0] ?? 0)
+    : Number(gateRows ?? 0);
+
+  if (gateValue !== 1) {
+    return {
+      success: false,
+      message: 'Refund already in progress or payment not in a refundable state',
+      error: 'CONCURRENT_REFUND',
+    };
+  }
+
+  // 2. Call provider refund (V1: full amount). We've passed the gate —
+  // we're the only caller who will hit the provider for this payment.
   const provider = getPaymentProvider();
   const refundResult = await provider.refund(
     payment.provider_ref ?? payment.id,
@@ -73,6 +135,19 @@ export async function processRefund(
   );
 
   if (!refundResult.success) {
+    // FIN-2: Roll the row back from 'refund_pending' → 'completed' so a
+    // retry can win the gate again. The conditional update (status =
+    // 'refund_pending') is intentional: if some other path already moved
+    // the row (e.g. a manual admin override to 'refunded', or another
+    // caller that somehow completed the refund), we must NOT clobber
+    // that state. The 'refund_pending' status filter guarantees the
+    // rollback only fires for the row WE gated.
+    await supabase
+      .from('payments')
+      .update({ status: 'completed' })
+      .eq('id', payment.id)
+      .eq('status', 'refund_pending');
+
     return {
       success: false,
       message: refundResult.error ?? 'Provider refund failed',
@@ -132,6 +207,9 @@ export async function processRefund(
       // Best-effort capacity release — don't fail the refund if this errors
     }
   }
+
+  // 7. COMM-005: Fire best-effort refund_processed notification
+  await notifyRefundProcessed(supabase, payment.id, input.reason);
 
   return {
     success: true,

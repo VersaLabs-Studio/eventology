@@ -201,6 +201,33 @@
     "markAllRead": "ሁሉንም እንደተነበበ ምልክት አድርግ",
     "noNotifications": "ገና ምንም ማሳወቂያ የለም"
   },
+  "comms": {
+    "registrationConfirmed": {
+      "subject": "ለ{{event}} ተመዝግተዋል!",
+      "inAppTitle": "ምዝገባ ተረጋግጧል",
+      "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያደረጉት ምዝገባ ተረጋግጧል። በ{{eventDate}} በ{{venue}} ላይ እናገኝዎታለን።\n\nትኬትዎ: {{ticketNumber}}\nትኬት ይመልከቱ: {{ticketUrl}}\n\n— የኢቨንቶሎጂ ቡድን"
+    },
+    "ticketIssued": {
+      "subject": "ለ{{event}} ያለዎት ትኬት",
+      "inAppTitle": "ትኬት ዝግጁ ነው",
+      "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያለዎት ትኬት ዝግጁ ነው።\n\nትኬት #: {{ticketNumber}}\nQR እና ዝርዝሮችን ይመልከቱ: {{ticketUrl}}\n\nበር ላይ ለመግቢያ ይህን QR ያሳዩ።\n\n— የኢቨንቶሎጂ ቡድን"
+    },
+    "paymentCompleted": {
+      "subject": "ለ{{event}} ክፍያ ተረጋግጧል",
+      "inAppTitle": "ክፍያ ተቀብሏል",
+      "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያደረጉት {{amount}} {{currency}} ክፍያ ተቀብለናል።\n\nደረሰኝ: {{receiptUrl}}\n\n— የኢቨንቶሎጂ ቡድን"
+    },
+    "refundProcessed": {
+      "subject": "ለ{{event}} ተመላሽ ክፍያ ተከናውኗል",
+      "inAppTitle": "ተመላሽ ክፍያ ተሰጥቷል",
+      "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያደረጉት {{amount}} {{currency}} ተመላሽ ክፍያ ተከናውኗል። ገንዘቡ በባንክዎ ላይ በመወሰን ከ5-10 የስራ ቀናት ውስጥ ይታያል።\n\nምክንያት: {{reason}}\n\n— የኢቨንቶሎጂ ቡድን"
+    },
+    "payoutUpdate": {
+      "subject": "ክፍያ {{status}}: {{amount}} {{currency}}",
+      "inAppTitle": "ክፍያ {{status}}",
+      "emailBody": "ሰላም {{name}}፣\n\nያደረጉት {{amount}} {{currency}} ክፍያ አሁን {{status}} ነው።\n\nማጣቀሻ: {{reference}}\n\n— የኢቨንቶሎጂ ቡድን"
+    }
+  },
   "search": {
     "placeholder": "ዝግጅቶች፣ አዘጋጆች፣ ምድቦችን ፈልግ...",
     "results": "ለ\"{{query}}\" የፍለጋ ውጤቶች",

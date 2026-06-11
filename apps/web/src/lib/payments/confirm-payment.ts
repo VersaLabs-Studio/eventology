@@ -7,6 +7,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { issueTicket } from '@/lib/tickets/issue-ticket';
+import { notifyPaymentCompleted, notifyTicketIssued } from '@/lib/comms/domain-notify';
 
 export interface ConfirmPaymentResult {
   success: boolean;
@@ -110,6 +111,20 @@ export async function confirmPayment(
       message: 'Payment confirmed but ticket issuance failed',
       error: ticketResult.error,
     };
+  }
+
+  // COMM-005: Fire best-effort notifications. Never fail the financial
+  // flow because a notification failed.
+  // - Payment-completed goes to the attendee
+  // - Ticket-issued also goes to the attendee
+  // Both are idempotent on (user_id, type, reference_id).
+  await notifyPaymentCompleted(supabase, payment.id);
+  if (ticketResult.ticket) {
+    await notifyTicketIssued(
+      supabase,
+      payment.registration_id,
+      ticketResult.ticket.ticket_number
+    );
   }
 
   return {

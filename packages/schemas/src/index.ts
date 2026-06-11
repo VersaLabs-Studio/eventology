@@ -4,6 +4,7 @@
 
 // Generated database types (from `supabase gen types typescript --linked`)
 export * from './database.types';
+export * from './generated/database.types';
 
 // Enum constants
 export * from './enums';
