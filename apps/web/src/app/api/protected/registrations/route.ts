@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { createRegistrationSchema, type RegistrationRPCResult } from '@eventology/schemas';
 import { getPaymentProvider } from '@/lib/payments';
 import { issueTicket } from '@/lib/tickets/issue-ticket';
+import { PLATFORM_COMMISSION_RATE } from '@eventology/config';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -122,6 +123,13 @@ export async function POST(req: NextRequest) {
     const provider = getPaymentProvider();
 
     if (tierCheck.price > 0) {
+      // M3: Commission split — 2dp-correct rounding so platformFee + organizerAmount === amount.
+      // Note: PLATFORM_COMMISSION_RATE is a percentage (e.g. 5.0 = 5%), so we multiply
+      // price * rate then divide by 100. This avoids float drift that would break the
+      // payments_commission_check constraint.
+      const platformFee = Math.round(tierCheck.price * PLATFORM_COMMISSION_RATE) / 100;
+      const organizerAmount = Math.round((tierCheck.price - platformFee) * 100) / 100;
+
       // Create payment record via service-role (system op — justified)
       const { data: payment, error: paymentError } = await serviceClient
         .from('payments')
@@ -133,11 +141,22 @@ export async function POST(req: NextRequest) {
           currency: tierCheck.currency,
           method: 'chapa', // Default method
           status: 'pending',
+          platform_fee: platformFee,
+          organizer_amount: organizerAmount,
         })
         .select()
         .single();
 
-      if (!paymentError && payment) {
+      // L5: If the payments insert fails, return 500 — don't fall through to a
+      // 201 response with no checkout_url (which would leave the user in limbo).
+      if (paymentError || !payment) {
+        return NextResponse.json(
+          { error: { code: 'PAYMENT_INSERT_FAILED', message: paymentError?.message ?? 'Failed to create payment record' } } satisfies ErrorEnvelope,
+          { status: 500 }
+        );
+      }
+
+      if (payment) {
         // Initiate payment with provider
         const initResult = await provider.initiate(
           result.registration.id,
@@ -146,11 +165,14 @@ export async function POST(req: NextRequest) {
           parsed.data.attendee_email
         );
 
+        // L4: Use configured provider name instead of hardcoded 'stub'.
+        const providerName = process.env.PAYMENT_PROVIDER ?? 'stub';
+
         // Update payment with provider reference
         await serviceClient
           .from('payments')
           .update({
-            provider: 'stub',
+            provider: providerName,
             provider_ref: initResult.referenceId,
             provider_metadata: initResult.metadata,
           })

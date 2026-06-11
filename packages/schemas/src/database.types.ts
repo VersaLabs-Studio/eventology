@@ -704,7 +704,9 @@ export type Database = {
           id: string
           method: Database["public"]["Enums"]["payment_method"]
           notes: string | null
+          organizer_amount: number
           paid_at: string | null
+          platform_fee: number
           provider: string | null
           provider_metadata: Json | null
           provider_ref: string | null
@@ -722,7 +724,9 @@ export type Database = {
           id?: string
           method?: Database["public"]["Enums"]["payment_method"]
           notes?: string | null
+          organizer_amount?: number
           paid_at?: string | null
+          platform_fee?: number
           provider?: string | null
           provider_metadata?: Json | null
           provider_ref?: string | null
@@ -740,7 +744,9 @@ export type Database = {
           id?: string
           method?: Database["public"]["Enums"]["payment_method"]
           notes?: string | null
+          organizer_amount?: number
           paid_at?: string | null
+          platform_fee?: number
           provider?: string | null
           provider_metadata?: Json | null
           provider_ref?: string | null
