@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import { createRegistrationSchema, type RegistrationRPCResult } from '@eventology/schemas';
 import { getPaymentProvider } from '@/lib/payments';
 import { issueTicket } from '@/lib/tickets/issue-ticket';
-import { PLATFORM_COMMISSION_RATE } from '@eventology/config';
+import { resolveCommissionRate, splitCommission } from '@/lib/payments/commission';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -52,6 +52,8 @@ export async function POST(req: NextRequest) {
 
   // Strip server-controlled fields
   const { event_id, ticket_tier_id, attendee_name, attendee_email, attendee_phone, metadata } = parsed.data;
+  // REV-003: Promo code is optional — extracted from body separately
+  const promoCode = (body as { promo_code?: string }).promo_code?.trim() || null;
 
   // FIX-003: App-level tier↔event guard (defense-in-depth; RPC also checks)
   const serviceClient = createServiceClient();
@@ -123,12 +125,55 @@ export async function POST(req: NextRequest) {
     const provider = getPaymentProvider();
 
     if (tierCheck.price > 0) {
-      // M3: Commission split — 2dp-correct rounding so platformFee + organizerAmount === amount.
-      // Note: PLATFORM_COMMISSION_RATE is a percentage (e.g. 5.0 = 5%), so we multiply
-      // price * rate then divide by 100. This avoids float drift that would break the
-      // payments_commission_check constraint.
-      const platformFee = Math.round(tierCheck.price * PLATFORM_COMMISSION_RATE) / 100;
-      const organizerAmount = Math.round((tierCheck.price - platformFee) * 100) / 100;
+      // REV-002: Fetch the event's organizer commission rate override.
+      // NULL → falls back to PLATFORM_COMMISSION_RATE inside the resolver.
+      const { data: eventOrg } = await serviceClient
+        .from('events')
+        .select('organizer_id, organizers(commission_rate)')
+        .eq('id', event_id)
+        .single();
+
+      // Type guard: organizers may be a relation (single object) or null
+      const orgRelation = (eventOrg as unknown as {
+        organizers?: { commission_rate?: number | null } | { commission_rate?: number | null }[] | null;
+      })?.organizers;
+      const organizerRate = Array.isArray(orgRelation)
+        ? orgRelation[0]?.commission_rate ?? null
+        : orgRelation?.commission_rate ?? null;
+
+      const rate = resolveCommissionRate({ organizerRate });
+
+      // REV-003: Apply promo code if provided. Uses atomic apply_promo_code RPC
+      // (FOR UPDATE lock) to prevent concurrent double-spend.
+      let chargedPrice = tierCheck.price;
+      let promoInfo: { id: string; code: string; discount_amount: number } | null = null;
+      if (promoCode) {
+        const { applyPromoCode, calculateDiscount } = await import('@/lib/payments/promo-codes');
+        const applyResult = await applyPromoCode(supabase, promoCode, event_id, session.user.id);
+        if (!applyResult.success) {
+          return NextResponse.json(
+            { error: { code: 'PROMO_INVALID', message: applyResult.error_message ?? 'Invalid promo code' } } satisfies ErrorEnvelope,
+            { status: 400 }
+          );
+        }
+        if (applyResult.discount_type && applyResult.discount_value !== undefined) {
+          const discountAmount = calculateDiscount(
+            chargedPrice,
+            applyResult.discount_type,
+            applyResult.discount_value,
+            applyResult.max_discount ?? null
+          );
+          chargedPrice = Math.round((chargedPrice - discountAmount) * 100) / 100;
+          promoInfo = {
+            id: applyResult.promo_id!,
+            code: promoCode,
+            discount_amount: discountAmount,
+          };
+        }
+      }
+
+      // 2dp-correct split on the (possibly discounted) charged price
+      const { platformFee, organizerAmount } = splitCommission(chargedPrice, rate);
 
       // Create payment record via service-role (system op — justified)
       const { data: payment, error: paymentError } = await serviceClient
@@ -137,7 +182,7 @@ export async function POST(req: NextRequest) {
           registration_id: result.registration.id,
           event_id: result.registration.event_id,
           user_id: result.registration.user_id,
-          amount: tierCheck.price,
+          amount: chargedPrice,
           currency: tierCheck.currency,
           method: 'chapa', // Default method
           status: 'pending',
@@ -160,7 +205,7 @@ export async function POST(req: NextRequest) {
         // Initiate payment with provider
         const initResult = await provider.initiate(
           result.registration.id,
-          tierCheck.price,
+          chargedPrice,
           tierCheck.currency,
           parsed.data.attendee_email
         );
@@ -168,20 +213,26 @@ export async function POST(req: NextRequest) {
         // L4: Use configured provider name instead of hardcoded 'stub'.
         const providerName = process.env.PAYMENT_PROVIDER ?? 'stub';
 
-        // Update payment with provider reference
+        // Update payment with provider reference and promo info
         await serviceClient
           .from('payments')
           .update({
             provider: providerName,
             provider_ref: initResult.referenceId,
-            provider_metadata: initResult.metadata,
+            provider_metadata: {
+              ...initResult.metadata,
+              ...(promoInfo
+                ? { promo_code: promoInfo.code, promo_id: promoInfo.id, discount_amount: promoInfo.discount_amount }
+                : {}),
+            },
           })
           .eq('id', payment.id);
 
-        // Return checkout URL
+        // Return checkout URL with promo info
         return NextResponse.json({
           ...result,
           checkout_url: initResult.checkoutUrl,
+          ...(promoInfo ? { discount_applied: promoInfo.discount_amount, final_price: chargedPrice } : {}),
         }, { status: 201 });
       }
     }

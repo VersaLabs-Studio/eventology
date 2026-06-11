@@ -5,7 +5,7 @@
 // Swap for ChapaProvider in production by setting PAYMENT_PROVIDER=chapa.
 // ============================================================================
 
-import type { PaymentProvider, PaymentInitResult, PaymentVerifyResult, PaymentWebhookResult } from './provider';
+import type { PaymentProvider, PaymentInitResult, PaymentVerifyResult, PaymentWebhookResult, PaymentRefundResult } from './provider';
 
 export class StubPaymentProvider implements PaymentProvider {
   /**
@@ -75,6 +75,28 @@ export class StubPaymentProvider implements PaymentProvider {
 
     return {
       success: true,
+    };
+  }
+
+  /**
+   * Simulates a refund. Always succeeds in dev.
+   * V1: full refund only.
+   */
+  async refund(
+    referenceId: string,
+    amount: number,
+    metadata?: Record<string, unknown>
+  ): Promise<PaymentRefundResult> {
+    console.log(`[StubPayment] Refunding ${amount} for ${referenceId}`);
+
+    return {
+      success: true,
+      refundRef: `refund_${referenceId}_${Date.now()}`,
+      metadata: {
+        stub: true,
+        amount,
+        ...metadata,
+      },
     };
   }
 }

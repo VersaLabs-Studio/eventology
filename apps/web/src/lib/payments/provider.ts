@@ -36,14 +36,20 @@ export interface PaymentWebhookResult {
   error?: string;
 }
 
+export interface PaymentRefundResult {
+  /** Whether the refund was successful */
+  success: boolean;
+  /** Provider-specific refund reference */
+  refundRef?: string;
+  /** Error message if refund failed */
+  error?: string;
+  /** Provider-specific metadata */
+  metadata: Record<string, unknown>;
+}
+
 export interface PaymentProvider {
   /**
    * Initiates a payment for a registration.
-   * @param registrationId - The registration UUID
-   * @param amount - Amount in the event's currency
-   * @param currency - Currency code (e.g., 'ETB')
-   * @param email - Customer email for receipt
-   * @param metadata - Additional provider-specific data
    */
   initiate(
     registrationId: string,
@@ -55,8 +61,6 @@ export interface PaymentProvider {
 
   /**
    * Verifies a payment after the user completes checkout.
-   * @param referenceId - The provider reference from initiate()
-   * @param metadata - Provider-specific verification data
    */
   verify(
     referenceId: string,
@@ -65,11 +69,19 @@ export interface PaymentProvider {
 
   /**
    * Processes a webhook from the payment provider.
-   * @param payload - Raw webhook payload
-   * @param signature - Webhook signature for verification
    */
   webhook(
     payload: unknown,
     signature?: string
   ): Promise<PaymentWebhookResult>;
+
+  /**
+   * Issues a refund for a previously completed payment.
+   * V1: full refund only. Stub resolves instantly; Chapa is config-deferred.
+   */
+  refund(
+    referenceId: string,
+    amount: number,
+    metadata?: Record<string, unknown>
+  ): Promise<PaymentRefundResult>;
 }

@@ -50,8 +50,6 @@ export async function POST(req: NextRequest) {
   // Query Chapa's verify endpoint to confirm the payment is actually settled
   // before issuing tickets. This prevents spoofed webhooks from triggering
   // ticket issuance even if HMAC verification were bypassed.
-  // TODO: Add an amount cross-check against the local payments row once
-  //       Day 12 adds a `provider_amount` denormalized column.
   const verifyResult = await provider.verify(webhookResult.txRef);
   if (!verifyResult.success) {
     return NextResponse.json(
@@ -60,10 +58,23 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Look up payment by provider_ref to get registration_id
+  // S6 (carry-forward Day 12): Amount cross-check.
+  // The verify response includes a denormalized amount from the provider. We
+  // compare it against the local payment's amount and reject (409) on mismatch.
+  // This closes the last spoofing gap — even a valid HMAC+status can't fake a
+  // different amount than what the provider actually settled.
+  const providerAmount = (verifyResult.metadata?.chapa_verify as { amount?: number })?.amount;
+  if (providerAmount === undefined) {
+    return NextResponse.json(
+      { error: { code: 'AMOUNT_MISSING', message: 'Provider verify response missing amount' } } satisfies ErrorEnvelope,
+      { status: 402 }
+    );
+  }
+
+  // Look up payment by provider_ref to get the local amount
   const { data: payment, error: paymentError } = await supabase
     .from('payments')
-    .select('registration_id')
+    .select('id, registration_id, amount')
     .eq('provider_ref', webhookResult.txRef)
     .single();
 
@@ -73,6 +84,28 @@ export async function POST(req: NextRequest) {
       { status: 404 }
     );
   }
+
+  // Cross-check: provider amount must match local amount (2dp-safe)
+  const localAmount = Math.round(Number(payment.amount) * 100) / 100;
+  const verifiedAmount = Math.round(Number(providerAmount) * 100) / 100;
+  if (verifiedAmount !== localAmount) {
+    // Persist the mismatch for audit
+    await supabase
+      .from('payments')
+      .update({ provider_amount: verifiedAmount, notes: `AMOUNT_MISMATCH: local=${localAmount} provider=${verifiedAmount}` })
+      .eq('id', payment.id);
+
+    return NextResponse.json(
+      { error: { code: 'AMOUNT_MISMATCH', message: `Provider amount ${verifiedAmount} does not match local amount ${localAmount}` } } satisfies ErrorEnvelope,
+      { status: 409 }
+    );
+  }
+
+  // Amounts match — persist provider_amount for audit
+  await supabase
+    .from('payments')
+    .update({ provider_amount: verifiedAmount })
+    .eq('id', payment.id);
 
   // confirmPayment is idempotent — safe for replays
   const result = await confirmPayment(webhookResult.txRef, supabase);

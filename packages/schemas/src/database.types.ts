@@ -625,6 +625,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          commission_rate: number | null
           created_at: string
           email: string
           events_count: number
@@ -646,6 +647,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          commission_rate?: number | null
           created_at?: string
           email: string
           events_count?: number
@@ -667,6 +669,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          commission_rate?: number | null
           created_at?: string
           email?: string
           events_count?: number
@@ -708,9 +711,13 @@ export type Database = {
           paid_at: string | null
           platform_fee: number
           provider: string | null
+          provider_amount: number | null
           provider_metadata: Json | null
           provider_ref: string | null
+          refund_amount: number | null
+          refund_reason: string | null
           refunded_at: string | null
+          refunded_by: string | null
           registration_id: string
           status: Database["public"]["Enums"]["payment_status"]
           updated_at: string
@@ -728,9 +735,13 @@ export type Database = {
           paid_at?: string | null
           platform_fee?: number
           provider?: string | null
+          provider_amount?: number | null
           provider_metadata?: Json | null
           provider_ref?: string | null
+          refund_amount?: number | null
+          refund_reason?: string | null
           refunded_at?: string | null
+          refunded_by?: string | null
           registration_id: string
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string
@@ -748,9 +759,13 @@ export type Database = {
           paid_at?: string | null
           platform_fee?: number
           provider?: string | null
+          provider_amount?: number | null
           provider_metadata?: Json | null
           provider_ref?: string | null
+          refund_amount?: number | null
+          refund_reason?: string | null
           refunded_at?: string | null
+          refunded_by?: string | null
           registration_id?: string
           status?: Database["public"]["Enums"]["payment_status"]
           updated_at?: string

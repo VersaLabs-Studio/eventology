@@ -5,7 +5,7 @@
 // Config-deferred: inert until CHAPA_SECRET_KEY + CHAPA_WEBHOOK_SECRET are set.
 // ============================================================================
 
-import type { PaymentProvider, PaymentInitResult, PaymentVerifyResult, PaymentWebhookResult } from './provider';
+import type { PaymentProvider, PaymentInitResult, PaymentVerifyResult, PaymentWebhookResult, PaymentRefundResult } from './provider';
 import type { ChapaInitPayload, ChapaInitResponse, ChapaVerifyResponse, ChapaInitMetadata } from './chapa-types';
 import { chapaWebhookPayloadSchema } from './chapa-types';
 
@@ -178,6 +178,47 @@ export class ChapaProvider implements PaymentProvider {
     return {
       success: true,
       txRef: result.data.tx_ref,
+    };
+  }
+
+  /**
+   * Issues a refund via Chapa.
+   * POST /transaction/refund
+   * V1: full refund only. Config-deferred — inert until keys land.
+   */
+  async refund(
+    referenceId: string,
+    amount: number,
+    metadata?: Record<string, unknown>
+  ): Promise<PaymentRefundResult> {
+    const response = await fetch(`${CHAPA_BASE_URL}/transaction/refund`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.secretKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tx_ref: referenceId,
+        amount: amount.toFixed(2),
+        ...(metadata?.reason ? { reason: metadata.reason as string } : {}),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      return {
+        success: false,
+        error: `Chapa refund failed (${response.status}): ${errorBody}`,
+        metadata: { ...metadata },
+      };
+    }
+
+    const result = (await response.json()) as { message: string; status: string; data?: { reference?: string } };
+
+    return {
+      success: result.status === 'success',
+      refundRef: result.data?.reference,
+      metadata: { chapa_refund: result, ...metadata },
     };
   }
 }

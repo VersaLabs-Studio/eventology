@@ -1,6 +1,6 @@
 // ============================================================================
 // @eventology/schemas — Payment Zod Schemas
-// Source: 008_payments.sql + 024_payment_commission.sql
+// Source: 008_payments.sql + 024_payment_commission.sql + 025_revenue_ops.sql
 // ============================================================================
 
 import { z } from 'zod';
@@ -23,9 +23,13 @@ export const paymentSchema = z.object({
   organizer_amount: z.number().min(0),
   provider: z.string().nullable(),
   provider_ref: z.string().nullable(),
+  provider_amount: z.number().min(0).nullable(),
   provider_metadata: z.record(z.string(), z.unknown()).default({}),
   paid_at: z.string().datetime().nullable(),
   refunded_at: z.string().datetime().nullable(),
+  refund_amount: z.number().min(0).nullable(),
+  refund_reason: z.string().nullable(),
+  refunded_by: z.string().uuid().nullable(),
   notes: z.string().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -41,6 +45,9 @@ export const createPaymentSchema = paymentSchema
     status: true, // Defaults to 'pending'
     paid_at: true,
     refunded_at: true,
+    refund_amount: true,
+    refund_reason: true,
+    refunded_by: true,
     created_at: true,
     updated_at: true,
   })
@@ -49,6 +56,7 @@ export const createPaymentSchema = paymentSchema
     method: z.enum(PAYMENT_METHODS).default('pay_at_door'),
     platform_fee: z.number().min(0).default(0),
     organizer_amount: z.number().min(0).default(0),
+    provider_amount: z.number().min(0).nullable().default(null),
     provider_metadata: z.record(z.string(), z.unknown()).default({}),
   });
 
