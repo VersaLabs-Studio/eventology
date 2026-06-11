@@ -18,6 +18,7 @@ import type {
   ConversationType,
   MessageType,
   NotificationType,
+  NotificationChannel,
   AuditAction,
   PromoDiscountType,
   SponsorTier,
@@ -123,6 +124,15 @@ export const NOTIFICATION_TYPES: readonly NotificationType[] = [
   'payment_received',
   'message_received',
   'system_announcement',
+  'payment_completed',
+  'refund_processed',
+  'payout_update',
+] as const;
+
+export const NOTIFICATION_CHANNELS: readonly NotificationChannel[] = [
+  'email',
+  'sms',
+  'push',
 ] as const;
 
 // ---------------------------------------------------------------------------

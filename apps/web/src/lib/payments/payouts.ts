@@ -3,9 +3,15 @@
 // ============================================================================
 // Balance computation, payout request, and lifecycle management.
 // Disbursement provider calls are stubbed via the PaymentProvider seam.
+// FIN-1: balance-check + insert moved into a SECURITY DEFINER RPC
+// (request_payout_atomic) that locks the organizer's ledger rows
+// (FOR UPDATE) — same pattern as apply_promo_code. The
+// pending→processing transition is a guarded conditional update
+// (begin_payout_processing) returning the affected row count.
 // ============================================================================
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { notifyPayoutUpdate } from '@/lib/comms/domain-notify';
 
 export interface OrganizerBalance {
   /** Total earned (Σ organizer_amount of completed payments) */
@@ -88,7 +94,12 @@ export interface PayoutRequestResult {
 }
 
 /**
- * Creates a payout request. Validates against available balance.
+ * Creates a payout request. FIN-1: delegates to the
+ * request_payout_atomic RPC which locks the organizer's ledger
+ * rows (FOR UPDATE), recomputes the balance inside the lock, and
+ * inserts the payout in one transaction. Concurrent requests for
+ * the same organizer serialize, preventing over-disbursement.
+ *
  * Service-role justified: cross-table reads (balance computation) +
  * insert into payouts with RLS bypass for system-generated rows.
  */
@@ -99,44 +110,45 @@ export async function requestPayout(
   eventId: string | null,
   bankAccount: Record<string, unknown>
 ): Promise<PayoutRequestResult> {
-  // Guard: must be a positive amount
+  // Guard: must be a positive amount (RPC also checks; mirror here for fast-fail)
   if (amount <= 0) {
     return { success: false, message: 'Payout amount must be positive', error: 'INVALID_AMOUNT' };
   }
 
-  // Compute available balance
-  const balance = await computeOrganizerBalance(supabase, organizerId);
-  if (amount > balance.availableBalance) {
+  // FIN-1: Atomic balance-check + insert via SECURITY DEFINER RPC.
+  const { data, error } = await supabase.rpc('request_payout_atomic', {
+    p_organizer_id: organizerId,
+    p_event_id: eventId ?? null,
+    p_amount: amount,
+    p_currency: 'ETB', // V1: ETB only
+    p_bank_account: bankAccount,
+  });
+
+  if (error) {
     return {
       success: false,
-      message: `Requested amount (${amount}) exceeds available balance (${balance.availableBalance})`,
-      error: 'INSUFFICIENT_BALANCE',
+      message: error.message,
+      error: 'DB_ERROR',
     };
   }
 
-  // Insert the payout row in 'pending' status
-  const { data: payout, error: insertError } = await supabase
-    .from('payouts')
-    .insert({
-      organizer_id: organizerId,
-      event_id: eventId,
-      amount,
-      currency: balance.currency,
-      status: 'pending',
-      bank_account: bankAccount,
-    })
-    .select()
-    .single();
-
-  if (insertError || !payout) {
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row?.success) {
+    const errCode = row?.error_message ?? 'PAYOUT_FAILED';
     return {
       success: false,
-      message: insertError?.message ?? 'Failed to create payout',
-      error: insertError?.code ?? 'DB_ERROR',
+      message: errCode === 'INSUFFICIENT_BALANCE'
+        ? `Requested amount (${amount}) exceeds available balance`
+        : errCode,
+      error: errCode,
     };
   }
 
-  return { success: true, payoutId: payout.id, message: 'Payout request created' };
+  return {
+    success: true,
+    payoutId: row.payout_id ?? undefined,
+    message: 'Payout request created',
+  };
 }
 
 export interface ProcessPayoutResult {
@@ -150,6 +162,11 @@ export interface ProcessPayoutResult {
 /**
  * Advances a payout through the lifecycle:
  * pending → processing → completed/failed
+ *
+ * FIN-1: The pending→processing transition is a guarded conditional
+ * update (begin_payout_processing RPC) returning the affected row
+ * count. If 0 rows hit, another caller already advanced the payout
+ * and we abort — preventing concurrent double-disbursement.
  *
  * Disbursement provider call is stubbed (stub instant / Chapa config-deferred).
  *
@@ -181,13 +198,34 @@ export async function processPayout(
     };
   }
 
-  // Move to processing
-  await supabase
-    .from('payouts')
-    .update({ status: 'processing', processed_at: new Date().toISOString() })
-    .eq('id', payoutId);
+  // FIN-1: Guarded transition via RPC. Returns 1 if we won the race, 0
+  // if another caller already advanced the row.
+  const { data: gateData, error: gateError } = await supabase
+    .rpc('begin_payout_processing', { p_payout_id: payoutId });
 
-  // Call provider disburser
+  if (gateError) {
+    return {
+      success: false,
+      message: `Payout gate error: ${gateError.message}`,
+      status: 'failed',
+      error: 'GATE_ERROR',
+    };
+  }
+
+  const gateRows = Array.isArray(gateData)
+    ? Number(gateData[0]?.begin_payout_processing ?? gateData[0] ?? 0)
+    : Number(gateData ?? 0);
+
+  if (gateRows !== 1) {
+    return {
+      success: false,
+      message: 'Payout already being processed or no longer in pending state',
+      status: payout.status as 'processing' | 'completed' | 'failed',
+      error: 'CONCURRENT_PROCESSING',
+    };
+  }
+
+  // We're the only caller past the gate. Call the provider disburser.
   const providerResult = await providerDisburser(payout.id, Number(payout.amount));
 
   if (!providerResult.success) {
@@ -195,6 +233,10 @@ export async function processPayout(
       .from('payouts')
       .update({ status: 'failed', notes: providerResult.error ?? 'Provider disbursement failed' })
       .eq('id', payoutId);
+
+    // COMM-005: Best-effort payout_failed notification
+    await notifyPayoutUpdate(supabase, payoutId, 'failed');
+
     return {
       success: false,
       message: providerResult.error ?? 'Disbursement failed',
@@ -212,6 +254,9 @@ export async function processPayout(
       provider_ref: providerResult.reference ?? null,
     })
     .eq('id', payoutId);
+
+  // COMM-005: Best-effort payout_completed notification
+  await notifyPayoutUpdate(supabase, payoutId, 'completed');
 
   return {
     success: true,

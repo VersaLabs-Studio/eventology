@@ -5,6 +5,7 @@ import { createRegistrationSchema, type RegistrationRPCResult } from '@eventolog
 import { getPaymentProvider } from '@/lib/payments';
 import { issueTicket } from '@/lib/tickets/issue-ticket';
 import { resolveCommissionRate, splitCommission } from '@/lib/payments/commission';
+import { notifyRegistrationConfirmed, notifyTicketIssued } from '@/lib/comms/domain-notify';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -118,6 +119,16 @@ export async function POST(req: NextRequest) {
     if (!ticketResult.success) {
       console.error('[Registration] Failed to issue ticket for free registration:', ticketResult.error);
     }
+
+    // COMM-005: Fire best-effort notifications for the free path
+    await notifyRegistrationConfirmed(serviceClient, result.registration.id);
+    if (ticketResult.ticket) {
+      await notifyTicketIssued(
+        serviceClient,
+        result.registration.id,
+        ticketResult.ticket.ticket_number
+      );
+    }
   }
 
   // Paid path — create payment record and initiate payment
@@ -145,8 +156,11 @@ export async function POST(req: NextRequest) {
 
       // REV-003: Apply promo code if provided. Uses atomic apply_promo_code RPC
       // (FOR UPDATE lock) to prevent concurrent double-spend.
+      // FIN-3: capture redemption_id for compensation if the downstream
+      // payment insert fails (release_promo_code RPC). The per-user cap
+      // is enforced inside the locked RPC via promo_redemptions.
       let chargedPrice = tierCheck.price;
-      let promoInfo: { id: string; code: string; discount_amount: number } | null = null;
+      let promoInfo: { id: string; code: string; discount_amount: number; redemption_id: string } | null = null;
       if (promoCode) {
         const { applyPromoCode, calculateDiscount } = await import('@/lib/payments/promo-codes');
         const applyResult = await applyPromoCode(supabase, promoCode, event_id, session.user.id);
@@ -156,7 +170,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           );
         }
-        if (applyResult.discount_type && applyResult.discount_value !== undefined) {
+        if (applyResult.discount_type && applyResult.discount_value !== undefined && applyResult.redemption_id) {
           const discountAmount = calculateDiscount(
             chargedPrice,
             applyResult.discount_type,
@@ -168,6 +182,7 @@ export async function POST(req: NextRequest) {
             id: applyResult.promo_id!,
             code: promoCode,
             discount_amount: discountAmount,
+            redemption_id: applyResult.redemption_id,
           };
         }
       }
@@ -194,11 +209,31 @@ export async function POST(req: NextRequest) {
 
       // L5: If the payments insert fails, return 500 — don't fall through to a
       // 201 response with no checkout_url (which would leave the user in limbo).
+      // FIN-3: also compensate the promo redemption (release_promo_code) so
+      // used_count doesn't leak and the user can retry.
       if (paymentError || !payment) {
+        if (promoInfo?.redemption_id) {
+          try {
+            await supabase.rpc('release_promo_code', {
+              p_redemption_id: promoInfo.redemption_id,
+            });
+          } catch (compErr) {
+            console.error('[Registration] Failed to release promo redemption on payment insert failure:', compErr);
+          }
+        }
         return NextResponse.json(
           { error: { code: 'PAYMENT_INSERT_FAILED', message: paymentError?.message ?? 'Failed to create payment record' } } satisfies ErrorEnvelope,
           { status: 500 }
         );
+      }
+
+      // FIN-3: Link the redemption row to the payment row so analytics
+      // can trace promo usage back to its source payment.
+      if (promoInfo?.redemption_id) {
+        await supabase
+          .from('promo_redemptions')
+          .update({ payment_id: payment.id })
+          .eq('id', promoInfo.redemption_id);
       }
 
       if (payment) {
