@@ -1787,7 +1787,12 @@ export type Database = {
         | "refund_processed"
         | "payout_update"
       payment_method: "pay_at_door" | "chapa" | "telebirr" | "bank_transfer"
-      payment_status: "pending" | "completed" | "failed" | "refunded"
+      payment_status:
+        | "pending"
+        | "completed"
+        | "failed"
+        | "refunded"
+        | "refund_pending"
       payout_status: "pending" | "processing" | "completed" | "failed"
       promo_discount_type: "percentage" | "fixed"
       registration_status:
@@ -1977,7 +1982,13 @@ export const Constants = {
         "payout_update",
       ],
       payment_method: ["pay_at_door", "chapa", "telebirr", "bank_transfer"],
-      payment_status: ["pending", "completed", "failed", "refunded"],
+      payment_status: [
+        "pending",
+        "completed",
+        "failed",
+        "refunded",
+        "refund_pending",
+      ],
       payout_status: ["pending", "processing", "completed", "failed"],
       promo_discount_type: ["percentage", "fixed"],
       registration_status: [

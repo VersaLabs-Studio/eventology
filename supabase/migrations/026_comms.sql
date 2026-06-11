@@ -8,10 +8,27 @@
 --      payout/refund/Chapa-transfer config.
 --        - FIN-1: payout balance-check + insert into SECURITY DEFINER RPC
 --                 with FOR UPDATE locking; guarded pending→processing.
+--                 (The aggregate SUM in the balance query runs inside the
+--                 organizer-row lock — Postgres forbids FOR UPDATE on
+--                 aggregate queries, and the lock is already serialized.)
 --        - FIN-2: refund guarded state transition before provider call.
+--                 completed → refund_pending → refunded (or back to
+--                 completed on provider failure). The new 'refund_pending'
+--                 enum value is the gate. Concurrent refund callers can
+--                 never both win; only the first reaches provider.refund().
 --        - FIN-3: promo_redemptions table keyed (promo_id, user_id) so the
 --                 per-user cap is checked inside the locked RPC. Prevents
---                 used_count leak on failed registration insert.
+--                 used_count leak on failed registration insert. Cap is
+--                 enforced via COUNT(*) (NOT UNIQUE) because max_uses_per_user
+--                 is configurable and may exceed 1.
+--        - FIN-3 (audit fix): the original UNIQUE(promo_id, user_id) was
+--                 over-tight — it hard-capped per-user at 1, but the column
+--                 default is 1 and can be raised to N. A 2nd legitimate
+--                 redemption would have raised an unhandled unique-violation
+--                 and 500'd the registration. The FOR UPDATE lock on the
+--                 promo row already makes the in-lock COUNT(*) check
+--                 race-free, so we replace the unique index with a
+--                 non-unique lookup and let COUNT(*) enforce the cap.
 --
 --   2. COMM-001 (Day 13) delivery infrastructure.
 --        - notification_deliveries — per-channel send tracking
@@ -21,6 +38,16 @@
 --        - extended notification_type enum (payment_completed,
 --          refund_processed, payout_update)
 -- ============================================================================
+
+-- ============================================================================
+-- FIN-2: Extend payment_status enum with 'refund_pending'
+-- ============================================================================
+-- Adds a transient 'refund_pending' state between 'completed' and 'refunded'.
+-- Postgres 12+ allows ADD VALUE inside a transaction block AND makes the new
+-- value visible to subsequent statements in the same transaction, so the
+-- CREATE OR REPLACE FUNCTION below (which references 'refund_pending' as a
+-- string literal against the enum type) parses correctly when applied.
+ALTER TYPE public.payment_status ADD VALUE IF NOT EXISTS 'refund_pending';
 
 -- ============================================================================
 -- FIN-1: Atomic payout request with balance-check + insert
@@ -66,12 +93,16 @@ BEGIN
   WHERE e.organizer_id = p_organizer_id
     AND p.status = 'completed';
 
-  -- paidOut: sum of non-failed payouts (pending + processing + completed)
+  -- paidOut: sum of non-failed payouts (pending + processing + completed).
+  -- Postgres forbids FOR UPDATE on aggregate queries (SELECT SUM(...) FOR
+  -- UPDATE errors at parse/plan time). The organizer-row lock acquired
+  -- above (PERFORM 1 FROM organizers ... FOR UPDATE) already serializes
+  -- concurrent payout requests per-organizer, so this SUM is safe inside
+  -- that lock window — no second lock is needed here.
   SELECT COALESCE(SUM(amount), 0) INTO v_total_paid_out
   FROM public.payouts
   WHERE organizer_id = p_organizer_id
-    AND status IN ('pending', 'processing', 'completed')
-  FOR UPDATE;  -- also lock the payout rows so concurrent inserts serialize
+    AND status IN ('pending', 'processing', 'completed');
 
   -- refunded: sum of refund_amount on refunded payments
   SELECT COALESCE(SUM(p.refund_amount), 0) INTO v_total_refunded
@@ -145,14 +176,14 @@ COMMENT ON FUNCTION public.begin_payout_processing IS
 -- ============================================================================
 -- FIN-2: Guarded state transition for refunds
 -- ============================================================================
--- Adds a new 'refund_pending' status flow:
---   completed → refund_pending → refunded
--- The transition to 'refund_pending' is conditional, so concurrent refund
--- requests cannot both pass the gate. The provider call happens AFTER the
--- status is locked.
+-- Flow: completed → refund_pending → refunded (or back to completed on
+--       provider failure).
+-- The transition completed → refund_pending is a guarded conditional update,
+-- so two concurrent refund requests cannot both pass the gate. The provider
+-- call happens AFTER the status is locked. If the provider fails, the caller
+-- rolls the row back to 'completed' (only if still refund_pending) so a
+-- retry can win the gate again. On success, refund_pending → 'refunded'.
 -- ============================================================================
--- We don't add a new enum value (payment_status is shared). Instead, we use
--- a guarded conditional update function:
 CREATE OR REPLACE FUNCTION public.begin_refund(
   p_payment_id UUID
 )
@@ -160,12 +191,13 @@ RETURNS INTEGER AS $$
 DECLARE
   v_rows INTEGER;
 BEGIN
-  -- Conditional update: only flip if currently 'completed'.
-  -- A second concurrent call sees status='refund_pending' and 0 rows update.
-  -- The caller is expected to mark this row with a notes marker so an
-  -- admin can audit a stuck refund, then re-try or force the final flip.
+  -- Real guarded state transition: only flip completed → refund_pending.
+  -- A second concurrent call sees status='refund_pending' (or 'refunded')
+  -- and updates 0 rows — the caller must abort BEFORE the provider call.
+  -- On provider failure, the caller rolls the row back to 'completed'.
+  -- On provider success, the caller flips 'refund_pending' → 'refunded'.
   UPDATE public.payments
-  SET notes = COALESCE(notes, '') || '[refund_started ' || now()::text || ']'
+  SET status = 'refund_pending'
   WHERE id = p_payment_id
     AND status = 'completed';
 
@@ -175,20 +207,26 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 COMMENT ON FUNCTION public.begin_refund IS
-  'FIN-2: Guarded refund gate. Marks the payment row as refund-in-progress '
-  '(via notes marker) IF and ONLY IF status is currently completed. '
-  'Returns 1 if the caller won the race, 0 if the payment is not in completed state. '
+  'FIN-2: Guarded refund gate. Atomically flips a payment from completed '
+  'to refund_pending IF AND ONLY IF its current status is completed. '
+  'Returns 1 if the caller won the race and may proceed to the provider '
+  'call, 0 if the payment is already refund_pending (concurrent refund) '
+  'or refunded (idempotent no-op upstream). '
+  'On provider failure, the caller rolls the row back to completed. '
   'Concurrent refund requests cannot both pass this gate.';
 
 -- ============================================================================
 -- FIN-3: Per-user promo usage tracking inside the locked RPC
 -- ============================================================================
 -- A new table promo_redemptions (promo_id, user_id, redeemed_at) replaces
--- the brittle metadata scan inside apply_promo_code. The UNIQUE constraint
--- on (promo_id, user_id) + the per-user count check inside the lock window
--- make the per-user cap race-free. used_count is still incremented only
--- after the redemption row commits; on payment insert failure we
--- compensate via a dedicated decrement helper.
+-- the brittle metadata scan inside apply_promo_code. The per-user cap is
+-- enforced via a COUNT(*) check on this table inside the locked RPC — the
+-- FOR UPDATE lock on the promo row makes the count race-free. The
+-- (promo_id, user_id) index is a NON-UNIQUE lookup (not a hard cap)
+-- because max_uses_per_user is configurable and may legitimately exceed 1.
+-- used_count is still incremented only after the redemption row commits;
+-- on payment insert failure we compensate via a dedicated decrement
+-- helper.
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.promo_redemptions (
   id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -199,12 +237,15 @@ CREATE TABLE IF NOT EXISTS public.promo_redemptions (
   redeemed_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- One redemption row per (promo, user). The per-user cap is enforced via
--- COUNT(*) on this table inside the locked RPC, not by scanning metadata.
-CREATE UNIQUE INDEX IF NOT EXISTS uniq_promo_redemption_per_user
-  ON public.promo_redemptions(promo_id, user_id);
-
--- Fast lookups for the per-user cap check
+-- We do NOT enforce a hard UNIQUE on (promo_id, user_id) because
+-- max_uses_per_user is configurable (DEFAULT 1, may be raised to N).
+-- A second legitimate redemption by the same user must be allowed
+-- without raising an unhandled unique-violation that 500s the
+-- registration. The per-user cap is enforced via a COUNT(*) check
+-- inside the locked RPC — the FOR UPDATE lock on the promo row makes
+-- that count race-free.
+--
+-- Fast lookups for the per-user cap check (non-unique)
 CREATE INDEX IF NOT EXISTS idx_promo_redemptions_promo_user
   ON public.promo_redemptions(promo_id, user_id);
 
@@ -262,9 +303,12 @@ BEGIN
   END IF;
 
   -- FIN-3: Count per-user usage from the redemption table (not metadata).
-  -- The UNIQUE constraint on (promo_id, user_id) plus the FOR UPDATE lock
-  -- make this race-free — two concurrent submissions can never both see
-  -- "user has 0 redemptions" and both pass.
+  -- The FOR UPDATE lock on the promo row makes this COUNT(*) check
+  -- race-free — two concurrent submissions can never both see "user has
+  -- N redemptions" and both pass. The (promo_id, user_id) index is a
+  -- non-unique lookup; the cap is enforced HERE, not by a UNIQUE
+  -- constraint, because max_uses_per_user is configurable and may
+  -- legitimately exceed 1.
   SELECT COUNT(*) INTO v_user_uses
   FROM public.promo_redemptions
   WHERE promo_id = v_promo.id
@@ -275,10 +319,11 @@ BEGIN
     RETURN;
   END IF;
 
-  -- Insert the redemption row. UNIQUE(promo_id, user_id) is the cap.
-  -- If a concurrent submit races past the COUNT(*) check (which it
-  -- cannot, due to the FOR UPDATE lock), this INSERT will fail and the
-  -- caller will see a uniqueness violation.
+  -- Insert the redemption row. The (promo_id, user_id) index is NOT
+  -- unique, so this INSERT cannot fail with a unique-violation on a
+  -- second legitimate redemption — the COUNT(*) check above already
+  -- verified the user is under the cap. The FOR UPDATE lock on the
+  -- promo row guarantees no concurrent submit can race past the count.
   INSERT INTO public.promo_redemptions (promo_id, user_id, event_id)
   VALUES (v_promo.id, p_user_id, p_event_id)
   RETURNING id INTO v_redemption_id;
@@ -296,9 +341,10 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 COMMENT ON FUNCTION public.apply_promo_code IS
   'FIN-3: Atomically validates, inserts a promo_redemptions row, and '
   'increments used_count. Locks the promo row (FOR UPDATE) and enforces '
-  'the per-user cap via the UNIQUE(promo_id, user_id) constraint on '
-  'promo_redemptions. used_count cannot leak on payment insert failure '
-  'because release_promo_code compensates.';
+  'the per-user cap via a COUNT(*) check inside the lock — NOT via a '
+  'UNIQUE constraint on promo_redemptions, because max_uses_per_user is '
+  'configurable and may legitimately exceed 1. used_count cannot leak on '
+  'payment insert failure because release_promo_code compensates.';
 
 -- Compensation helper: rolls back a redemption row + used_count decrement
 -- when the downstream payment insert fails. Used by the registrations route

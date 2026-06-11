@@ -82,6 +82,7 @@ export const PAYMENT_STATUSES: readonly PaymentStatus[] = [
   'completed',
   'failed',
   'refunded',
+  'refund_pending',
 ] as const;
 
 export const PAYMENT_METHODS: readonly PaymentMethod[] = [
