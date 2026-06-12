@@ -55,6 +55,7 @@ export async function generateAnalyticsNarrative(
     if (cached) return JSON.parse(cached) as GenerateAnalyticsNarrativeOutput;
 
     const response = await callAI({
+      task: 'generate_analytics_narrative',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

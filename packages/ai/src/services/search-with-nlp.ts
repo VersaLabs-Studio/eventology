@@ -59,6 +59,7 @@ export async function searchWithNLP(
 ): Promise<SearchWithNLPOutput | null> {
   try {
     const response = await callAI({
+      task: 'search_with_nlp',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

@@ -61,6 +61,7 @@ export async function generatePricingSuggestion(
     if (cached) return JSON.parse(cached) as GeneratePricingSuggestionOutput;
 
     const response = await callAI({
+      task: 'generate_pricing_suggestion',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

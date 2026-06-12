@@ -63,6 +63,7 @@ export async function generatePlatformHealthSummary(
     if (cached) return JSON.parse(cached) as GeneratePlatformHealthOutput;
 
     const response = await callAI({
+      task: 'generate_platform_health',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

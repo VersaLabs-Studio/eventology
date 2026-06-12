@@ -64,6 +64,7 @@ export async function generateEventRecap(
     if (cached) return JSON.parse(cached) as GenerateEventRecapOutput;
 
     const response = await callAI({
+      task: 'generate_event_recap',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

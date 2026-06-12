@@ -1676,6 +1676,189 @@ export type Database = {
         }
         Relationships: []
       }
+      fraud_signals: {
+        Row: {
+          created_at: string
+          flags: string[]
+          id: string
+          metadata: Json
+          reason: string | null
+          recommended_action: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_score: number
+          status: string
+          subject_id: string
+          subject_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          flags?: string[]
+          id?: string
+          metadata?: Json
+          reason?: string | null
+          recommended_action: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_score: number
+          status?: string
+          subject_id: string
+          subject_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          flags?: string[]
+          id?: string
+          metadata?: Json
+          reason?: string | null
+          recommended_action?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_score?: number
+          status?: string
+          subject_id?: string
+          subject_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      content_moderation: {
+        Row: {
+          author_id: string | null
+          content_id: string
+          content_type: string
+          created_at: string
+          flags: string[]
+          id: string
+          is_safe: boolean
+          metadata: Json
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: string
+          status: string
+          suggested_action: string
+        }
+        Insert: {
+          author_id?: string | null
+          content_id: string
+          content_type: string
+          created_at?: string
+          flags?: string[]
+          id?: string
+          is_safe?: boolean
+          metadata?: Json
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          suggested_action?: string
+        }
+        Update: {
+          author_id?: string | null
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          flags?: string[]
+          id?: string
+          is_safe?: boolean
+          metadata?: Json
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          suggested_action?: string
+        }
+        Relationships: []
+      }
+      ai_chat_sessions: {
+        Row: {
+          context: Json
+          created_at: string
+          id: string
+          profile_id: string
+          tier: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          id?: string
+          profile_id: string
+          tier: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          id?: string
+          profile_id?: string
+          tier?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          metadata: Json
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          role?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
+      ai_rate_limit_buckets: {
+        Row: {
+          count: number
+          id: string
+          profile_id: string
+          scope: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          id?: string
+          profile_id: string
+          scope: string
+          updated_at?: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          id?: string
+          profile_id?: string
+          scope?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

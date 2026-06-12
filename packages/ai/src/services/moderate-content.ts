@@ -47,6 +47,7 @@ export async function moderateContent(
 ): Promise<ModerateContentOutput | null> {
   try {
     const response = await callAI({
+      task: 'moderate_content',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

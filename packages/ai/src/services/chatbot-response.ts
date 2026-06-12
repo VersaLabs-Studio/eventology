@@ -112,6 +112,7 @@ export async function chatbotResponse(
 ): Promise<ChatbotResponseOutput | null> {
   try {
     const response = await callAI({
+      task: 'chatbot_response',
       messages: buildMessages(input),
       modelTier: 'medium',
       temperature: 0.8, // Slightly more creative for conversational AI

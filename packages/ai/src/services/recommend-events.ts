@@ -68,6 +68,7 @@ export async function recommendEvents(
     if (cached) return JSON.parse(cached) as RecommendEventsOutput;
 
     const response = await callAI({
+      task: 'recommend_events',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

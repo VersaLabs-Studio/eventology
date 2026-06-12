@@ -7,6 +7,7 @@ import { HeroSection } from "@/components/public/hero-section";
 import { FeaturedCarousel } from "@/components/public/featured-carousel";
 import { CategoryGrid } from "@/components/public/category-grid";
 import { EventCard } from "@/components/shared/event-card";
+import { RecommendationsRail } from "@/components/ai/recommendations-rail";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Search, UserPlus, Ticket, ArrowRight, Sparkles, Globe2, ShieldCheck, Zap, Infinity as InfinityIcon, Calendar, MapPin } from "lucide-react";
@@ -174,6 +175,9 @@ export function PublicHomePage() {
           <CategoryGrid />
         </div>
       </section>
+
+      {/* AI Recommendations rail (skips on no-user / AI outage) */}
+      <RecommendationsRail />
 
       {/* Main Upcoming Event Discovery Stream */}
       <section className="py-16 sm:py-24">

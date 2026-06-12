@@ -9,6 +9,36 @@
 // OpenRouter Client Types
 // ---------------------------------------------------------------------------
 
+/**
+ * Discriminant tag for the AI task being performed. Each of the 18
+ * services in `services/` passes its own tag so the provider (especially
+ * the stub) can return a properly-shaped payload per service without
+ * having to parse the prompt to figure out the intent.
+ *
+ * The list is closed and aligned with the barrel export in
+ * `services/index.ts`. Adding a new service = adding a tag here AND a
+ * stub fixture in `stub-fixtures.ts`.
+ */
+export type AITask =
+  | 'generate_event_description'
+  | 'generate_event_summary'
+  | 'generate_event_tags'
+  | 'generate_marketing_copy'
+  | 'generate_pricing_suggestion'
+  | 'generate_analytics_narrative'
+  | 'generate_attendee_insights'
+  | 'generate_performance_prediction'
+  | 'moderate_content'
+  | 'detect_fraud'
+  | 'translate_content'
+  | 'chatbot_response'
+  | 'generate_report'
+  | 'recommend_events'
+  | 'search_with_nlp'
+  | 'generate_platform_health'
+  | 'analyze_audit_log'
+  | 'generate_event_recap';
+
 /** Model tier determines which model in the fallback chain to start from. */
 export type ModelTier = 'heavy' | 'medium' | 'light';
 
@@ -20,6 +50,8 @@ export interface AIMessage {
 
 /** Options passed to the `callAI` function. */
 export interface AIRequestOptions {
+  /** Which service is calling — drives stub fixtures and live routing hints. */
+  task: AITask;
   messages: AIMessage[];
   modelTier: ModelTier;
   /** If true, request JSON object output from the model. */

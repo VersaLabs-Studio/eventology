@@ -51,6 +51,7 @@ export async function translateContent(
     if (cached) return JSON.parse(cached) as TranslateContentOutput;
 
     const response = await callAI({
+      task: 'translate_content',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },
