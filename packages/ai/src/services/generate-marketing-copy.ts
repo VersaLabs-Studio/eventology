@@ -58,6 +58,7 @@ export async function generateMarketingCopy(
     if (cached) return JSON.parse(cached) as GenerateMarketingCopyOutput;
 
     const response = await callAI({
+      task: 'generate_marketing_copy',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
 import { AnalyticsCharts } from "@/components/dashboard/analytics-charts";
+import { EventAnalyticsAI } from "@/components/ai/event-analytics-ai";
 import { getEventById } from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 
@@ -40,6 +41,7 @@ export default function AnalyticsPage() {
           <p className="font-semibold text-sm mt-1">Social Media</p>
         </div>
       </div>
+      <EventAnalyticsAI eventId={eventId} />
     </motion.div>
   );
 }

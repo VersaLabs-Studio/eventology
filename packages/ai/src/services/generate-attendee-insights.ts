@@ -53,6 +53,7 @@ export async function generateAttendeeInsights(
     if (cached) return JSON.parse(cached) as GenerateAttendeeInsightsOutput;
 
     const response = await callAI({
+      task: 'generate_attendee_insights',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

@@ -273,6 +273,48 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // AI-006: fire-and-forget fraud detection on registration creation.
+  // Best-effort — the registration has already succeeded. An AI outage
+  // NEVER blocks the user. Writes a fraud_signals row when suspicious.
+  const registrationIdForSignal = result.registration?.id;
+  void (async () => {
+    try {
+      const { aiDetectFraud } = await import('@/lib/ai/service');
+      const { writeFraudSignal } = await import('@/lib/ai/persistence');
+      const service = createServiceClient();
+      const fraudResult = await aiDetectFraud({
+        action_type: 'registration',
+        user_id: session.user.id,
+        metadata: {
+          event_id,
+          tier_id: ticket_tier_id,
+          amount: tierCheck.price,
+        },
+      });
+      if (
+        fraudResult.ok &&
+        fraudResult.data?.is_suspicious &&
+        registrationIdForSignal
+      ) {
+        await writeFraudSignal(service, {
+          subject_type: 'registration',
+          subject_id: registrationIdForSignal,
+          user_id: session.user.id,
+          risk_score: fraudResult.data.risk_score,
+          flags: fraudResult.data.flags,
+          recommended_action: fraudResult.data.recommended_action,
+          reason: fraudResult.data.reason ?? null,
+          metadata: { event_id, tier_id: ticket_tier_id },
+        });
+      }
+    } catch (err) {
+      console.warn(
+        '[AI/fraud] registration fire-and-forget failed:',
+        err instanceof Error ? err.message : 'Unknown error'
+      );
+    }
+  })();
+
   return NextResponse.json(result, { status: 201 });
 }
 

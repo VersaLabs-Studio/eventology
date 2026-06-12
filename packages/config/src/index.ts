@@ -5,3 +5,4 @@
 export * from './entity-config';
 export * from './query-keys';
 export * from './constants';
+export * from './ai.config';

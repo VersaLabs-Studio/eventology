@@ -62,6 +62,7 @@ export async function analyzeAuditLog(
 ): Promise<AnalyzeAuditLogOutput | null> {
   try {
     const response = await callAI({
+      task: 'analyze_audit_log',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

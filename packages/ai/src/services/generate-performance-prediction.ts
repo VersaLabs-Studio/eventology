@@ -56,6 +56,7 @@ export async function generatePerformancePrediction(
     if (cached) return JSON.parse(cached) as GeneratePerformancePredictionOutput;
 
     const response = await callAI({
+      task: 'generate_performance_prediction',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

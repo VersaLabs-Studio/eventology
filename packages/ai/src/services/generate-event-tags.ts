@@ -48,6 +48,7 @@ export async function generateEventTags(
     if (cached) return JSON.parse(cached) as GenerateEventTagsOutput;
 
     const response = await callAI({
+      task: 'generate_event_tags',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

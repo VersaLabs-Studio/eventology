@@ -9,6 +9,7 @@ import { RichTextEditor } from "@/components/shared/rich-text-editor";
 import { ImageUpload } from "@/components/shared/image-upload";
 import { TicketTierEditor } from "@/components/dashboard/ticket-tier-editor";
 import { Separator } from "@/components/ui/separator";
+import { AIGenerateButton } from "@/components/ai/ai-generate-button";
 import { categories } from "@/lib/mock-data";
 
 export function EventForm() {
@@ -24,6 +25,27 @@ export function EventForm() {
   const [subCity, setSubCity] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [tags, setTags] = React.useState("");
+
+  // AI-004: "✨ Generate" handlers — populate form fields from AI output
+  // (the form fields are user-editable; AI never auto-overwrites).
+  function applyDescription(result: { description?: string; short_description?: string }) {
+    if (result.description) setDescription(result.description);
+    if (result.short_description) setShortDescription(result.short_description);
+  }
+
+  function applyTags(result: { tags?: string[] }) {
+    if (result.tags && result.tags.length > 0) setTags(result.tags.join(", "));
+  }
+
+  const aiInput = {
+    title,
+    event_type: eventType || "conference",
+    category: category || "General",
+    venue_name: venue || null,
+    start_date: date ? new Date(date).toISOString() : new Date().toISOString(),
+    tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+    short_description: shortDescription || null,
+  };
 
   return (
     <div className="space-y-8 max-w-3xl">
@@ -136,7 +158,15 @@ export function EventForm() {
       <Separator />
 
       <section>
-        <h3 className="font-display font-semibold text-lg mb-4">5. Description</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display font-semibold text-lg">5. Description</h3>
+          <AIGenerateButton
+            task="description"
+            input={aiInput}
+            onResult={applyDescription}
+            label="Generate with AI"
+          />
+        </div>
         <RichTextEditor value={description} onChange={setDescription} />
       </section>
 
@@ -150,7 +180,15 @@ export function EventForm() {
       <Separator />
 
       <section>
-        <h3 className="font-display font-semibold text-lg mb-4">7. Tags</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display font-semibold text-lg">7. Tags</h3>
+          <AIGenerateButton
+            task="tags"
+            input={{ title, description, event_type: eventType, category }}
+            onResult={applyTags}
+            label="Suggest tags"
+          />
+        </div>
         <Input
           value={tags}
           onChange={(e) => setTags(e.target.value)}
