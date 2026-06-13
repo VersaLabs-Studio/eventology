@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ModerationCard } from "@/components/admin/moderation-card";
+import { RejectReasonDialog } from "@/components/admin/reject-reason-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, AlertOctagon, ShieldCheck, Activity } from "lucide-react";
@@ -145,6 +146,9 @@ export default function ModerationPage() {
   const aiModeration = aiModQ.data?.data ?? [];
   const aiFraud = aiFraudQ.data?.data ?? [];
 
+  // R1 audit debt: replace window.prompt() with the premium RejectReasonDialog.
+  const [rejectTarget, setRejectTarget] = React.useState<AdminEventRow | null>(null);
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       <PageHeader
@@ -180,11 +184,7 @@ export default function ModerationPage() {
               event={event}
               isPending={approve.isPending || reject.isPending}
               onApprove={() => approve.mutate(event.id)}
-              onReject={() => {
-                const reason = window.prompt(`Reject "${event.title}" — reason?`, "Insufficient details");
-                if (!reason || !reason.trim()) return;
-                reject.mutate({ id: event.id, reason: reason.trim() });
-              }}
+              onReject={() => setRejectTarget(event)}
             />
           ))}
 
@@ -320,6 +320,23 @@ export default function ModerationPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <RejectReasonDialog
+        open={!!rejectTarget}
+        onOpenChange={(o) => !o && setRejectTarget(null)}
+        title={rejectTarget ? `Reject "${rejectTarget.title}"` : 'Reject event'}
+        description="The organizer will see this reason in their notifications."
+        defaultValue="Insufficient details"
+        confirmLabel="Reject event"
+        isPending={reject.isPending}
+        onConfirm={(reason) => {
+          if (!rejectTarget) return;
+          reject.mutate(
+            { id: rejectTarget.id, reason },
+            { onSuccess: () => setRejectTarget(null) }
+          );
+        }}
+      />
     </motion.div>
   );
 }

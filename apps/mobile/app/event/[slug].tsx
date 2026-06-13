@@ -1,18 +1,19 @@
 // ============================================================================
-// Event detail screen
+// Event detail screen — Phase 3 Rotation 2
 // ============================================================================
 // Loads /api/public/events/[slug]. Renders banner, title, organizer,
-// venue, description, ticket tiers. The Register button is a DISABLED
-// "Coming soon" affordance — registration is wired in Rotation 2 (P18).
+// venue, description, ticket tiers. The Register button is now wired
+// to a real registration flow (free + paid + paid webview).
 // ============================================================================
 
 import React from 'react';
 import { Image, ScrollView, StyleSheet, Text, View, useColorScheme } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { api, ApiClientError } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -70,6 +71,15 @@ interface EventDetail {
   ticket_tiers: TicketTier[] | null;
 }
 
+interface RegistrationResponse {
+  success: boolean;
+  registration: { id: string; status: 'confirmed' | 'pending_payment' };
+  ticket?: { id: string; ticket_number: string; qr_data: string };
+  checkout_url?: string;
+  final_price?: number;
+  discount_applied?: number;
+}
+
 async function fetchEvent(slug: string): Promise<EventDetail> {
   return api.get<EventDetail>(`/api/public/events/${encodeURIComponent(slug)}`);
 }
@@ -81,6 +91,9 @@ export default function EventDetailScreen(): React.ReactElement {
   const text = isDark ? colors.textDark : colors.text;
   const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
   const border = isDark ? colors.borderDark : colors.border;
+  const router = useRouter();
+  const qc = useQueryClient();
+  const { user } = useAuth();
 
   const eventQ = useQuery({
     queryKey: ['events', 'detail', slug],
@@ -89,6 +102,72 @@ export default function EventDetailScreen(): React.ReactElement {
   });
 
   const event = eventQ.data;
+
+  // Selected tier — null means "first tier" / "free if no tiers".
+  const [selectedTierId, setSelectedTierId] = React.useState<string | null>(null);
+  const [quantity, setQuantity] = React.useState(1);
+
+  // Free path: ticket is issued immediately. Paid path: route to webview.
+  const register = useMutation({
+    mutationFn: async () => {
+      if (!event) throw new Error('Event not loaded');
+      const tier = event.ticket_tiers?.[0];
+      if (!tier && event.ticket_type === 'paid') {
+        throw new Error('No ticket tiers available for this event');
+      }
+      return api.post<RegistrationResponse>('/api/protected/registrations', {
+        event_id: event.id,
+        ticket_tier_id: tier?.id ?? null,
+        attendee_name: (user as { name?: string } | null)?.name ?? 'Guest',
+        attendee_email: (user as { email?: string } | null)?.email ?? 'guest@eventology.app',
+        attendee_phone: null,
+      });
+    },
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['events', 'detail', slug] });
+      qc.invalidateQueries({ queryKey: ['events', 'detail'] });
+      if (res.registration.status === 'pending_payment' && res.checkout_url) {
+        // Open the Chapa webview with the stub checkout URL
+        router.push({
+          pathname: '/payment/webview',
+          params: { url: res.checkout_url, registrationId: res.registration.id },
+        });
+        return;
+      }
+      // Free path: confirmation modal + ticket added to My Tickets
+      router.push({
+        pathname: '/event/[slug]',
+        params: { slug, registered: '1' },
+      });
+    },
+    onError: (err) => {
+      // Handled in the UI; toast is in the global handler
+    },
+  });
+
+  // Resolve the initial tier when the event loads
+  React.useEffect(() => {
+    if (event && !selectedTierId && event.ticket_tiers && event.ticket_tiers.length > 0) {
+      setSelectedTierId(event.ticket_tiers[0].id);
+    }
+  }, [event, selectedTierId]);
+
+  const isFree = event?.ticket_type === 'free';
+  const errorMessage =
+    register.error instanceof ApiClientError
+      ? register.error.message
+      : register.error instanceof Error
+        ? register.error.message
+        : null;
+
+  const onRegisterPress = () => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+    if (!event) return;
+    register.mutate();
+  };
 
   return (
     <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
@@ -152,7 +231,6 @@ export default function EventDetailScreen(): React.ReactElement {
                 </View>
               )}
 
-              {/* Meta */}
               <Card padding="md" variant="default">
                 <View style={styles.metaList}>
                   <View style={styles.metaItem}>
@@ -186,7 +264,6 @@ export default function EventDetailScreen(): React.ReactElement {
                 </View>
               </Card>
 
-              {/* Description */}
               {event.description && (
                 <View>
                   <Text style={[styles.sectionTitle, { color: text }]}>About</Text>
@@ -194,7 +271,6 @@ export default function EventDetailScreen(): React.ReactElement {
                 </View>
               )}
 
-              {/* Tiers */}
               {event.ticket_tiers && event.ticket_tiers.length > 0 && (
                 <View>
                   <Text style={[styles.sectionTitle, { color: text }]}>Tickets</Text>
@@ -202,8 +278,15 @@ export default function EventDetailScreen(): React.ReactElement {
                     {event.ticket_tiers.map((tier) => {
                       const remaining = Math.max(0, tier.capacity - tier.sold_count);
                       const soldOut = remaining === 0;
+                      const isSelected = selectedTierId === tier.id;
                       return (
-                        <Card key={tier.id} padding="md" variant="default">
+                        <Card
+                          key={tier.id}
+                          padding="md"
+                          variant={isSelected ? 'outline' : 'default'}
+                          onPress={() => !soldOut && setSelectedTierId(tier.id)}
+                          style={isSelected ? { borderColor: colors.primary, borderWidth: 2 } : {}}
+                        >
                           <View style={styles.tierHeader}>
                             <Text style={[styles.tierName, { color: text }]}>{tier.name}</Text>
                             <Text style={[styles.tierPrice, { color: text }]}>
@@ -222,22 +305,35 @@ export default function EventDetailScreen(): React.ReactElement {
                   </View>
                 </View>
               )}
+
+              {errorMessage && (
+                <View
+                  style={{
+                    backgroundColor: colors.destructiveMuted,
+                    padding: spacing.md,
+                    borderRadius: radius.md,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: spacing.sm,
+                  }}
+                >
+                  <Ionicons name="alert-circle" size={16} color={colors.destructive} />
+                  <Text style={{ color: colors.destructive, flex: 1, fontSize: 13 }}>{errorMessage}</Text>
+                </View>
+              )}
             </View>
           </>
         )}
       </ScrollView>
 
-      {/* Sticky register CTA — disabled "coming soon" (P18 wires this) */}
       {event && (
         <View style={[styles.cta, { borderTopColor: border, backgroundColor: isDark ? colors.surfaceDark : colors.surface }]}>
           <Button
-            label="Register — coming soon"
-            leftIcon="time-outline"
-            disabled
+            label={isFree ? 'Register (free)' : 'Register'}
+            leftIcon="ticket-outline"
+            disabled={register.isPending}
             fullWidth
-            onPress={() => {
-              /* wired in P18 */
-            }}
+            onPress={onRegisterPress}
           />
         </View>
       )}

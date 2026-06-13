@@ -113,6 +113,10 @@ export default function ProfileScreen(): React.ReactElement {
           })}
         </View>
 
+        <Link href="/notifications" asChild>
+          <Button label="Notifications" leftIcon="notifications-outline" variant="outline" fullWidth style={{ marginTop: spacing.md }} />
+        </Link>
+
         {user && (
           <View style={{ marginTop: spacing.lg }}>
             <Button label="Sign out" variant="destructive" leftIcon="log-out-outline" onPress={handleSignOut} fullWidth />

@@ -1,7 +1,7 @@
 // ============================================================================
 // Bottom-tab layout
 // ============================================================================
-// 4 tabs: Home/Discover · Search · My Tickets · Profile.
+// 5 tabs: Home/Discover · Search · My Tickets · Notifications · Profile.
 // ============================================================================
 
 import React from 'react';
@@ -49,6 +49,13 @@ export default function TabsLayout(): React.ReactElement {
         options={{
           title: 'My Tickets',
           tabBarIcon: ({ color, size }) => <Ionicons name="ticket-outline" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Inbox',
+          tabBarIcon: ({ color, size }) => <Ionicons name="notifications-outline" size={size} color={color} />,
         }}
       />
       <Tabs.Screen

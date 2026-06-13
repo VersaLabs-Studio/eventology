@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Plus, MoreHorizontal, CalendarDays } from "lucide-react";
-import { useEvents } from "@/hooks/use-events";
+import { useMyOrganizerEvents } from "@/hooks/use-my-organizer-events";
 import { formatDate } from "@/lib/utils";
 import Image from "next/image";
 
@@ -21,7 +21,7 @@ const statusColors: Record<string, "success" | "warning" | "default" | "destruct
 export default function OrgEventsPage() {
   const [tab, setTab] = React.useState("all");
 
-  const { data, isLoading, isError } = useEvents({
+  const { data, isLoading, isError } = useMyOrganizerEvents({
     limit: 50,
     status: tab === "all" ? undefined : tab,
   });
@@ -81,21 +81,25 @@ export default function OrgEventsPage() {
 
           {!isLoading && !isError && events.length > 0 && (
             <div className="space-y-3">
-              {events.map((event) => (
-                <div key={event.id} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-all">
-                  <div className="relative h-16 w-16 rounded-lg overflow-hidden shrink-0">
-                    <Image src={event.bannerImage} alt={event.title} fill className="object-cover" sizes="64px" />
+            {events.map((event) => (
+              <div key={event.id} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-all">
+                <div className="relative h-16 w-16 rounded-lg overflow-hidden shrink-0 bg-muted">
+                  {event.banner_image ? (
+                    <Image src={event.banner_image} alt={event.title} fill className="object-cover" sizes="64px" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">No img</div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Link href={`/org/events/${event.id}`} className="font-medium text-sm hover:text-primary transition-colors line-clamp-1">
+                    {event.title}
+                  </Link>
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                    <span>{formatDate(event.start_date)}</span>
+                    <span>{event.registrations_count} registrations</span>
+                    <span>{event.views_count} views</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <Link href={`/org/events/${event.id}`} className="font-medium text-sm hover:text-primary transition-colors line-clamp-1">
-                      {event.title}
-                    </Link>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                      <span>{formatDate(event.date)}</span>
-                      <span>{event.registrations} registrations</span>
-                      <span>{event.views} views</span>
-                    </div>
-                  </div>
+                </div>
                   <Badge variant={statusColors[event.status] || "default"}>{event.status}</Badge>
                   <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors">
                     <MoreHorizontal className="h-4 w-4" />

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
-import { auth } from '@/lib/auth';
+import { requireAdminRoute } from '@/lib/api/admin-guard';
 import type { ErrorEnvelope } from '@/lib/api';
 
 export interface PlatformRevenue {
@@ -25,46 +24,26 @@ export interface PlatformRevenue {
  * Admin role enforced at the app layer (RLS is row-level, not role-based).
  */
 export async function GET(_req: NextRequest) {
-  const session = await auth.api.getSession({ headers: _req.headers });
-  if (!session) {
-    return NextResponse.json(
-      { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } } satisfies ErrorEnvelope,
-      { status: 401 }
-    );
-  }
-
-  // App-level role guard
-  const authedClient = await createAuthedClient(session.user.id);
-  const { data: profile } = await authedClient
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
-
-  if (profile?.role !== 'admin') {
-    return NextResponse.json(
-      { error: { code: 'FORBIDDEN', message: 'Admin role required' } } satisfies ErrorEnvelope,
-      { status: 403 }
-    );
-  }
-
-  // Service-role for aggregate queries (read-only is fine, but simpler).
-  const serviceClient = createServiceClient();
+  // R1 audit debt: migrate from inline role-check to requireAdminRoute
+  // (consistency with the other admin routes — same 401/403 envelope).
+  const guard = await requireAdminRoute(_req);
+  if (!guard.ok) return guard.response;
+  const { service } = guard;
 
   // 1. Σ amount of completed payments → GMV
-  const { data: completedData } = await serviceClient
+  const { data: completedData } = await service
     .from('payments')
     .select('amount, platform_fee, currency, status, refunded_at, refund_amount')
     .eq('status', 'completed');
 
   // 2. Σ amount of refunded payments
-  const { data: refundedData } = await serviceClient
+  const { data: refundedData } = await service
     .from('payments')
     .select('refund_amount, currency')
     .eq('status', 'refunded');
 
   // 3. Σ amount of pending/processing payouts
-  const { data: payoutsData } = await serviceClient
+  const { data: payoutsData } = await service
     .from('payouts')
     .select('amount, currency')
     .in('status', ['pending', 'processing']);
