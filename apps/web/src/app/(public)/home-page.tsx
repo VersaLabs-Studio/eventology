@@ -10,8 +10,9 @@ import { EventCard } from "@/components/shared/event-card";
 import { RecommendationsRail } from "@/components/ai/recommendations-rail";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search, UserPlus, Ticket, ArrowRight, Sparkles, Globe2, ShieldCheck, Zap, Infinity as InfinityIcon, Calendar, MapPin } from "lucide-react";
-import { getUpcomingEvents } from "@/lib/mock-data";
+import { useEvents } from "@/hooks/use-events";
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
@@ -54,7 +55,10 @@ export function PublicHomePage() {
     setMounted(true);
   }, []);
 
-  const upcoming = getUpcomingEvents();
+  // Real upcoming events from the public API (RLS filters to status='approved').
+  const eventsQ = useEvents({ limit: 30, date: 'upcoming', sort: 'date-asc' });
+  const upcoming = eventsQ.data?.data ?? [];
+
   const filtered = upcoming.filter((e) => {
     if (tab === "free") return e.ticketType === "free";
     return true;
@@ -196,7 +200,7 @@ export function PublicHomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 min-h-[400px]">
-            {mounted ? (
+            {mounted && !eventsQ.isLoading ? (
               displayEvents.map((event, idx) => (
                 <motion.div
                   key={event.id}

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { OrganizerVerificationCard } from "@/components/admin/organizer-verification-card";
+import { RejectReasonDialog } from "@/components/admin/reject-reason-dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { AdminOrganizerRow } from "@/app/api/protected/admin/organizers/route";
@@ -89,11 +90,8 @@ export default function OrganizersPage() {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to reject"),
   });
 
-  const handleReject = (org: AdminOrganizerRow) => {
-    const reason = window.prompt(`Reject "${org.name}" — reason?`, "Insufficient documentation");
-    if (!reason || !reason.trim()) return;
-    reject.mutate({ id: org.id, reason: reason.trim() });
-  };
+  // R1 audit debt: replace window.prompt() with the premium RejectReasonDialog.
+  const [rejectTarget, setRejectTarget] = React.useState<AdminOrganizerRow | null>(null);
 
   const pending = pendingQ.data?.data ?? [];
   const verified = verifiedQ.data?.data ?? [];
@@ -131,7 +129,7 @@ export default function OrganizersPage() {
                 key={org.id}
                 organizer={org}
                 onVerify={() => verify.mutate(org.id)}
-                onReject={() => handleReject(org)}
+                onReject={() => setRejectTarget(org)}
                 isPending={verify.isPending || reject.isPending}
               />
             ))}
@@ -179,6 +177,23 @@ export default function OrganizersPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <RejectReasonDialog
+        open={!!rejectTarget}
+        onOpenChange={(o) => !o && setRejectTarget(null)}
+        title={rejectTarget ? `Reject "${rejectTarget.name}"` : 'Reject organizer'}
+        description="A clear reason helps organizers resubmit successfully."
+        defaultValue="Insufficient documentation"
+        confirmLabel="Reject organizer"
+        isPending={reject.isPending}
+        onConfirm={(reason) => {
+          if (!rejectTarget) return;
+          reject.mutate(
+            { id: rejectTarget.id, reason },
+            { onSuccess: () => setRejectTarget(null) }
+          );
+        }}
+      />
     </motion.div>
   );
 }

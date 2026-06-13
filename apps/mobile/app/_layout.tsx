@@ -36,6 +36,8 @@ export default function RootLayout(): React.ReactElement {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="auth" />
             <Stack.Screen name="event/[slug]" options={{ headerShown: true, title: 'Event' }} />
+            <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
+            <Stack.Screen name="payment/webview" options={{ headerShown: true, title: 'Payment' }} />
           </Stack>
         </AuthProvider>
       </QueryClientProvider>

@@ -133,6 +133,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Revoke the old signature (with p_user_id) and re-grant the new one
-REVOKE EXECUTE ON FUNCTION public.create_registration_atomic(UUID, UUID, TEXT, TEXT, TEXT, UUID, JSONB) FROM authenticated;
+-- Drop the OLD 8-arg signature created in migration 019 (with p_user_id +
+-- p_qr_data). CREATE OR REPLACE above only adds the new 6-arg overload, so
+-- the old one must be removed explicitly. DROP ... IF EXISTS is idempotent
+-- and cascades the old grants, so this is safe whether or not the old
+-- overload is present on the target DB.
+-- (Fix: the prior REVOKE referenced a 7-arg signature that never existed,
+--  which fails on a clean remote — SQLSTATE 42883.)
+DROP FUNCTION IF EXISTS public.create_registration_atomic(UUID, UUID, UUID, TEXT, TEXT, TEXT, TEXT, JSONB);
 GRANT EXECUTE ON FUNCTION public.create_registration_atomic(UUID, UUID, TEXT, TEXT, TEXT, JSONB) TO authenticated;

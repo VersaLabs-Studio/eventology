@@ -11,6 +11,7 @@ import { FlatList, StyleSheet, Text, TextInput, View, useColorScheme } from 'rea
 import { useQuery } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { api } from '@/lib/api';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EventCard, type MobileEvent } from '@/components/EventCard';
@@ -43,6 +44,7 @@ async function interpretQuery(q: string): Promise<InterpretResponse | null> {
 export default function SearchScreen(): React.ReactElement {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
+  const router = useRouter();
   const [query, setQuery] = React.useState('');
   const [category, setCategory] = React.useState('');
   const [debounced, setDebounced] = React.useState('');
@@ -124,7 +126,12 @@ export default function SearchScreen(): React.ReactElement {
       <FlatList
         data={events}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <EventCard event={item} onPress={() => {/* TODO: open event detail in P18 */}} />}
+        renderItem={({ item }) => (
+          <EventCard
+            event={item}
+            onPress={() => router.push(`/event/${item.slug}`)}
+          />
+        )}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           eventsQ.isLoading ? (

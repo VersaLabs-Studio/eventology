@@ -10,6 +10,7 @@ import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, View, useColorS
 import { useQuery } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { api } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -37,6 +38,7 @@ export default function DiscoverScreen(): React.ReactElement {
   const isDark = scheme === 'dark';
   const { t } = useLocale();
   const { user } = useAuth();
+  const router = useRouter();
   const query = useQuery({
     queryKey: ['events', 'discover'],
     queryFn: fetchEvents,
@@ -52,7 +54,12 @@ export default function DiscoverScreen(): React.ReactElement {
           <FlatList
         data={upcoming}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <EventCard event={item} onPress={() => {/* TODO: open event detail in P18 */}} />}
+        renderItem={({ item }) => (
+          <EventCard
+            event={item}
+            onPress={() => router.push(`/event/${item.slug}`)}
+          />
+        )}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View style={styles.header}>
@@ -87,7 +94,10 @@ export default function DiscoverScreen(): React.ReactElement {
                 >
                   {featured.map((event) => (
                     <View key={event.id} style={styles.featuredItem}>
-                      <EventCard event={event} onPress={() => {/* TODO: open event detail in P18 */}} />
+                      <EventCard
+                        event={event}
+                        onPress={() => router.push(`/event/${event.slug}`)}
+                      />
                     </View>
                   ))}
                 </ScrollView>

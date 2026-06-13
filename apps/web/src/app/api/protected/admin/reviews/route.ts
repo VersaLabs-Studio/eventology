@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAuthedClient } from '@/lib/supabase/server';
-import { auth } from '@/lib/auth';
 import { z } from 'zod';
+import { createAuthedClient } from '@/lib/supabase/server';
+import { requireAdminRoute } from '@/lib/api/admin-guard';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -21,29 +21,10 @@ const moderateSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) {
-    return NextResponse.json(
-      { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } } satisfies ErrorEnvelope,
-      { status: 401 }
-    );
-  }
-
-  // App-level admin check before DB access
-  const supabase = await createAuthedClient(session.user.id);
-  const { data: me } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
-  if (me?.role !== 'admin') {
-    return NextResponse.json(
-      { error: { code: 'FORBIDDEN', message: 'Admin access required' } } satisfies ErrorEnvelope,
-      { status: 403 }
-    );
-  }
-
-  // RLS `Reviews: admin full access` gates access
+  // R1 audit debt: migrate from inline role-check to requireAdminRoute.
+  const guard = await requireAdminRoute(req);
+  if (!guard.ok) return guard.response;
+  const { authed: supabase } = guard;
 
   const { searchParams } = new URL(req.url);
   const page = Math.max(1, Number(searchParams.get('page') ?? 1));
@@ -81,13 +62,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
-  if (!session) {
-    return NextResponse.json(
-      { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } } satisfies ErrorEnvelope,
-      { status: 401 }
-    );
-  }
+  // R1 audit debt: migrate from inline role-check to requireAdminRoute.
+  const guard = await requireAdminRoute(req);
+  if (!guard.ok) return guard.response;
+  const { authed: supabase, userId } = guard;
 
   let body: unknown;
   try {
@@ -113,26 +91,12 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  // App-level admin check before DB access
-  const supabase = await createAuthedClient(session.user.id);
-  const { data: me } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
-  if (me?.role !== 'admin') {
-    return NextResponse.json(
-      { error: { code: 'FORBIDDEN', message: 'Admin access required' } } satisfies ErrorEnvelope,
-      { status: 403 }
-    );
-  }
-
   // RLS `Reviews: admin full access` gates this
   const { data, error } = await supabase
     .from('reviews')
     .update({
       ...parsed.data,
-      moderated_by: session.user.id,
+      moderated_by: userId,
       moderated_at: new Date().toISOString(),
     })
     .eq('id', parsed.data.id)

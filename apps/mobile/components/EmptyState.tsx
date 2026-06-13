@@ -2,21 +2,40 @@
 // EmptyState — placeholder for empty lists / errors
 // ============================================================================
 import React from 'react';
-import { StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, typography } from '@/lib/theme';
+import { colors, radius, spacing, typography } from '@/lib/theme';
 
 interface EmptyStateProps {
   icon?: keyof typeof Ionicons.glyphMap;
   title: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: { label: string; onClick: () => void } | React.ReactNode;
 }
 
 export function EmptyState({ icon = 'file-tray-outline', title, description, action }: EmptyStateProps) {
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
   const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
+  // Normalize legacy `{label, onClick}` shape → button-like node
+  const actionNode: React.ReactNode =
+    action && typeof action === 'object' && 'label' in action && 'onClick' in action ? (
+      <Pressable
+        onPress={action.onClick}
+        style={({ pressed }) => [
+          {
+            paddingVertical: 10,
+            paddingHorizontal: 18,
+            borderRadius: 12,
+            backgroundColor: pressed ? colors.primaryDark : colors.primary,
+          },
+        ]}
+      >
+        <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 14 }}>{action.label}</Text>
+      </Pressable>
+    ) : (
+      (action as React.ReactNode)
+    );
   return (
     <View style={styles.root}>
       <View
@@ -29,7 +48,7 @@ export function EmptyState({ icon = 'file-tray-outline', title, description, act
       </View>
       <Text style={[styles.title, { color: isDark ? colors.textDark : colors.text }]}>{title}</Text>
       {description ? <Text style={[styles.description, { color: textMuted }]}>{description}</Text> : null}
-      {action ? <View style={styles.action}>{action}</View> : null}
+      {actionNode ? <View style={styles.action}>{actionNode}</View> : null}
     </View>
   );
 }

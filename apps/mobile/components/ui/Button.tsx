@@ -18,7 +18,7 @@ import { colors, darkTheme, lightTheme, radius, spacing, typography } from '@/li
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
@@ -69,6 +69,12 @@ const VARIANT_TOKENS_LIGHT = {
     spinnerColor: colors.primary,
     pressedBackground: colors.surfaceMuted,
   },
+  outline: {
+    container: { backgroundColor: 'transparent', borderColor: colors.border },
+    textColor: colors.text,
+    spinnerColor: colors.primary,
+    pressedBackground: colors.surfaceMuted,
+  },
   ghost: {
     container: { backgroundColor: 'transparent', borderColor: 'transparent' },
     textColor: colors.primary,
@@ -92,6 +98,12 @@ const VARIANT_TOKENS_DARK = {
   },
   secondary: {
     container: { backgroundColor: colors.surfaceDark, borderColor: colors.borderDark },
+    textColor: colors.textDark,
+    spinnerColor: colors.primaryLight,
+    pressedBackground: colors.surfaceMutedDark,
+  },
+  outline: {
+    container: { backgroundColor: 'transparent', borderColor: colors.borderDark },
     textColor: colors.textDark,
     spinnerColor: colors.primaryLight,
     pressedBackground: colors.surfaceMutedDark,

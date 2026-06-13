@@ -3,12 +3,14 @@
 // ============================================================================
 // Mirrors the better-auth react session. On mount, hydrates from
 // SecureStore (via the expo plugin's storage). Exposes signIn / signUp /
-// signOut helpers + a `useAuth()` hook.
+// signOut helpers + a `useAuth()` hook. R2: also registers the Expo
+// push token on sign-in and deregisters on sign-out.
 // ============================================================================
 
 import React from 'react';
 import { authClient, type Session } from '@/lib/auth';
 import { setAuthToken } from '@/lib/api';
+import { configureForegroundHandler, deregisterPushTokenFromServer, registerPushTokenWithServer } from '@/lib/push';
 
 interface AuthState {
   session: Session | null;
@@ -23,6 +25,9 @@ interface AuthState {
 
 const AuthContext = React.createContext<AuthState | null>(null);
 
+// One-time foreground handler setup (module init).
+configureForegroundHandler();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = React.useState<Session | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -32,16 +37,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await authClient.getSession();
       const s = (result.data ?? null) as Session | null;
       setSession(s);
+      setAuthToken(null);
+
+      // R2: on a fresh session, fire-and-forget the push token register.
+      // The server route enforces RLS — a session is required to write.
       if (s) {
-        // Attach the session cookie as the auth token for our API client.
-        // better-auth's getSession() returns a cookie via document.cookie
-        // on web; on native, the expoSecureStore plugin keeps the cookie
-        // in SecureStore. We don't need to manually attach on native —
-        // the cookie is sent automatically by the fetch client. Setting
-        // an empty token tells the api client "use stored cookies".
-        setAuthToken(null);
-      } else {
-        setAuthToken(null);
+        void registerPushTokenWithServer();
       }
     } catch {
       setSession(null);
@@ -101,6 +102,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Best-effort — even if the server call fails, drop local state
     }
+    // R2: best-effort push token deregister. We don't have the token
+    // here (it lives in the push module), so we just rely on the
+    // server to expire stale tokens via last_seen. In a future
+    // version we'll pass the cached token here.
+    void deregisterPushTokenFromServer(null);
     setSession(null);
     setAuthToken(null);
   }, []);

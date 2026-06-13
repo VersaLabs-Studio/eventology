@@ -5,7 +5,7 @@ import React from 'react';
 import { Pressable, PressableProps, StyleSheet, View, ViewStyle, StyleProp, useColorScheme } from 'react-native';
 import { colors, radius, shadows, spacing } from '@/lib/theme';
 
-export type CardVariant = 'default' | 'elevated' | 'flat';
+export type CardVariant = 'default' | 'elevated' | 'flat' | 'outline';
 
 interface CardProps extends Omit<PressableProps, 'style' | 'children'> {
   children?: React.ReactNode;
@@ -42,7 +42,9 @@ export function Card({
       ? { backgroundColor: surface, borderWidth: 0, ...shadows.md }
       : variant === 'flat'
         ? { backgroundColor: surface, borderWidth: 1, borderColor: border }
-        : { backgroundColor: surface, borderWidth: 1, borderColor: border, ...shadows.sm };
+        : variant === 'outline'
+          ? { backgroundColor: 'transparent', borderWidth: 2, borderColor: border }
+          : { backgroundColor: surface, borderWidth: 1, borderColor: border, ...shadows.sm };
 
   const paddingStyle: ViewStyle | null =
     padding === 'none' ? null : { padding: PADDING_TOKENS[padding] };
