@@ -262,6 +262,12 @@ CREATE INDEX IF NOT EXISTS idx_promo_redemptions_user
 --
 -- The compensation helper (release_promo_code) reverses the increment + row
 -- when the downstream payment insert fails, so used_count never leaks.
+--
+-- 026 changes this function's return type (adds redemption_id to the
+-- RETURNS TABLE that 025 introduced), and CREATE OR REPLACE cannot change
+-- a function's return signature (SQLSTATE 42P13). Drop the 025 version
+-- first. IF EXISTS keeps this safe whether or not 025 ran on the target.
+DROP FUNCTION IF EXISTS public.apply_promo_code(TEXT, UUID, UUID);
 CREATE OR REPLACE FUNCTION public.apply_promo_code(
   p_code TEXT,
   p_event_id UUID,
