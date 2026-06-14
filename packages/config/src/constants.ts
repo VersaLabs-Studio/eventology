@@ -16,6 +16,23 @@ export const DEFAULT_CURRENCY = 'ETB' as const;
 export const DEFAULT_TIMEZONE = 'Africa/Addis_Ababa' as const;
 
 // ---------------------------------------------------------------------------
+// Communications
+// ---------------------------------------------------------------------------
+
+/** Default sender display name for outbound notifications */
+export const COMMS_DEFAULT_SENDER_NAME = 'Eventology';
+
+/** Resend provider name (matches EMAIL_PROVIDER env value) */
+export const COMMS_EMAIL_PROVIDER_RESEND = 'resend' as const;
+/** Africa's Talking provider name (matches SMS_PROVIDER env value) */
+export const COMMS_SMS_PROVIDER_AFRICAS_TALKING = 'africas_talking' as const;
+/** Expo Push provider name (matches PUSH_PROVIDER env value) */
+export const COMMS_PUSH_PROVIDER_EXPO = 'expo_push' as const;
+
+/** Stub provider name (default for all channels) */
+export const COMMS_PROVIDER_STUB = 'stub' as const;
+
+// ---------------------------------------------------------------------------
 // Display limits
 // ---------------------------------------------------------------------------
 

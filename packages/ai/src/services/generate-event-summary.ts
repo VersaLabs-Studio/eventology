@@ -46,6 +46,7 @@ export async function generateEventSummary(
     if (cached) return JSON.parse(cached) as GenerateEventSummaryOutput;
 
     const response = await callAI({
+      task: 'generate_event_summary',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

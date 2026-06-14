@@ -15,15 +15,18 @@ export default function RegistrationsPage() {
   const params = useParams();
   const eventId = params.eventId as string;
 
-  const { data: registrationsData, isLoading, isError } = useEventRegistrations(eventId);
-  const registrations = registrationsData?.data ?? [];
+  const regsQ = useEventRegistrations(eventId);
+  const registrations = (regsQ.data?.data ?? []) as Array<{
+    id: string;
+    status: 'confirmed' | 'cancelled' | 'checked_in' | 'waitlisted' | 'pending_payment';
+  }>;
 
   const checkedIn = registrations.filter((r) => r.status === "checked_in").length;
   const cancelled = registrations.filter((r) => r.status === "cancelled").length;
   const waitlisted = registrations.filter((r) => r.status === "waitlisted").length;
   const confirmed = registrations.filter((r) => r.status === "confirmed").length;
 
-  if (isLoading) {
+  if (regsQ.isLoading) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <PageHeader title="Event Registrations" />
@@ -37,7 +40,7 @@ export default function RegistrationsPage() {
     );
   }
 
-  if (isError) {
+  if (regsQ.isError) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <PageHeader title="Event Registrations" />
@@ -61,7 +64,7 @@ export default function RegistrationsPage() {
       </div>
 
       {registrations.length > 0 ? (
-        <RegistrationTable />
+        <RegistrationTable eventId={eventId} />
       ) : (
         <EmptyState
           icon={Users}

@@ -147,8 +147,8 @@ function EventsContent() {
 
           {/* Loading skeleton */}
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="space-y-3">
                   <Skeleton className="h-48 w-full rounded-xl" />
                   <Skeleton className="h-4 w-3/4" />
@@ -179,7 +179,7 @@ function EventsContent() {
           {/* Event grid */}
           {!isLoading && !isError && events.length > 0 && (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {events.map((event, idx) => (
                   <motion.div
                     key={event.id}
@@ -193,7 +193,7 @@ function EventsContent() {
               </div>
               {hasMore && (
                 <div className="text-center mt-8">
-                  <Button variant="outline" onClick={() => setPage((p) => p + 1)}>
+                  <Button variant="outline" onClick={() => setPage((p) => p + 1)} className="min-h-[44px] rounded-xl font-bold">
                     Load More
                   </Button>
                 </div>
@@ -205,17 +205,38 @@ function EventsContent() {
 
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-[300px] bg-card p-6 overflow-y-auto shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold">Filters</h3>
-              <button onClick={() => setMobileFiltersOpen(false)}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 220 }}
+            className="absolute right-0 top-0 bottom-0 w-[300px] bg-card/95 backdrop-blur-xl p-6 overflow-y-auto shadow-2xl border-l border-border/60"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-display font-semibold text-lg">Filters</h3>
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close filters"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <FilterSidebar filters={filters} onChange={(f) => { setFilters(f); setPage(1); }} categories={categories} />
-            <Button className="w-full mt-6" onClick={() => setMobileFiltersOpen(false)}>Apply Filters</Button>
-          </div>
+            <Button
+              className="w-full mt-6 min-h-[44px] rounded-xl font-bold"
+              onClick={() => setMobileFiltersOpen(false)}
+            >
+              Apply Filters
+            </Button>
+          </motion.div>
         </div>
       )}
     </div>

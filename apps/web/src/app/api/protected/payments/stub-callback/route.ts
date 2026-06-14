@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
-import { issueTicket } from '@/lib/tickets/issue-ticket';
+import { confirmPayment } from '@/lib/payments/confirm-payment';
 import type { ErrorEnvelope } from '@/lib/api';
 
 /**
@@ -74,93 +74,29 @@ export async function GET(req: NextRequest) {
 
 /**
  * Shared handler for both GET and POST stub-callback.
+ * Delegates to the shared confirmPayment helper.
  */
 async function handleStubCallback(ref: string, userId: string) {
   // Service-role justified: system ops (payment confirmation + ticket issuance)
   // require cross-table writes that RLS can't express.
   const supabase = createServiceClient();
 
-  // Find the payment by reference
-  const { data: payment, error: paymentError } = await supabase
-    .from('payments')
-    .select('*')
-    .eq('provider_ref', ref)
-    .single();
+  const result = await confirmPayment(ref, supabase, { userId });
 
-  if (paymentError || !payment) {
+  if (!result.success) {
+    const statusCode = result.error === 'PAYMENT_NOT_FOUND' ? 404
+      : result.error === 'FORBIDDEN' ? 403
+      : 500;
+
     return NextResponse.json(
-      { error: { code: 'PAYMENT_NOT_FOUND', message: 'Payment not found' } } satisfies ErrorEnvelope,
-      { status: 404 }
-    );
-  }
-
-  // Verify the payment belongs to the authenticated user
-  if (payment.user_id !== userId) {
-    return NextResponse.json(
-      { error: { code: 'FORBIDDEN', message: 'Not authorized to confirm this payment' } } satisfies ErrorEnvelope,
-      { status: 403 }
-    );
-  }
-
-  // FIX-006: Idempotency — if payment is already completed, return existing result
-  if (payment.status === 'completed') {
-    // Fetch the existing ticket
-    const { data: existingTicket } = await supabase
-      .from('tickets')
-      .select('id, ticket_number, qr_data, tier_name, status')
-      .eq('registration_id', payment.registration_id)
-      .maybeSingle();
-
-    return NextResponse.json({
-      success: true,
-      message: 'Payment already confirmed',
-      ticket: existingTicket ?? null,
-    });
-  }
-
-  // Update payment status to completed
-  const { error: updateError } = await supabase
-    .from('payments')
-    .update({
-      status: 'completed',
-      paid_at: new Date().toISOString(),
-      provider: 'stub',
-    })
-    .eq('id', payment.id);
-
-  if (updateError) {
-    return NextResponse.json(
-      { error: { code: 'DB_ERROR', message: updateError.message } } satisfies ErrorEnvelope,
-      { status: 500 }
-    );
-  }
-
-  // Confirm the registration
-  const { error: regError } = await supabase
-    .from('registrations')
-    .update({ status: 'confirmed' })
-    .eq('id', payment.registration_id);
-
-  if (regError) {
-    return NextResponse.json(
-      { error: { code: 'DB_ERROR', message: regError.message } } satisfies ErrorEnvelope,
-      { status: 500 }
-    );
-  }
-
-  // Issue ticket with signed QR (idempotent — returns existing if already issued)
-  const ticketResult = await issueTicket(payment.registration_id, supabase);
-
-  if (!ticketResult.success) {
-    return NextResponse.json(
-      { error: { code: 'TICKET_ISSUANCE_FAILED', message: ticketResult.error ?? 'Failed to issue ticket' } } satisfies ErrorEnvelope,
-      { status: 500 }
+      { error: { code: result.error ?? 'CONFIRM_FAILED', message: result.message } } satisfies ErrorEnvelope,
+      { status: statusCode }
     );
   }
 
   return NextResponse.json({
     success: true,
-    message: 'Payment confirmed and ticket issued',
-    ticket: ticketResult.ticket,
+    message: result.message,
+    ticket: result.ticket ?? null,
   });
 }

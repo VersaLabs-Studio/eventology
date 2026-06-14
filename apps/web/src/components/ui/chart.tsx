@@ -16,10 +16,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Chart colors must be hex — Recharts cannot consume CSS variables.
+// These intentionally mirror the OKLCH brand tokens from globals.css.
 const colors = {
-  primary: "#065F46",
+  primary: "#065F46",   // secondary / deep emerald
   secondary: "#84CC16",
-  accent: "#F97316",
+  accent: "#F97316",    // accent / warm orange
   grid: "#E5E7EB",
 };
 
@@ -76,6 +78,7 @@ function BarChartComponent({ data, height = 300, color = colors.secondary }: Cha
   );
 }
 
+// Recharts requires hex — cannot use CSS variables.
 const DONUT_COLORS = ["#065F46", "#84CC16", "#F97316", "#8B5CF6", "#EC4899", "#F59E0B", "#10B981", "#6366F1"];
 
 function DonutChartComponent({ data, height = 300 }: { data: { label: string; value: number }[]; height?: number }) {

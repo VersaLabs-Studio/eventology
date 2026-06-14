@@ -92,6 +92,7 @@ export async function GET(req: NextRequest) {
   const city = searchParams.get('city')?.trim() ?? '';
   const venue = searchParams.get('venue')?.trim() ?? '';
   const eventType = searchParams.get('type')?.trim() ?? '';
+  const featuredOnly = searchParams.get('featured') === 'true';
   const offset = (page - 1) * limit;
 
   // Use inner join when filtering by category so the filter applies
@@ -165,6 +166,16 @@ export async function GET(req: NextRequest) {
   // Event type filter
   if (eventType) {
     query = query.eq('event_type', eventType);
+  }
+
+  // Featured-only filter (used by the home rail / featured carousel).
+  // When featured=true, restrict to currently-featured (featured_until
+  // unexpired OR NULL — null is treated as a permanent feature).
+  if (featuredOnly) {
+    const nowIso = new Date().toISOString();
+    query = query
+      .eq('is_featured', true)
+      .or(`featured_until.is.null,featured_until.gt.${nowIso}`);
   }
 
   // Sort

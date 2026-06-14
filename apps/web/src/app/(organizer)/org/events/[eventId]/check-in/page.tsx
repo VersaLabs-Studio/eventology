@@ -53,6 +53,7 @@ export default function CheckInPage() {
       <PageHeader title="QR Check-In" />
       <div className="max-w-lg mx-auto">
         <CheckInScanner
+          eventId={eventId}
           totalAttendees={totalAttendees}
           checkedInCount={checkedIn}
         />

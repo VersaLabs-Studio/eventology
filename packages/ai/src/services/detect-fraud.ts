@@ -53,6 +53,7 @@ export async function detectFraud(
 ): Promise<DetectFraudOutput | null> {
   try {
     const response = await callAI({
+      task: 'detect_fraud',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

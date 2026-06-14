@@ -13,7 +13,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMyRegistrations } from "@/hooks/use-registrations";
 import { formatDate } from "@/lib/utils";
-import { CalendarDays, Ticket, MapPin, ExternalLink } from "lucide-react";
+import { CalendarDays, Ticket, MapPin, Download, Calendar, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
+import { formatUTCDateTimeForICS, escapeICSString } from "@/lib/calendar";
 
 const statusColors: Record<string, "success" | "warning" | "default" | "destructive"> = {
   confirmed: "success",
@@ -118,6 +120,56 @@ export default function MyEventsPage() {
 }
 
 function RegistrationCard({ registration }: { registration: import("@/hooks/use-registrations").RegistrationWithRelations }) {
+  const [calendarOpen, setCalendarOpen] = React.useState(false);
+
+  const downloadEventICS = () => {
+    if (!registration.event) return;
+
+    const event = registration.event;
+    const start = new Date(event.start_date);
+    const end = new Date(event.end_date);
+
+    const startStr = formatUTCDateTimeForICS(start);
+    const endStr = formatUTCDateTimeForICS(end);
+
+    // Use venue_name or fallback to 'Online' since event type in my-events doesn't have address
+    const location = event.venue_name || 'Online';
+
+    const desc = '';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://eventology.app';
+    const url = `${baseUrl}/events/${event.slug}`;
+    const fullDesc = `Event at ${event.venue_name || 'Online'}\n\nEvent Link: ${url}`;
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${event.id}@eventology.app`,
+      `SUMMARY:${escapeICSString(event.title)}`,
+      `DTSTART:${startStr}`,
+      `DTEND:${endStr}`,
+      `DESCRIPTION:${escapeICSString(fullDesc)}`,
+      `LOCATION:${escapeICSString(location)}`,
+      `URL:${url}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `${event.slug}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(downloadUrl);
+    toast.success(`${event.title} added to calendar!`);
+    setCalendarOpen(false);
+  };
+
   return (
     <Card hoverable>
       <CardContent className="p-4">
@@ -159,7 +211,33 @@ function RegistrationCard({ registration }: { registration: import("@/hooks/use-
               )}
             </div>
           </div>
-          <div className="shrink-0">
+          <div className="shrink-0 flex items-center gap-2">
+            <div className="relative">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 rounded-lg bg-muted/50 hover:bg-muted"
+                onClick={() => setCalendarOpen(!calendarOpen)}
+                aria-label="Add to calendar"
+              >
+                <Calendar className="h-3.5 w-3.5" />
+              </Button>
+              {calendarOpen && (
+                <div className="absolute right-0 bottom-10 w-48 bg-card border border-border shadow-xl rounded-xl p-2 z-50">
+                  <button
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted transition-colors flex items-center gap-2"
+                    onClick={downloadEventICS}
+                  >
+                    <Download className="h-3.5 w-3.5 text-blue-500" />
+                    <span className="text-xs">Download ICS File</span>
+                  </button>
+                </div>
+              )}
+              {calendarOpen && (
+                <div className="fixed inset-0 z-40" onClick={() => setCalendarOpen(false)} />
+              )}
+            </div>
+
             {registration.ticket && (
               <Link href={`/ticket/${registration.ticket.id}`}>
                 <Button variant="outline" size="sm">

@@ -1,6 +1,6 @@
 // ============================================================================
 // @eventology/schemas — Organizer Zod Schemas
-// Source: 004_organizers.sql
+// Source: 004_organizers.sql + 025_revenue_ops.sql
 // ============================================================================
 
 import { z } from 'zod';
@@ -31,6 +31,7 @@ export const organizerSchema = z.object({
   events_count: z.number().int().min(0),
   total_attendees: z.number().int().min(0),
   stripe_account_id: z.string().nullable(),
+  commission_rate: z.number().min(0).max(100).nullable(),
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -53,6 +54,7 @@ export const createOrganizerSchema = organizerSchema
   })
   .extend({
     verification_status: z.enum(VERIFICATION_STATUSES).default('pending'),
+    commission_rate: z.number().min(0).max(100).nullable().default(null),
     social_links: z.record(z.string(), z.unknown()).default({}),
     metadata: z.record(z.string(), z.unknown()).default({}),
   });

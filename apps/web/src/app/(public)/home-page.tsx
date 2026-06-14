@@ -7,10 +7,12 @@ import { HeroSection } from "@/components/public/hero-section";
 import { FeaturedCarousel } from "@/components/public/featured-carousel";
 import { CategoryGrid } from "@/components/public/category-grid";
 import { EventCard } from "@/components/shared/event-card";
+import { RecommendationsRail } from "@/components/ai/recommendations-rail";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search, UserPlus, Ticket, ArrowRight, Sparkles, Globe2, ShieldCheck, Zap, Infinity as InfinityIcon, Calendar, MapPin } from "lucide-react";
-import { getUpcomingEvents } from "@/lib/mock-data";
+import { useEvents } from "@/hooks/use-events";
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
@@ -53,7 +55,10 @@ export function PublicHomePage() {
     setMounted(true);
   }, []);
 
-  const upcoming = getUpcomingEvents();
+  // Real upcoming events from the public API (RLS filters to status='approved').
+  const eventsQ = useEvents({ limit: 30, date: 'upcoming', sort: 'date-asc' });
+  const upcoming = eventsQ.data?.data ?? [];
+
   const filtered = upcoming.filter((e) => {
     if (tab === "free") return e.ticketType === "free";
     return true;
@@ -110,7 +115,7 @@ export function PublicHomePage() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="grid grid-cols-2 gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
               <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-xl flex flex-col justify-between aspect-square relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
@@ -175,6 +180,9 @@ export function PublicHomePage() {
         </div>
       </section>
 
+      {/* AI Recommendations rail (skips on no-user / AI outage) */}
+      <RecommendationsRail />
+
       {/* Main Upcoming Event Discovery Stream */}
       <section className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -191,8 +199,8 @@ export function PublicHomePage() {
             </Tabs>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 min-h-[400px]">
-            {mounted ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 min-h-[400px]">
+            {mounted && !eventsQ.isLoading ? (
               displayEvents.map((event, idx) => (
                 <motion.div
                   key={event.id}
@@ -229,7 +237,7 @@ export function PublicHomePage() {
             title="Three-Step Frictionless Funnel" 
             subtitle="Designed for maximum checkout velocity and persistent local ticket accessibility."
           />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <HowItWorksCard 
               icon={Search} 
               title="1. Intelligent Indexing" 

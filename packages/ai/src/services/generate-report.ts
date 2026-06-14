@@ -56,6 +56,7 @@ export async function generateReport(
     if (cached) return JSON.parse(cached) as GenerateReportOutput;
 
     const response = await callAI({
+      task: 'generate_report',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

@@ -51,6 +51,7 @@ export async function generateEventDescription(
     if (cached) return JSON.parse(cached) as GenerateEventDescriptionOutput;
 
     const response = await callAI({
+      task: 'generate_event_description',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: buildUserPrompt(input) },

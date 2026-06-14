@@ -1,35 +1,35 @@
 @import "tailwindcss";
 
 @theme {
-  /* Premium Apple Silicon Inspired Color Space */
-  --color-primary: #10B981;
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: #065F46;
-  --color-secondary-foreground: #FFFFFF;
-  --color-accent: #F97316;
-  --color-accent-foreground: #FFFFFF;
-  
-  /* Pristine Light Mode Surfaces */
-  --color-background: #F5F5F7;
-  --color-foreground: #1D1D1F;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #1D1D1F;
-  --color-muted: #E5E5EA;
-  --color-muted-foreground: #86868B;
-  --color-border: #D2D2D7;
-  --color-ring: #10B981;
-  
-  /* Status Utilities */
-  --color-destructive: #FF3B30;
-  --color-success: #34C759;
-  --color-warning: #FF9500;
+  /* ── Brand ── */
+  --color-primary: oklch(0.75 0.17 160);       /* #10B981 vibrant emerald */
+  --color-primary-foreground: oklch(0.99 0 0);  /* white */
+  --color-secondary: oklch(0.38 0.10 165);      /* #065F46 deep emerald */
+  --color-secondary-foreground: oklch(0.99 0 0);
+  --color-accent: oklch(0.70 0.18 40);          /* #F97316 warm orange */
+  --color-accent-foreground: oklch(0.99 0 0);
 
-  /* Typography mapping to Plus Jakarta Sans */
-  --font-display: var(--font-jakarta), sans-serif;
-  --font-body: var(--font-jakarta), sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* ── Light Mode Surfaces ── */
+  --color-background: oklch(0.97 0.002 260);    /* #F5F5F7 off-white */
+  --color-foreground: oklch(0.18 0.01 260);     /* #1D1D1F near-black */
+  --color-card: oklch(1 0 0);                    /* #FFFFFF pure white */
+  --color-card-foreground: oklch(0.18 0.01 260);
+  --color-muted: oklch(0.91 0.005 260);         /* #E5E5EA subtle gray */
+  --color-muted-foreground: oklch(0.55 0.01 260); /* #86868B */
+  --color-border: oklch(0.87 0.005 260);        /* #D2D2D7 */
+  --color-ring: oklch(0.75 0.17 160);
 
-  /* Premium Apple Radii */
+  /* ── Status ── */
+  --color-destructive: oklch(0.63 0.22 25);     /* #FF3B30 */
+  --color-success: oklch(0.72 0.19 145);        /* #34C759 */
+  --color-warning: oklch(0.80 0.16 65);         /* #FF9500 */
+
+  /* ── Typography ── */
+  --font-display: var(--font-jakarta), system-ui, sans-serif;
+  --font-body: var(--font-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-mono-jetbrains), ui-monospace, monospace;
+
+  /* ── Radii ── */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -37,31 +37,38 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-  /* Cinema Shadows & Glows */
+  /* ── Shadows & Glows ── */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.03);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.04);
-  --shadow-glow: 0 0 25px rgb(16 185 129 / 0.25);
-  --shadow-accent-glow: 0 0 25px rgb(249 115 22 / 0.2);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.10), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+
+  /* Reusable ambient glow tokens — apply via shadow-glow / shadow-accent-glow */
+  --shadow-glow: 0 0 25px oklch(0.75 0.17 160 / 0.25);
+  --shadow-accent-glow: 0 0 25px oklch(0.70 0.18 40 / 0.20);
 }
 
-/* Luxury Dark Mode Layering */
+/* ── Dark Mode Layering (deep obsidian) ── */
 .dark {
-  --color-background: #090A0F;
-  --color-foreground: #F5F5F7;
-  --color-card: #12131A;
-  --color-card-foreground: #F5F5F7;
-  --color-muted: #1E202B;
-  --color-muted-foreground: #8E92A4;
-  --color-border: #232533;
-  --color-primary: #10B981;
-  --color-primary-foreground: #090A0F;
-  --color-secondary: #065F46;
-  --color-secondary-foreground: #FFFFFF;
-  --color-ring: #10B981;
+  --color-background: oklch(0.13 0.015 270);    /* #090A0F obsidian canvas */
+  --color-foreground: oklch(0.97 0.002 260);     /* #F5F5F7 near-white */
+  --color-card: oklch(0.16 0.015 270);           /* #12131A elevated card */
+  --color-card-foreground: oklch(0.97 0.002 260);
+  --color-muted: oklch(0.20 0.015 270);          /* #1E202B muted surface */
+  --color-muted-foreground: oklch(0.58 0.02 270); /* #8E92A4 */
+  --color-border: oklch(0.24 0.015 270);         /* #1E202B micro-border */
+  --color-primary: oklch(0.75 0.17 160);
+  --color-primary-foreground: oklch(0.13 0.015 270);
+  --color-secondary: oklch(0.38 0.10 165);
+  --color-secondary-foreground: oklch(0.99 0 0);
+  --color-ring: oklch(0.75 0.17 160);
+
+  /* Dark glassmorphism uses more transparent surfaces */
+  --shadow-glow: 0 0 30px oklch(0.75 0.17 160 / 0.15);
+  --shadow-accent-glow: 0 0 30px oklch(0.70 0.18 40 / 0.12);
 }
 
+/* ── Base Resets ── */
 * {
   border-color: var(--color-border);
 }
@@ -79,7 +86,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Beautiful custom smooth scrollbar */
+/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
@@ -88,25 +95,26 @@ h1, h2, h3, h4, h5, h6 {
 html { scroll-behavior: smooth; }
 
 ::selection {
-  background: rgb(16 185 129 / 0.25);
+  background: oklch(0.75 0.17 160 / 0.25);
   color: var(--color-foreground);
 }
 
-/* Glassmorphism custom classes */
+/* ── Glassmorphism ── */
 .glass-panel {
-  background-color: rgba(255, 255, 255, 0.75);
+  background-color: oklch(1 0 0 / 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid oklch(1 0 0 / 0.20);
 }
 
 .dark .glass-panel {
-  background-color: rgba(18, 19, 26, 0.75);
+  background-color: oklch(0.16 0.015 270 / 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid oklch(1 0 0 / 0.08);
 }
 
+/* ── Animations ── */
 @keyframes glow-pulse {
   0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
   50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }

@@ -201,6 +201,33 @@
     "markAllRead": "Mark all as read",
     "noNotifications": "No notifications yet"
   },
+  "comms": {
+    "registrationConfirmed": {
+      "subject": "You're going to {{event}}!",
+      "inAppTitle": "Registration confirmed",
+      "emailBody": "Hi {{name}},\n\nYour registration for {{event}} is confirmed. We can't wait to see you on {{eventDate}} at {{venue}}.\n\nYour ticket: {{ticketNumber}}\nView ticket: {{ticketUrl}}\n\n— The Eventology team"
+    },
+    "ticketIssued": {
+      "subject": "Your ticket for {{event}}",
+      "inAppTitle": "Ticket ready",
+      "emailBody": "Hi {{name}},\n\nYour ticket for {{event}} is ready.\n\nTicket #: {{ticketNumber}}\nView QR & details: {{ticketUrl}}\n\nShow this QR at the door for check-in.\n\n— The Eventology team"
+    },
+    "paymentCompleted": {
+      "subject": "Payment confirmed for {{event}}",
+      "inAppTitle": "Payment received",
+      "emailBody": "Hi {{name}},\n\nWe've received your payment of {{amount}} {{currency}} for {{event}}.\n\nReceipt: {{receiptUrl}}\n\n— The Eventology team"
+    },
+    "refundProcessed": {
+      "subject": "Refund processed for {{event}}",
+      "inAppTitle": "Refund issued",
+      "emailBody": "Hi {{name}},\n\nYour refund of {{amount}} {{currency}} for {{event}} has been processed. Funds typically appear within 5–10 business days, depending on your bank.\n\nReason: {{reason}}\n\n— The Eventology team"
+    },
+    "payoutUpdate": {
+      "subject": "Payout {{status}}: {{amount}} {{currency}}",
+      "inAppTitle": "Payout {{status}}",
+      "emailBody": "Hi {{name}},\n\nYour payout of {{amount}} {{currency}} is now {{status}}.\n\nReference: {{reference}}\n\n— The Eventology team"
+    }
+  },
   "search": {
     "placeholder": "Search events, organizers, categories...",
     "results": "Search results for \"{{query}}\"",
@@ -232,5 +259,36 @@
     "serverErrorText": "Something went wrong on our end. Please try again later.",
     "networkError": "Network error",
     "networkErrorText": "Please check your internet connection."
+  },
+  "ai": {
+    "recommended": "Recommended for you",
+    "recommendedSubtitle": "Picked from your past activity and the local scene.",
+    "matchBadge": "{{score}}% match",
+    "generate": "Generate",
+    "generateWithAi": "Generate with AI",
+    "suggestTags": "Suggest tags",
+    "generating": "Generating…",
+    "aiInterpret": "AI Interpret",
+    "interpreting": "Interpreting your search…",
+    "interpreted": "AI interpreted",
+    "plainSearch": "Plain search",
+    "lookingFor": "Looking for: {{query}}",
+    "plainSearchMsg": "We'll search for \"{{query}}\" as plain keywords.",
+    "applyFilters": "Apply filters",
+    "unavailable": "AI unavailable",
+    "askMeAnything": "Ask me anything…",
+    "howCanIHelp": "How can I help?",
+    "assistantUnavailable": "Assistant is currently unavailable. Try again in a moment.",
+    "connectionIssue": "Connection issue. Try again in a moment.",
+    "thinking": "Thinking…",
+    "newChat": "New",
+    "tierEnforced": "Tier: {{tier}} · server-enforced",
+    "needHuman": "Need a human?",
+    "needHumanMsg": "I can connect you with our support team.",
+    "talkToSupport": "Talk to support",
+    "insightsTitle": "AI Insights",
+    "insightsSubtitle": "Generate a narrative summary of this event's performance.",
+    "recommendations": "Recommendations",
+    "rateLimited": "Too many AI requests. Try again shortly."
   }
 }

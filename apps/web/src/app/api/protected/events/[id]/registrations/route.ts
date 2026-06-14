@@ -33,7 +33,12 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('registrations')
-    .select('*')
+    .select(`
+      id, event_id, user_id, ticket_tier_id, attendee_name, attendee_email,
+      attendee_phone, status, created_at, checked_in_at,
+      ticket_tier:ticket_tiers(name, price, currency),
+      ticket:tickets(id, ticket_number, status, used_at)
+    `)
     .eq('event_id', id)
     .order('created_at', { ascending: false });
 
