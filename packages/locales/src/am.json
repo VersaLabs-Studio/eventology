@@ -49,7 +49,8 @@
     "settings": "ቅንብሮች",
     "myEvents": "የእኔ ዝግጅቶች",
     "myRegistrations": "የእኔ ምዝገባዎች",
-    "myTickets": "የእኔ ትኬቶች"
+    "myTickets": "የእኔ ትኬቶች",
+    "search": "ፈልግ"
   },
   "auth": {
     "loginTitle": "እንኳን ተመለሱ",
@@ -124,12 +125,14 @@
       "conference": "ኮንፈረንስ",
       "workshop": "ስልጠና",
       "meetup": "ስብሰባ",
-      "seminar": " semiclass",
-      "networking": "ኔትወርኪንግ",
+      "seminar": "ሴሚናር",
+      "networking": "ማህበራዊ መስተጋብር",
       "concert": "ኮንሰርት",
       "exhibition": "ኤግዚቢሽን",
       "training": "ስልጠና"
-    }
+    },
+    "ticketsFromPrice": "ከ {{price}} ጀምሮ",
+    "backToEvents": "ወደ ዝግጅቶች ተመለስ"
   },
   "tickets": {
     "title": "የእኔ ትኬቶች",
@@ -152,7 +155,37 @@
     "totalAttendees": "ተሳታፊዎች",
     "viewProfile": "መገለጫ ተመልከት",
     "applyToOrganize": "ለማዘጋጀት ለመመዝገብ",
-    "myOrganizerProfile": "የእኔ የአዘጋጅ መገለጫ"
+    "myOrganizerProfile": "የእኔ የአዘጋጅ መገለጫ",
+    "manageEvents": "ዝግጅቶችን አስተዳድር",
+    "noEvents": "እስከ አሁን ዝግጅት የለም",
+    "noEventsBody": "ምዝገባዎችን ለመሰብሰብ የመጀመሪያውን ዝግጅትዎን ይፍጠሩ።",
+    "registrationCount": "{{count}} ምዝገባዎች",
+    "viewCount": "{{count}} ትይይዞች",
+    "checkIn": "ግባ",
+    "analytics": "ትንታኔ",
+    "statusLabel": "ሁኔታ",
+    "draft": "ረቂቅ",
+    "published": "ታትሟል",
+    "free": "ነፃ",
+    "paid": "ክፍያ",
+    "scannerTitle": "የትኬት ስካነር",
+    "scannerSubtitle": "ካሜራውን ወደ ተሳታፊው የQR ኮድ ያቅኑ።",
+    "scannerManual": "ወይም የQR ፓይሎድን ከዚህ በታች ይለጥፉ",
+    "scannerSuccess": "ትኬት ተቀባይነት አግኝቷል — እንኳን ደህና መጡ!",
+    "scannerAlreadyCheckedIn": "አስቀድሞ ገብቷል",
+    "scannerInvalid": "ልክ ያልሆነ የQR ኮድ",
+    "scannerStartCamera": "ካሜራ ጀምር",
+    "scannerStopCamera": "ካሜራ አቁም",
+    "scannerRunning": "በመቃኘት ላይ…",
+    "scannerRecent": "የቅርብ ጊዜ ስካኖች",
+    "analyticsTitle": "ትንታኔ",
+    "analyticsRegistrations": "ምዝገባዎች (30 ቀናት)",
+    "analyticsViews": "ትይይዞች (30 ቀናት)",
+    "analyticsConversion": "የመቀየሪያ መጠን",
+    "analyticsTiers": "የትኬት ደረጃዎች",
+    "analyticsCities": "በክፍለ ከተማ",
+    "backToEvents": "ወደ የእኔ ዝግጅቶች ተመለስ",
+    "organizerArea": "የአዘጋጅ ቦታ"
   },
   "dashboard": {
     "title": "ዳሽቦርድ",
@@ -290,5 +323,46 @@
     "insightsSubtitle": "የዚህን ዝግጅት አፈጻጸም ዋና ማጠቃለያ ያመንጩ።",
     "recommendations": "ምክሮች",
     "rateLimited": "በጣም ብዙ AI ጥያቄዎች። በቅርቡ እንደገና ይሞክሩ።"
+  },
+  "payments": {
+    "comingSoon": "ክፍያዎች በቅርቡ ይመጣሉ",
+    "comingSoonBody": "የሚከፈልባቸው ትኬቶች እና የአዘጋጅ ክፍያዎች በMVP ወቅት ባልተካሄዱ ጊዜ ቆሟል። ክፍያ ሲጀምር ይህ ገጽ በራሱ ይመለሳል።",
+    "ticketsOnSaleSoon": "ትኬቶች በቅርቡ ይሸጣሉ",
+    "ticketsOnSaleSoonBody": "ክፍያዎች ለጊዜው ተዘግተዋል። አዘጋጁ የትኬት ሽያጭ እያዘጋጀ ነው — በቅርቡ ይመለሱ።",
+    "soon": "በቅርቡ",
+    "registerForFree": "በነፃ ተመዝገብ",
+    "backToEvent": "ወደ ዝግጅት ተመለስ",
+    "backToDashboard": "ወደ ዳሽቦርድ ተመለስ",
+    "noticeTitle": "ክፍያዎች በቅርቡ ይመጣሉ",
+    "noticeBody": "በነፃ ምዝገባ ክፍት ነው። የሚከፈልባቸው ትኬቶች በቅርቡ ይገኛሉ።"
+  },
+  "registration": {
+    "title": "ለ {{event}} ተመዝገብ",
+    "fullName": "ሙሉ ስም",
+    "fullNamePlaceholder": "አበበ ከበደ",
+    "email": "ኢሜይል",
+    "emailPlaceholder": "abebe@example.com",
+    "phone": "ስልክ (አማራጭ)",
+    "phonePlaceholder": "+251 9XX XXX XXX",
+    "selectTier": "የትኬት ደረጃ ይምረጡ",
+    "free": "ነፃ",
+    "processing": "በመስራት ላይ...",
+    "registerNow": "አሁን ተመዝገብ",
+    "continueToPayment": "ወደ ክፍያ ቀጥል",
+    "pleaseSelectTier": "እባክዎ የትኬት ደረጃ ይምረጡ",
+    "pleaseFillNameEmail": "እባክዎ ስምዎን እና ኢሜይልዎን ይሙሉ",
+    "notAvailable": "ያንን ትኬት በአሁኑ ወቅት ማግኘት አይቻልም",
+    "successFree": "ምዝገባ ተሳክቷል! ትኬትዎ ተሰጥቷል።",
+    "successPaid": "ምዝገባ ተፈጥሯል! ወደ ክፍያ በመምራት ላይ...",
+    "failed": "ምዝገባ አልተሳካም",
+    "eventNotFound": "ዝግጅት አልተገኘም",
+    "eventNotFoundBody": "ይህ ዝግጅት ሊወገድ ወይም ከመገኘቱ ሊወጣ ይችላል።",
+    "browseEvents": "ዝግጅቶችን ያስሱ",
+    "errorBanner": "ስህተት ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።"
+  },
+  "language": {
+    "label": "ቋንቋ",
+    "en": "እንግሊዝኛ",
+    "am": "አማርኛ"
   }
 }

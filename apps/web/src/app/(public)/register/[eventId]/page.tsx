@@ -14,18 +14,43 @@ import { PageHeader } from "@/components/shared/page-header";
 import { useEventBySlug } from "@/hooks/use-events";
 import { useCreateRegistration } from "@/hooks/use-registrations";
 import { formatDate, formatCurrency } from "@/lib/utils";
-import { Calendar, MapPin, Ticket, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Ticket, CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
+import { paymentsEnabled } from "@/lib/config/features";
+import { useLocale } from "@/lib/i18n";
 
+/**
+ * R3 / A1 — Payments-off gating.
+ *
+ * When `NEXT_PUBLIC_PAYMENTS_ENABLED` is `false` (the MVP default):
+ *   - Paid tiers render disabled with a "Tickets on sale soon" badge.
+ *   - The submit button always takes the free path
+ *     (no `checkout_url`, ticket issued immediately).
+ *   - A "Payments are coming soon" notice is shown above the form.
+ *
+ * When the flag is `true` (post-MVP), the paid flow is restored with
+ * zero code changes.
+ */
 export default function RegisterPage() {
   const params = useParams();
   const router = useRouter();
   const eventId = params.eventId as string;
   const { user } = useAuth();
+  const { t } = useLocale();
+  const paymentsOn = paymentsEnabled();
 
   const { data: event, isLoading, isError } = useEventBySlug(eventId);
   const createRegistration = useCreateRegistration();
+
+  // Tiers the user can actually select. When payments are off we filter
+  // out any paid tier; if every tier is paid, the form is replaced with
+  // a "Tickets on sale soon" placeholder.
+  const selectableTiers = React.useMemo(() => {
+    const all = event?.ticketTiers ?? [];
+    if (paymentsOn) return all;
+    return all.filter((t) => t.price === 0);
+  }, [event, paymentsOn]);
 
   const [selectedTier, setSelectedTier] = React.useState<string | null>(null);
   const [attendeeName, setAttendeeName] = React.useState("");
@@ -41,12 +66,17 @@ export default function RegisterPage() {
     }
   }, [user]);
 
-  // Auto-select first tier
+  // Auto-select the first SELECTABLE tier (skips paid tiers when off)
   React.useEffect(() => {
-    if (event?.ticketTiers?.length && !selectedTier) {
-      setSelectedTier(event.ticketTiers[0].id);
+    if (selectableTiers.length && !selectedTier) {
+      setSelectedTier(selectableTiers[0].id);
     }
-  }, [event, selectedTier]);
+    // If the previously selected tier is no longer selectable (e.g. user
+    // toggled the flag), clear it so the placeholder renders.
+    if (selectedTier && !selectableTiers.find((t) => t.id === selectedTier)) {
+      setSelectedTier(null);
+    }
+  }, [selectableTiers, selectedTier]);
 
   if (isLoading) {
     return (
@@ -64,9 +94,9 @@ export default function RegisterPage() {
       <div className="max-w-lg mx-auto px-4 py-8">
         <EmptyState
           icon={Ticket}
-          title="Event not found"
-          description="This event may have been removed or is no longer available."
-          action={{ label: "Browse Events", onClick: () => router.push("/events") }}
+          title={t('registration.eventNotFound')}
+          description={t('registration.eventNotFoundBody')}
+          action={{ label: t('registration.browseEvents'), onClick: () => router.push("/events") }}
         />
       </div>
     );
@@ -76,18 +106,28 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (!selectedTier) {
-      toast.error("Please select a ticket tier");
+      toast.error(t('registration.pleaseSelectTier'));
       return;
     }
 
     if (!attendeeName || !attendeeEmail) {
-      toast.error("Please fill in your name and email");
+      toast.error(t('registration.pleaseFillNameEmail'));
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // The server already enforces the same gate (paymentsEnabledServer)
+      // in the registrations route — this client-side check is defense
+      // in depth, never the only line.
+      const tier = selectableTiers.find((t) => t.id === selectedTier);
+      if (!tier) {
+        toast.error(t('registration.notAvailable'));
+        setIsSubmitting(false);
+        return;
+      }
+
       const result = await createRegistration.mutateAsync({
         event_id: event.id,
         ticket_tier_id: selectedTier,
@@ -96,17 +136,18 @@ export default function RegisterPage() {
         attendee_phone: attendeePhone || undefined,
       });
 
-      // Check if there's a checkout URL (paid flow)
+      // R3 / A1: when payments are off, the server never returns a
+      // `checkout_url` (the paid path is short-circuited server-side too).
       const resultData = result as { checkout_url?: string; registration?: { id: string } };
-      if (resultData.checkout_url) {
-        toast.success("Registration created! Redirecting to payment...");
+      if (resultData.checkout_url && paymentsOn) {
+        toast.success(t('registration.successPaid'));
         router.push(resultData.checkout_url);
       } else {
-        toast.success("Registration successful! Your ticket has been issued.");
+        toast.success(t('registration.successFree'));
         router.push("/my-events");
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Registration failed";
+      const message = error instanceof Error ? error.message : t('registration.failed');
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -116,10 +157,35 @@ export default function RegisterPage() {
   const selectedTierData = event.ticketTiers?.find((t) => t.id === selectedTier);
   const isFree = !selectedTierData || selectedTierData.price === 0;
 
+  // Payments-off + no free tiers → there's nothing to register for.
+  if (!paymentsOn && selectableTiers.length === 0) {
+    return (
+      <div className="max-w-lg mx-auto px-4 py-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <PageHeader title={t('registration.title', { event: event.title })} />
+          <Card>
+            <CardContent className="p-8 text-center space-y-3">
+              <Clock className="h-10 w-10 text-accent mx-auto" />
+              <h3 className="font-display font-bold text-lg">{t('payments.ticketsOnSaleSoon')}</h3>
+              <p className="text-sm text-muted-foreground">
+                {t('payments.ticketsOnSaleSoonBody')}
+              </p>
+              <Link href={`/events/${event.slug}`} className="inline-block">
+                <Button variant="outline" className="min-h-[44px] rounded-xl font-bold">
+                  {t('payments.backToEvent')}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-lg mx-auto px-4 py-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <PageHeader title={`Register for ${event.title}`} />
+        <PageHeader title={t('registration.title', { event: event.title })} />
 
         <Card className="mb-6">
           <div className="relative h-32 rounded-t-xl overflow-hidden">
@@ -140,49 +206,71 @@ export default function RegisterPage() {
               <MapPin className="h-3 w-3" />{event.location}
             </div>
             <Badge variant="secondary" className="mt-2">
-              {isFree ? "Free" : `From ${formatCurrency(selectedTierData?.price ?? 0)}`}
+              {isFree ? t('events.free') : `From ${formatCurrency(selectedTierData?.price ?? 0)}`}
             </Badge>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6">
+            {!paymentsOn && (
+              <div className="mb-4 rounded-xl border border-accent/30 bg-accent/5 p-3 text-xs text-muted-foreground">
+                <p className="font-semibold text-foreground mb-1">{t('payments.noticeTitle')}</p>
+                <p>{t('payments.noticeBody')}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Ticket Tier Selection */}
               {event.ticketTiers && event.ticketTiers.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium mb-3">Select Ticket Tier</label>
+                  <label className="block text-sm font-medium mb-3">{t('registration.selectTier')}</label>
                   <div className="space-y-2">
-                    {event.ticketTiers.map((tier) => (
-                      <label
-                        key={tier.id}
-                        className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                          selectedTier === tier.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="tier"
-                            value={tier.id}
-                            checked={selectedTier === tier.id}
-                            onChange={() => setSelectedTier(tier.id)}
-                            className="h-4 w-4 text-primary"
-                          />
-                          <div>
-                            <p className="font-medium text-sm">{tier.name}</p>
-                            {tier.description && (
-                              <p className="text-xs text-muted-foreground">{tier.description}</p>
-                            )}
+                    {event.ticketTiers.map((tier) => {
+                      const isPaid = tier.price > 0;
+                      const disabled = !paymentsOn && isPaid;
+                      const isSelected = selectedTier === tier.id;
+                      return (
+                        <label
+                          key={tier.id}
+                          className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
+                            isSelected
+                              ? "border-primary bg-primary/5"
+                              : disabled
+                                ? "border-border bg-muted/30 cursor-not-allowed opacity-60"
+                                : "border-border hover:border-primary/50 cursor-pointer"
+                          }`}
+                          aria-disabled={disabled}
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="tier"
+                              value={tier.id}
+                              checked={isSelected}
+                              disabled={disabled}
+                              onChange={() => !disabled && setSelectedTier(tier.id)}
+                              className="h-4 w-4 text-primary disabled:cursor-not-allowed"
+                              aria-label={tier.name}
+                            />
+                            <div>
+                              <p className="font-medium text-sm">{tier.name}</p>
+                              {tier.description && (
+                                <p className="text-xs text-muted-foreground">{tier.description}</p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <p className="font-extrabold text-sm text-primary">
-                          {tier.price === 0 ? "Free" : formatCurrency(tier.price)}
-                        </p>
-                      </label>
-                    ))}
+                          <div className="flex items-center gap-2">
+                            {disabled && (
+                              <Badge variant="outline" className="text-[10px]">{t('payments.soon')}</Badge>
+                            )}
+                            <p className="font-extrabold text-sm text-primary">
+                              {tier.price === 0 ? t('registration.free') : formatCurrency(tier.price)}
+                            </p>
+                          </div>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -191,7 +279,7 @@ export default function RegisterPage() {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-1">
-                    Full Name *
+                    {t('registration.fullName')} *
                   </label>
                   <input
                     id="name"
@@ -200,13 +288,13 @@ export default function RegisterPage() {
                     onChange={(e) => setAttendeeName(e.target.value)}
                     required
                     className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Abebe Kebede"
+                    placeholder={t('registration.fullNamePlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium mb-1">
-                    Email *
+                    {t('auth.email')} *
                   </label>
                   <input
                     id="email"
@@ -215,13 +303,13 @@ export default function RegisterPage() {
                     onChange={(e) => setAttendeeEmail(e.target.value)}
                     required
                     className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="abebe@example.com"
+                    placeholder={t('registration.emailPlaceholder')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium mb-1">
-                    Phone (optional)
+                    {t('registration.phone')}
                   </label>
                   <input
                     id="phone"
@@ -229,7 +317,7 @@ export default function RegisterPage() {
                     value={attendeePhone}
                     onChange={(e) => setAttendeePhone(e.target.value)}
                     className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="+251 9XX XXX XXX"
+                    placeholder={t('registration.phonePlaceholder')}
                   />
                 </div>
               </div>
@@ -242,16 +330,16 @@ export default function RegisterPage() {
                 disabled={isSubmitting || !selectedTier}
               >
                 {isSubmitting ? (
-                  "Processing..."
+                  t('registration.processing')
                 ) : isFree ? (
                   <>
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    Register Now
+                    {t('registration.registerNow')}
                   </>
                 ) : (
                   <>
                     <Ticket className="mr-2 h-4 w-4" />
-                    Continue to Payment
+                    {t('registration.continueToPayment')}
                   </>
                 )}
               </Button>

@@ -8,15 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Search, Menu, X, Monitor, LayoutDashboard, Shield, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { useLocale } from "@/lib/i18n";
 
 const navLinks = [
-  { href: "/events", label: "Discover" },
-  { href: "/events?featured=true", label: "Featured" },
-  { href: "/search", label: "Search" },
+  { href: "/events", labelKey: "nav.home" },
+  { href: "/events?featured=true", labelKey: "events.featured" },
+  { href: "/search", labelKey: "nav.search" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const { t } = useLocale();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const [mounted, setMounted] = React.useState(false);
@@ -55,7 +58,7 @@ export function Navbar() {
               const isActive = pathname === link.href || (link.href.includes("?") && pathname.startsWith("/events"));
               return (
                 <Link
-                  key={link.label}
+                  key={link.labelKey}
                   href={link.href}
                   className={cn(
                     "relative px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 select-none",
@@ -71,7 +74,7 @@ export function Navbar() {
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                  <span className="relative z-10">{link.label}</span>
+                  <span className="relative z-10">{t(link.labelKey)}</span>
                 </Link>
               );
             })}
@@ -103,6 +106,10 @@ export function Navbar() {
               </div>
             </div>
             
+            <div className="h-4 w-[1px] bg-border/80" />
+
+            <LanguageSwitcher />
+
             <div className="h-4 w-[1px] bg-border/80" />
 
             <Link href="/auth/login">
@@ -169,7 +176,7 @@ export function Navbar() {
                     const isActive = pathname === link.href;
                     return (
                       <Link
-                        key={link.label}
+                        key={link.labelKey}
                         href={link.href}
                         className={cn(
                           "min-h-[44px] flex items-center px-4 rounded-xl text-base font-bold transition-all",
@@ -178,7 +185,7 @@ export function Navbar() {
                             : "text-foreground hover:bg-muted/50"
                         )}
                       >
-                        {link.label}
+                        {t(link.labelKey)}
                       </Link>
                     );
                   })}

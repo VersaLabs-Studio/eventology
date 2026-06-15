@@ -31,3 +31,4 @@ supabase/.temp/
 apps/mobile/.expo/
 # Local scratch / debug scripts (not part of the app)
 scratch/
+.vercel

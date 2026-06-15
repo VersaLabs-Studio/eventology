@@ -129,7 +129,9 @@
       "concert": "Concert",
       "exhibition": "Exhibition",
       "training": "Training"
-    }
+    },
+    "ticketsFromPrice": "From {{price}}",
+    "backToEvents": "Back to events"
   },
   "tickets": {
     "title": "My tickets",
@@ -152,7 +154,37 @@
     "totalAttendees": "attendees",
     "viewProfile": "View profile",
     "applyToOrganize": "Apply to organize",
-    "myOrganizerProfile": "My organizer profile"
+    "myOrganizerProfile": "My organizer profile",
+    "manageEvents": "Manage events",
+    "noEvents": "No events yet",
+    "noEventsBody": "Create your first event to start gathering registrations.",
+    "registrationCount": "{{count}} registrations",
+    "viewCount": "{{count}} views",
+    "checkIn": "Check in",
+    "analytics": "Analytics",
+    "statusLabel": "Status",
+    "draft": "Draft",
+    "published": "Published",
+    "free": "Free",
+    "paid": "Paid",
+    "scannerTitle": "Ticket scanner",
+    "scannerSubtitle": "Point the camera at the attendee's QR code.",
+    "scannerManual": "Or paste the QR payload below",
+    "scannerSuccess": "Ticket accepted — welcome!",
+    "scannerAlreadyCheckedIn": "Already checked in",
+    "scannerInvalid": "Invalid QR code",
+    "scannerStartCamera": "Start camera",
+    "scannerStopCamera": "Stop camera",
+    "scannerRunning": "Scanning…",
+    "scannerRecent": "Recent scans",
+    "analyticsTitle": "Analytics",
+    "analyticsRegistrations": "Registrations (30 days)",
+    "analyticsViews": "Views (30 days)",
+    "analyticsConversion": "Conversion rate",
+    "analyticsTiers": "Ticket tiers",
+    "analyticsCities": "By sub-city",
+    "backToEvents": "Back to my events",
+    "organizerArea": "Organizer area"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -290,5 +322,46 @@
     "insightsSubtitle": "Generate a narrative summary of this event's performance.",
     "recommendations": "Recommendations",
     "rateLimited": "Too many AI requests. Try again shortly."
+  },
+  "payments": {
+    "comingSoon": "Payments coming soon",
+    "comingSoonBody": "Paid tickets and payouts are paused during the MVP. The moment payments go live, this surface returns automatically.",
+    "ticketsOnSaleSoon": "Tickets on sale soon",
+    "ticketsOnSaleSoonBody": "Payments are temporarily disabled. The organizer is preparing ticket sales — check back shortly.",
+    "soon": "Soon",
+    "registerForFree": "Register for free",
+    "backToEvent": "Back to event",
+    "backToDashboard": "Back to dashboard",
+    "noticeTitle": "Payments are coming soon",
+    "noticeBody": "Free registration is open. Paid tickets will be available shortly."
+  },
+  "registration": {
+    "title": "Register for {{event}}",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Abebe Kebede",
+    "email": "Email",
+    "emailPlaceholder": "abebe@example.com",
+    "phone": "Phone (optional)",
+    "phonePlaceholder": "+251 9XX XXX XXX",
+    "selectTier": "Select Ticket Tier",
+    "free": "Free",
+    "processing": "Processing...",
+    "registerNow": "Register Now",
+    "continueToPayment": "Continue to Payment",
+    "pleaseSelectTier": "Please select a ticket tier",
+    "pleaseFillNameEmail": "Please fill in your name and email",
+    "notAvailable": "That ticket is not available right now",
+    "successFree": "Registration successful! Your ticket has been issued.",
+    "successPaid": "Registration created! Redirecting to payment...",
+    "failed": "Registration failed",
+    "eventNotFound": "Event not found",
+    "eventNotFoundBody": "This event may have been removed or is no longer available.",
+    "browseEvents": "Browse Events",
+    "errorBanner": "An error occurred. Please try again."
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "am": "Amharic"
   }
 }

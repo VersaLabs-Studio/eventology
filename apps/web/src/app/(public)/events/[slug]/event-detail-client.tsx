@@ -29,6 +29,7 @@ import {
 import { downloadSingleEventICS, getGoogleCalendarLink } from "@/lib/calendar";
 import { EventReviews } from "@/components/events/event-reviews-polished";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { paymentsEnabled } from "@/lib/config/features";
 
 interface CalendarDropdownItemProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -179,6 +180,14 @@ export default function EventDetailClient({ slug }: EventDetailClientProps) {
 
 function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
   const [galleryOpen, setGalleryOpen] = React.useState<string | null>(null);
+  const paymentsOn = paymentsEnabled();
+  // R3 / A1: when payments are off, suppress the "From X" price badge
+  // — only free tickets are available.
+  const priceLabel = !paymentsOn
+    ? "Free"
+    : event.ticketType === "free"
+      ? "Free"
+      : `From ${formatCurrency(event.ticketTiers[0]?.price ?? 0)}`;
 
   // Fetch similar events from the same category
   const { data: similarData } = useEvents({ limit: 4, category: event.category.slug });
@@ -286,7 +295,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
               <span className="flex items-center gap-1"><Calendar className="h-4 w-4" />{formatDate(event.date)}</span>
               <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{event.time}</span>
               <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{event.location}</span>
-              <span className="font-medium text-primary">{event.ticketType === "free" ? "Free" : `From ${formatCurrency(event.ticketTiers[0]?.price ?? 0)}`}</span>
+              <span className="font-medium text-primary">{priceLabel}</span>
             </div>
             
             <div className="flex items-center gap-2 shrink-0">

@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { BarChart3, ShieldCheck, Star, Users, BadgeCheck, ScrollText, ChevronLeft } from "lucide-react";
 
+// R3 / A1: "Revenue" link removed while payments are disabled. The
+// destination page is kept as a "Payments coming soon" placeholder so
+// any deep links (audit log entries, etc.) survive the flag flip.
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/admin/moderation", label: "Moderation", icon: ShieldCheck },
