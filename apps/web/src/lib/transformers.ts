@@ -3,6 +3,11 @@
 // ============================================================================
 // Maps Supabase API responses (snake_case, joined) to the app's display
 // types (camelCase, nested). Used by hooks to bridge the shape gap.
+//
+// R3 / A3 fold-forward: introduced `normalizeEvent()` — the canonical
+// single-source shape converter. R1/R2 call sites used to construct
+// the display shape inline; new code should prefer `normalizeEvent`.
+// `transformEvent` is kept as a thin alias for backward compat.
 // ============================================================================
 
 import type { Event, Category, Organizer, TicketTier } from '@/lib/types';
@@ -78,6 +83,21 @@ interface RawEvent {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function formatTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '';
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Transformers
 // ---------------------------------------------------------------------------
 
@@ -123,7 +143,14 @@ function transformTicketTier(raw: RawTicketTier): TicketTier {
   };
 }
 
-export function transformEvent(raw: RawEvent): Event {
+/**
+ * Canonical event-shape normalizer. Every page that displays an
+ * `Event` should pass the raw API response through this. The shape is
+ * stable and can be re-used by both server and client components
+ * (no React dependency). This is the single source of truth for the
+ * snake_case → camelCase bridge.
+ */
+export function normalizeEvent(raw: RawEvent): Event {
   return {
     id: raw.id,
     slug: raw.slug,
@@ -135,8 +162,8 @@ export function transformEvent(raw: RawEvent): Event {
     status: raw.status as Event['status'],
     date: raw.start_date,
     endDate: raw.end_date,
-    time: new Date(raw.start_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    endTime: new Date(raw.end_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    time: formatTime(raw.start_date),
+    endTime: formatTime(raw.end_date),
     location: raw.venue_name ?? 'Venue TBA',
     address: raw.venue_address ?? '',
     subCity: raw.sub_city ?? '',
@@ -156,4 +183,8 @@ export function transformEvent(raw: RawEvent): Event {
     capacity: raw.capacity,
     createdAt: raw.created_at,
   };
+}
+
+export function transformEvent(raw: RawEvent): Event {
+  return normalizeEvent(raw);
 }

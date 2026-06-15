@@ -37,6 +37,10 @@ const broadcastSchema = z.object({
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const MAX_BROADCASTS_PER_HOUR = 5;
 
+// TODO(scale): this in-memory bucket is fine for V1 + the e2e demo but
+// it doesn't survive serverless cold starts and it doesn't share state
+// across instances. Move to a Redis-backed counter (or the CDN/edge
+// rate-limit pattern) once the broadcast surface is in production.
 const broadcastLog = new Map<string, number[]>();
 
 function isRateLimited(organizerId: string): boolean {

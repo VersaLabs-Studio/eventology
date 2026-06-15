@@ -18,6 +18,8 @@ export const colors = {
   // Accent (used for highlights, hero banners)
   accent: '#F59E0B',
   accentLight: '#FBBF24',
+  accentMuted: '#FEF3C7',
+  accentMutedDark: '#78350F',
 
   // Surfaces — light theme
   background: '#FAFAFA',

@@ -117,6 +117,21 @@ export default function ProfileScreen(): React.ReactElement {
           <Button label="Notifications" leftIcon="notifications-outline" variant="outline" fullWidth style={{ marginTop: spacing.md }} />
         </Link>
 
+        {/* R3 / B1: Organizer area link — only when the user is an
+            organizer. The check uses the role claim; the actual gate
+            lives on the organizer route (which re-validates ownership). */}
+        {user && (user as { role?: string }).role && (user as { role?: string }).role !== 'attendee' && (
+          <Link href="/organizer" asChild>
+            <Button
+              label={t('organizer.manageEvents')}
+              leftIcon="briefcase-outline"
+              variant="outline"
+              fullWidth
+              style={{ marginTop: spacing.sm }}
+            />
+          </Link>
+        )}
+
         {user && (
           <View style={{ marginTop: spacing.lg }}>
             <Button label="Sign out" variant="destructive" leftIcon="log-out-outline" onPress={handleSignOut} fullWidth />

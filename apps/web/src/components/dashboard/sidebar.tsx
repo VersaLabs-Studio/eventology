@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Calendar, FileText, Settings, ChevronLeft } from "lucide-react";
 
+// R3 / A1: "Revenue & Payouts" link removed while payments are disabled.
+// The destination page itself is kept as a "Payments coming soon"
+// placeholder so any deep links survive the flag flip.
 const navItems = [
   { href: "/org/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/org/events", label: "Events", icon: Calendar },
