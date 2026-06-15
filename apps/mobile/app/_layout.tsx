@@ -38,6 +38,9 @@ export default function RootLayout(): React.ReactElement {
             <Stack.Screen name="event/[slug]" options={{ headerShown: true, title: 'Event' }} />
             <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
             <Stack.Screen name="payment/webview" options={{ headerShown: true, title: 'Payment' }} />
+            <Stack.Screen name="organizer/index" options={{ headerShown: true, title: 'Organizer area' }} />
+            <Stack.Screen name="organizer/checkin/[eventId]" options={{ headerShown: true, title: 'Check-in' }} />
+            <Stack.Screen name="organizer/analytics/[eventId]" options={{ headerShown: true, title: 'Analytics' }} />
           </Stack>
         </AuthProvider>
       </QueryClientProvider>

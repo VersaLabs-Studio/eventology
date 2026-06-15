@@ -21,6 +21,7 @@ import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 import { formatDate, formatDateTime, formatETB } from '@eventology/utils';
+import { paymentsEnabled } from '@/lib/features';
 
 interface Organizer {
   id: string;
@@ -103,15 +104,26 @@ export default function EventDetailScreen(): React.ReactElement {
 
   const event = eventQ.data;
 
+  // Payments-off parity (R3 / B4): when payments are disabled, hide
+  // paid tiers. If every tier is paid, the form replaces the tier
+  // list with a "Tickets on sale soon" placeholder.
+  const paymentsOn = paymentsEnabled();
+
   // Selected tier — null means "first tier" / "free if no tiers".
   const [selectedTierId, setSelectedTierId] = React.useState<string | null>(null);
   const [quantity, setQuantity] = React.useState(1);
+
+  const selectableTiers = React.useMemo(() => {
+    const all = event?.ticket_tiers ?? [];
+    if (paymentsOn) return all;
+    return all.filter((t) => t.price === 0);
+  }, [event, paymentsOn]);
 
   // Free path: ticket is issued immediately. Paid path: route to webview.
   const register = useMutation({
     mutationFn: async () => {
       if (!event) throw new Error('Event not loaded');
-      const tier = event.ticket_tiers?.[0];
+      const tier = selectableTiers[0] ?? null;
       if (!tier && event.ticket_type === 'paid') {
         throw new Error('No ticket tiers available for this event');
       }
@@ -126,7 +138,7 @@ export default function EventDetailScreen(): React.ReactElement {
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ['events', 'detail', slug] });
       qc.invalidateQueries({ queryKey: ['events', 'detail'] });
-      if (res.registration.status === 'pending_payment' && res.checkout_url) {
+      if (res.registration.status === 'pending_payment' && res.checkout_url && paymentsOn) {
         // Open the Chapa webview with the stub checkout URL
         router.push({
           pathname: '/payment/webview',
@@ -147,10 +159,14 @@ export default function EventDetailScreen(): React.ReactElement {
 
   // Resolve the initial tier when the event loads
   React.useEffect(() => {
-    if (event && !selectedTierId && event.ticket_tiers && event.ticket_tiers.length > 0) {
-      setSelectedTierId(event.ticket_tiers[0].id);
+    if (event && !selectedTierId && selectableTiers.length > 0) {
+      setSelectedTierId(selectableTiers[0].id);
     }
-  }, [event, selectedTierId]);
+    // If the previously selected tier is no longer selectable, clear it
+    if (selectedTierId && !selectableTiers.find((t) => t.id === selectedTierId)) {
+      setSelectedTierId(null);
+    }
+  }, [event, selectableTiers, selectedTierId]);
 
   const isFree = event?.ticket_type === 'free';
   const errorMessage =
@@ -278,14 +294,17 @@ export default function EventDetailScreen(): React.ReactElement {
                     {event.ticket_tiers.map((tier) => {
                       const remaining = Math.max(0, tier.capacity - tier.sold_count);
                       const soldOut = remaining === 0;
+                      const isPaid = tier.price > 0;
+                      const disabled = soldOut || (!paymentsOn && isPaid);
                       const isSelected = selectedTierId === tier.id;
                       return (
                         <Card
                           key={tier.id}
                           padding="md"
                           variant={isSelected ? 'outline' : 'default'}
-                          onPress={() => !soldOut && setSelectedTierId(tier.id)}
-                          style={isSelected ? { borderColor: colors.primary, borderWidth: 2 } : {}}
+                          onPress={() => !disabled && setSelectedTierId(tier.id)}
+                          style={isSelected ? { borderColor: colors.primary, borderWidth: 2 } : disabled ? { opacity: 0.6 } : {}}
+                          accessibilityState={{ disabled }}
                         >
                           <View style={styles.tierHeader}>
                             <Text style={[styles.tierName, { color: text }]}>{tier.name}</Text>
@@ -297,11 +316,40 @@ export default function EventDetailScreen(): React.ReactElement {
                             <Text style={[styles.tierDescription, { color: textMuted }]}>{tier.description}</Text>
                           )}
                           <Text style={[styles.tierMeta, { color: textMuted }]}>
-                            {soldOut ? 'Sold out' : `${remaining} of ${tier.capacity} left`}
+                            {!paymentsOn && isPaid
+                              ? 'Soon'
+                              : soldOut
+                                ? 'Sold out'
+                                : `${remaining} of ${tier.capacity} left`}
                           </Text>
                         </Card>
                       );
                     })}
+                  </View>
+                </View>
+              )}
+
+              {!paymentsOn && !isFree && selectableTiers.length === 0 && (
+                <View
+                  style={{
+                    backgroundColor: colors.accentMuted,
+                    borderColor: colors.accent,
+                    borderWidth: 1,
+                    padding: spacing.md,
+                    borderRadius: radius.md,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: spacing.sm,
+                  }}
+                >
+                  <Ionicons name="time-outline" size={20} color={colors.accent} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: text, fontWeight: '700', fontSize: 14 }}>
+                      Tickets on sale soon
+                    </Text>
+                    <Text style={{ color: textMuted, fontSize: 12, marginTop: 2 }}>
+                      Payments are temporarily disabled. Check back shortly.
+                    </Text>
                   </View>
                 </View>
               )}
@@ -329,9 +377,15 @@ export default function EventDetailScreen(): React.ReactElement {
       {event && (
         <View style={[styles.cta, { borderTopColor: border, backgroundColor: isDark ? colors.surfaceDark : colors.surface }]}>
           <Button
-            label={isFree ? 'Register (free)' : 'Register'}
+            label={
+              isFree
+                ? 'Register (free)'
+                : !paymentsOn
+                  ? 'Tickets on sale soon'
+                  : 'Register'
+            }
             leftIcon="ticket-outline"
-            disabled={register.isPending}
+            disabled={register.isPending || (!isFree && !paymentsOn)}
             fullWidth
             onPress={onRegisterPress}
           />

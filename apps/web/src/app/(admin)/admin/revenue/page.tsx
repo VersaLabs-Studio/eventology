@@ -1,70 +1,22 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, DollarSign, Banknote, RotateCcw, Clock } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Clock, DollarSign, Banknote, RotateCcw, Hourglass } from "lucide-react";
 
-interface PlatformRevenue {
-  gmv: number;
-  platformFees: number;
-  totalRefunded: number;
-  outstandingPayouts: number;
-  completedPayments: number;
-  refundedPayments: number;
-  currency: string;
-}
-
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-ET", {
-    style: "currency",
-    currency: currency || "ETB",
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
-
+/**
+ * R3 / A1 — Payments-off placeholder.
+ *
+ * Replaces the live platform-revenue surface while the MVP ships with
+ * `NEXT_PUBLIC_PAYMENTS_ENABLED=false`. The underlying admin/revenue API
+ * route is intentionally left untouched so the flag flip restores the
+ * live metrics with zero code changes.
+ */
 export default function AdminRevenuePage() {
-  const [revenue, setRevenue] = React.useState<PlatformRevenue | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/protected/admin/revenue");
-        if (!res.ok) {
-          throw new Error("Failed to load revenue data");
-        }
-        const data = await res.json();
-        setRevenue(data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-8 text-center">
-        <p className="text-destructive">{error}</p>
-      </div>
-    );
-  }
-
-  const currency = revenue?.currency ?? "ETB";
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -76,72 +28,45 @@ export default function AdminRevenuePage() {
         description="Aggregate financial metrics across all organizers and events."
       />
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              GMV
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(revenue?.gmv ?? 0, currency)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {revenue?.completedPayments ?? 0} completed payments
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Platform Fees
-            </CardTitle>
-            <Banknote className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(revenue?.platformFees ?? 0, currency)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Commission earned</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Refunded
-            </CardTitle>
-            <RotateCcw className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(revenue?.totalRefunded ?? 0, currency)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {revenue?.refundedPayments ?? 0} refund events
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Outstanding Payouts
-            </CardTitle>
-            <Clock className="h-4 w-4 text-amber-500" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-foreground">
-              {formatCurrency(revenue?.outstandingPayouts ?? 0, currency)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Pending or processing</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="border-accent/30 bg-accent/5">
+        <CardContent className="p-8 text-center space-y-4">
+          <div className="h-12 w-12 rounded-full bg-accent/15 flex items-center justify-center mx-auto">
+            <Clock className="h-6 w-6 text-accent" />
+          </div>
+          <h2 className="font-display font-bold text-xl">Payments coming soon</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Platform-wide GMV, commission, and refund metrics are paused during
+            the MVP. They will return here automatically the moment payments
+            are enabled.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-2xl mx-auto">
+            {[
+              { icon: DollarSign, label: "GMV" },
+              { icon: Banknote, label: "Platform Fees" },
+              { icon: RotateCcw, label: "Refunded" },
+              { icon: Hourglass, label: "Outstanding Payouts" },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="rounded-xl border border-dashed border-border/60 p-3 text-center"
+              >
+                <Icon className="h-4 w-4 text-muted-foreground mx-auto mb-1" />
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                  {label}
+                </p>
+                <p className="text-sm font-semibold text-muted-foreground mt-1">—</p>
+              </div>
+            ))}
+          </div>
+          <div className="pt-2">
+            <Link href="/admin/dashboard">
+              <Button variant="outline" className="min-h-[44px] rounded-xl font-bold">
+                Back to dashboard
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 }

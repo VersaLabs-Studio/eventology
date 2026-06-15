@@ -6,6 +6,7 @@ import { getPaymentProvider } from '@/lib/payments';
 import { issueTicket } from '@/lib/tickets/issue-ticket';
 import { resolveCommissionRate, splitCommission } from '@/lib/payments/commission';
 import { notifyRegistrationConfirmed, notifyTicketIssued } from '@/lib/comms/domain-notify';
+import { paymentsEnabledServer } from '@/lib/config/features';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -75,6 +76,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: { code: 'TIER_EVENT_MISMATCH', message: 'Ticket tier does not belong to this event' } } satisfies ErrorEnvelope,
       { status: 400 }
+    );
+  }
+
+  // R3 / A1: When payments are disabled (MVP default), refuse paid
+  // registrations outright. Free tiers are unaffected — the registration
+  // proceeds on the free path below and the ticket is issued immediately.
+  // This is the server-side mirror of the client gate in the register
+  // page; both must agree to keep the seam honest.
+  if (!paymentsEnabledServer() && tierCheck.price > 0) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'PAYMENTS_DISABLED',
+          message: 'Paid tickets are not available right now. Please select a free tier.',
+        },
+      } satisfies ErrorEnvelope,
+      { status: 503 }
     );
   }
 
