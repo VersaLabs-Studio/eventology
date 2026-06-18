@@ -31,7 +31,9 @@
     "submit": "Submit",
     "submitting": "Submitting...",
     "success": "Success",
-    "copied": "Copied to clipboard"
+    "copied": "Copied to clipboard",
+    "eventsCount": "{{count}} events",
+    "browseArrow": "Browse →"
   },
   "nav": {
     "home": "Home",
@@ -49,7 +51,80 @@
     "settings": "Settings",
     "myEvents": "My events",
     "myRegistrations": "My registrations",
-    "myTickets": "My tickets"
+    "myTickets": "My tickets",
+    "search": "Search"
+  },
+  "navbar": {
+    "switchRole": "Switch Role",
+    "selectContext": "Select Context",
+    "roleAttendee": "Attendee",
+    "roleOrganizer": "Organizer",
+    "roleAdmin": "Admin",
+    "roleAttendeeView": "Attendee View",
+    "roleOrganizerView": "Organizer View",
+    "roleAdminView": "Admin View",
+    "navigation": "Navigation",
+    "platformContext": "Platform Context",
+    "openMenu": "Open mobile menu",
+    "closeMenu": "Close mobile menu"
+  },
+  "hero": {
+    "badge": "The #1 Event Infrastructure Across Ethiopia",
+    "headlineStart": "Discover Amazing Events",
+    "headlineEnd": "Across Ethiopia",
+    "subtext": "From premier tech summits in Addis Ababa to sustainable agriculture panels in Hawassa. Register, secure QR passes, and connect instantly.",
+    "statsEvents": "Events Hosted",
+    "statsPartners": "Verified Partners",
+    "statsAttendees": "Total Attendees",
+    "floatingLiveStream": "Live Booking Stream",
+    "floatingVenueBadge": "Active Venues",
+    "floatingVenueType1": "Addis Ababa Hub",
+    "floatingVenueType2": "Southern Regional Hub",
+    "floatingSoldOut": "🎟️ General Admission · Sold Out"
+  },
+  "home": {
+    "brandPhilosophy": "Brand Philosophy",
+    "infinitePossibilities": "Infinite Possibilities.",
+    "definedBy": "Defined By Time & Space.",
+    "brandStoryBefore": "The Eventology identity is forged directly into our official infinite emblem. The central loop represents the ",
+    "boundlessContinuum": "boundless continuum of discovery",
+    "brandStoryAfter": "—thousands of knowledge-sharing events, corporate galas, and developer meetups awaiting exploration across Ethiopia.",
+    "temporalPrecision": "Temporal Precision",
+    "temporalPrecisionBody": "Absolute schedule routing and digital ICS calendar links.",
+    "spatialPresence": "Spatial Presence",
+    "spatialPresenceBody": "Nationwide mapping from Addis halls to sub-city open spaces.",
+    "nationalHubs": "National Hubs",
+    "nationalHubsBody": "Expanding continuously to 12 regional cities.",
+    "subSecondQR": "Sub-Second QR",
+    "subSecondQRBody": "Instant local gate scan integration.",
+    "enterpriseSecurity": "Enterprise Security Layer",
+    "enterpriseSecurityBody": "End-to-end telemetry auditing & telemetry locks.",
+    "active": "Active",
+    "headlineGatherings": "Headline Gatherings",
+    "headlineGatheringsSub": "Curated premium activations commanding top regional stage presence across Addis Ababa and secondary high-growth hubs.",
+    "exploreAllFeatured": "Explore All Featured Events",
+    "browseByCategory": "Browse by Category",
+    "browseByCategorySub": "Filter dynamic multi-tier programming spanning industrial engineering, artistic showcases, and executive roundtables.",
+    "nationalLiveRegistry": "National Live Registry",
+    "nationalLiveRegistrySub": "Real-time synchronized schedules across our enterprise fallback array.",
+    "allAccess": "All Access",
+    "freeEntry": "Free Entry",
+    "loadCompleteCatalog": "Load Complete Discovery Catalog",
+    "threeStepFunnel": "Three-Step Frictionless Funnel",
+    "threeStepFunnelSub": "Designed for maximum checkout velocity and persistent local ticket accessibility.",
+    "step1Title": "1. Intelligent Indexing",
+    "step1Desc": "Filter our resilient caching grid by temporal targets, sub-city bounds, or free/paid parameters.",
+    "step2Title": "2. Instant Verification",
+    "step2Desc": "Complete transaction streams in under 30 seconds using unified local telephony validation tokens.",
+    "step3Title": "3. Offline Entry Assurance",
+    "step3Desc": "Present client-rendered cryptographic QR matrix patterns at the gate. No roaming connectivity required.",
+    "fast": "Fast",
+    "secure": "Secure",
+    "reliable": "Reliable",
+    "organizerProgram": "Organizer Program",
+    "deployToday": "Deploy Your Custom Bounded Event Context Today",
+    "deployBody": "Tap into advanced telemetry analytics, integrated attendee multi-tier ticket models, and dedicated enterprise application scopes.",
+    "initializeOrg": "Initialize Organizer Container"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -70,7 +145,18 @@
     "agreeToTerms": "I agree to the Terms of Service and Privacy Policy",
     "loginSuccess": "Welcome back!",
     "signupSuccess": "Account created successfully",
-    "logoutSuccess": "You have been logged out"
+    "logoutSuccess": "You have been logged out",
+    "signingIn": "Signing in...",
+    "signIn": "Sign In",
+    "redirectedTo": "You'll be redirected to {{path}} after sign in.",
+    "creatingAccount": "Creating account...",
+    "createAccount": "Create Account",
+    "iWantTo": "I want to",
+    "attendEvents": "Attend Events",
+    "organizeEvents": "Organize Events",
+    "phoneOptional": "(optional)",
+    "passwordMinLength": "Must be at least 8 characters",
+    "joinCommunity": "Join the Eventology community"
   },
   "events": {
     "title": "Events",
@@ -131,7 +217,9 @@
       "training": "Training"
     },
     "ticketsFromPrice": "From {{price}}",
-    "backToEvents": "Back to events"
+    "backToEvents": "Back to events",
+    "featuredEmptyTitle": "No featured events yet",
+    "featuredEmptyBody": "Featured events will appear here once the admin team pins them."
   },
   "tickets": {
     "title": "My tickets",
@@ -280,7 +368,27 @@
     "privacyPolicy": "Privacy policy",
     "termsOfService": "Terms of service",
     "copyright": "© 2026 Eventology. All rights reserved.",
-    "madeIn": "Made with ❤️ in Addis Ababa"
+    "allRightsReserved": "All rights reserved.",
+    "madeIn": "Made with ❤️ in Addis Ababa",
+    "discover": "Discover",
+    "allEvents": "All Events",
+    "techEvents": "Tech Events",
+    "musicEvents": "Music Events",
+    "businessEvents": "Business Events",
+    "forOrganizersColumn": "For Organizers",
+    "dashboard": "Dashboard",
+    "createEvent": "Create Event",
+    "myDrafts": "My Drafts",
+    "company": "Company",
+    "aboutLink": "About",
+    "contactLink": "Contact",
+    "privacyLink": "Privacy",
+    "termsLink": "Terms",
+    "architectedBy": "Architected by",
+    "ctaTitle": "Discover Events Across Ethiopia",
+    "ctaDescription": "From tech conferences in Addis Ababa to cultural festivals in Hawassa — find your next experience on Eventology.",
+    "ctaBrowse": "Browse Events",
+    "ctaCreate": "Create an Event"
   },
   "errors": {
     "notFound": "Page not found",
@@ -362,6 +470,7 @@
   "language": {
     "label": "Language",
     "en": "English",
-    "am": "Amharic"
+    "am": "Amharic",
+    "switchLabel": "Switch language"
   }
 }

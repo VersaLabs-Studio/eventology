@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/shared/logo';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocale } from '@/lib/i18n';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 const containerVariants = {
@@ -42,6 +43,7 @@ export default function LoginPage() {
 
 function LoginContent() {
   const { login, isLoading } = useAuth();
+  const { t } = useLocale();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
 
@@ -79,10 +81,10 @@ function LoginContent() {
               <Logo size="lg" />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <CardTitle className="text-2xl">Welcome back</CardTitle>
+              <CardTitle className="text-2xl">{t("auth.loginTitle")}</CardTitle>
             </motion.div>
             <motion.div variants={itemVariants}>
-              <CardDescription>Sign in to your Eventology account</CardDescription>
+              <CardDescription>{t("auth.loginSubtitle")}</CardDescription>
             </motion.div>
           </CardHeader>
 
@@ -90,7 +92,7 @@ function LoginContent() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <motion.div variants={itemVariants} className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
-                  Email
+                  {t("auth.email")}
                 </Label>
                 <Input
                   id="email"
@@ -108,13 +110,13 @@ function LoginContent() {
               <motion.div variants={itemVariants} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-sm font-medium">
-                    Password
+                    {t("auth.password")}
                   </Label>
                   <Link
                     href="/auth/forgot-password"
                     className="text-xs text-primary hover:underline"
                   >
-                    Forgot password?
+                    {t("auth.forgotPassword")}
                   </Link>
                 </div>
                 <div className="relative">
@@ -150,10 +152,10 @@ function LoginContent() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
+                      {t("auth.signingIn")}
                     </>
                   ) : (
-                    'Sign In'
+                    t("auth.signIn")
                   )}
                 </Button>
               </motion.div>
@@ -161,9 +163,7 @@ function LoginContent() {
               {redirect !== '/' && (
                 <motion.div variants={itemVariants}>
                   <p className="text-xs text-center text-muted-foreground">
-                    You&apos;ll be redirected to{' '}
-                    <span className="font-mono text-primary">{redirect}</span>{' '}
-                    after sign in.
+                    {t("auth.redirectedTo", { path: redirect })}
                   </p>
                 </motion.div>
               )}
@@ -171,12 +171,12 @@ function LoginContent() {
 
             <motion.div variants={itemVariants} className="mt-6">
               <p className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{' '}
+                {t("auth.noAccount")}{' '}
                 <Link
                   href="/auth/signup"
                   className="text-primary hover:underline font-medium"
                 >
-                  Sign up
+                  {t("nav.signup")}
                 </Link>
               </p>
             </motion.div>

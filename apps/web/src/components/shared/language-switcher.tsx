@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  * "select the active one" pattern, which is harder to discover).
  */
 export function LanguageSwitcher({ className }: { className?: string }) {
-  const { locale, setLocale, ready } = useLocale();
+  const { t, locale, setLocale, ready } = useLocale();
   const [open, setOpen] = React.useState(false);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -44,7 +44,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="Switch language"
+        aria-label={t("language.switchLabel")}
         className="h-10 px-3 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/80 transition-all flex items-center gap-2 border border-border/50 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         <Languages className="h-4 w-4 text-primary" />

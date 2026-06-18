@@ -22,8 +22,17 @@ export function Logo({ size = "default", className, showText = true }: LogoProps
       )}
     >
       <div className="relative flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+        {/*
+          R4 / W1: Logo asset path switched from /logo.svg (169 KB, no Next
+          optimization) to /logo.png (6.2 KB at 176px, 2x the largest
+          display size of 88px). Next/Image further optimizes the raster
+          into WebP/AVIF variants per-device. /logo.webp is kept as a
+          sibling asset for the preload link in app/layout.tsx and any
+          non-Next consumer. `priority` keeps this off the lazy queue
+          since it sits in the LCP path on every surface that renders it.
+        */}
         <Image
-          src="/logo.svg"
+          src="/logo.png"
           alt="Eventology Logo"
           width={px}
           height={px}

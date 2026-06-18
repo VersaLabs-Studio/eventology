@@ -35,7 +35,9 @@ export const metadata: Metadata = {
     "premium",
   ],
   icons: {
-    icon: "/logo.svg",
+    // R4 / W1: ico-sized variant of the raster logo. The 176px PNG is the
+    // shared source; Next/Image derives smaller variants per device.
+    icon: "/logo.png",
   },
 };
 
@@ -71,6 +73,28 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        {/*
+          R4 / W1: Preload the LCP logo so first paint doesn't wait on
+          the PNG round-trip. The hero <Image> and the <Logo> in the
+          navbar/footer/auth cards all point at the same source. We
+          declare the WebP first (modern browsers) and PNG as fallback
+          via the picture/imageSrcSet hint on the asset; the file itself
+          is /logo.png (6.2 KB at 176px).
+        */}
+        <link
+          rel="preload"
+          as="image"
+          href="/logo.png"
+          type="image/png"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/logo.webp"
+          type="image/webp"
+        />
+      </head>
       <body className="min-h-screen antialiased selection:bg-primary/20">
         <I18nProvider initialLocale={initialLocale}>
           <QueryProvider>

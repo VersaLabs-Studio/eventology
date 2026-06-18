@@ -31,7 +31,9 @@
     "submit": "ላክ",
     "submitting": "በመላክ ላይ...",
     "success": "ተሳክቷል",
-    "copied": "ወደ ቅንጥብ ሰሌዳ ተቀድቷል"
+    "copied": "ወደ ቅንጥብ ሰሌዳ ተቀድቷል",
+    "eventsCount": "{{count}} ዝግጅቶች",
+    "browseArrow": "ያስሱ →"
   },
   "nav": {
     "home": "መነሻ",
@@ -52,6 +54,78 @@
     "myTickets": "የእኔ ትኬቶች",
     "search": "ፈልግ"
   },
+  "navbar": {
+    "switchRole": "ሚና ቀይር",
+    "selectContext": "አውድ ምረጥ",
+    "roleAttendee": "ተሳታፊ",
+    "roleOrganizer": "አዘጋጅ",
+    "roleAdmin": "አስተዳዳሪ",
+    "roleAttendeeView": "የተሳታፊ እይታ",
+    "roleOrganizerView": "የአዘጋጅ እይታ",
+    "roleAdminView": "የአስተዳዳሪ እይታ",
+    "navigation": "አሰሳ",
+    "platformContext": "የመድረክ አውድ",
+    "openMenu": "የሞባይል ምናሌ ክፈት",
+    "closeMenu": "የሞባይል ምናሌ ዝጋ"
+  },
+  "hero": {
+    "badge": "ቁጥር 1 የኢትዮጵያ የዝግጅት መሠረተ ልማት",
+    "headlineStart": "አስደሳች ዝግጅቶችን ያግኙ",
+    "headlineEnd": "በመላው ኢትዮጵያ",
+    "subtext": "ከአዲስ አበባ የሚደረጉ የፕሪሚየር የቴክኖሎጂ ስብሰባዎች እስከ አዋሳ የሚደረጉ የተቀናጁ የእርሻ ፓነሎች ድረስ። ይመዝገቡ፣ የQR ትኬቶችን ያስጠብቁ እና ወዲያውኑ ይገናኙ።",
+    "statsEvents": "የተደረጉ ዝግጅቶች",
+    "statsPartners": "የተረጋገጡ አጋሮች",
+    "statsAttendees": "ጠቅላላ ተሳታፊዎች",
+    "floatingLiveStream": "ቀጥታ የመያዝ ምልክት",
+    "floatingVenueBadge": "ንቁ ቦታዎች",
+    "floatingVenueType1": "የአዲስ አበባ ማዕከል",
+    "floatingVenueType2": "የደቡብ ክልል ማዕከል",
+    "floatingSoldOut": "🎟️ አጠቃላይ መግቢያ · ተሽጧል"
+  },
+  "home": {
+    "brandPhilosophy": "የምርት ስትራቴጂ",
+    "infinitePossibilities": "ያልተገደበ እድሎች።",
+    "definedBy": "በጊዜና በቦታ የተገለጸ።",
+    "brandStoryBefore": "የኢቨንቶሎጂ ስትሪቲን በኢቨንቶሎጂ ኦፊሴላዊ ያልተገደበ ምልክት ውስጥ ቀርፆ ነው። ማዕከላዊው ዙር ",
+    "boundlessContinuum": "ያልተገደበ የግኝት ህዋሃትን ይወክላል",
+    "brandStoryAfter": "—በሺዎች የሚቆጠሩ የእውቀት ማካፈል ዝግጅቶች፣ የኮርፖሬት ግላዊ ክብር እና የገንቢዎች ስብሰባዎች በመላው ኢትዮጵያ ለመጎብኘት የሚጠብቁ።",
+    "temporalPrecision": "የጊዜ ትክክለኛነት",
+    "temporalPrecisionBody": "ፍፁም የጊዜ ሰሌዳ ማዘጋጀት እና ዲጂታል ICS የቀን መቁጠር አገናኞች።",
+    "spatialPresence": "የቦታ መኖር",
+    "spatialPresenceBody": "ከአዲስ አበባ አዳራሾች እስከ ክፍለ ከተማ ክፍት ቦታዎች ድረስ በመላው ሀገር ካርታ።",
+    "nationalHubs": "ብሔራዊ ማዕከሎች",
+    "nationalHubsBody": "ወደ 12 የክልል ከተሞች በቀጣይነት በመስፋፋት ላይ።",
+    "subSecondQR": "ከንደባ ሰከንድ QR",
+    "subSecondQRBody": "ፈጣን የአካባቢ በር ስካን ውህደት።",
+    "enterpriseSecurity": "የኢንተርፕራይዝ ደህንነት ሽፋን",
+    "enterpriseSecurityBody": "ከመረጃ ማዕከል እስከ መረጃ ማዕከል የመረጃ ክትትል እና መቆለፊያዎች።",
+    "active": "ንቁ",
+    "headlineGatherings": "ቀዳማዊ ስብሰባዎች",
+    "headlineGatheringsSub": "በአዲስ አበባ እና በሁለተኛ ደረጃ ከፍተኛ እድገት ማዕከሎች ላይ የሚገኙ የተመረጡ ፕሪሚየም ክንውኖች።",
+    "exploreAllFeatured": "ሁሉንም የተመረጡ ዝግጅቶችን ይመርምሩ",
+    "browseByCategory": "በምድብ ያስሱ",
+    "browseByCategorySub": "ከኢንዱስትሪ ምህንድስና እስከ የጥበብ ማሳያዎች እና ከፍተኛ የስራ ክርክር ጠረጴዛዎች ድረስ ያሉትን ባለብዙ-ደረጃ ፕሮግራሚንግ ያጣሩ።",
+    "nationalLiveRegistry": "ብሔራዊ ቀጥታ ምዝገባ",
+    "nationalLiveRegistrySub": "በኢንተርፕራይዝ የመጠባበቂያ ማዕከል ላይ በእውነተኛ ጊዜ የተመሳሰሉ የጊዜ ሰሌዳዎች።",
+    "allAccess": "ሁሉም መዳረሻ",
+    "freeEntry": "ነፃ መግቢያ",
+    "loadCompleteCatalog": "ሙሉ የግኝት ካታሎግን ጫን",
+    "threeStepFunnel": "ባለሶስት-ደረጃ የማይንቀሳቀስ ማስታወቂያ",
+    "threeStepFunnelSub": "ለከፍተኛ የክፍያ ፍጥነት እና ለቋሚ የአካባቢ ትኬት ተደራሽነት የተሻለ የተደራጀ።",
+    "step1Title": "1. የማሰብ ችሎታ ማውጣት",
+    "step1Desc": "የእኛን የተሻለ የማስቀመጫ ፍርግም በጊዜ ዒላማዎች፣ በክፍለ ከተማ ገደቦች፣ ወይም በነፃ/ክፍያ መለኪያዎች ያጣሩ።",
+    "step2Title": "2. ፈጣን ማረጋገጫ",
+    "step2Desc": "የግብይት ምልክቶችን በ30 ሰከንዶች ውስጥ በአንድነት የአካባቢ ቴሌፎኒ ማረጋገጫ ቁልፎች ያጠናቁ።",
+    "step3Title": "3. ከመስመር ውጭ የመግቢያ ዋስትና",
+    "step3Desc": "በር ላይ የደንበኛ-የቀረጹ ምስል ማትሪክስ ንድፎችን ያቅርቡ። ምንም የሞባይል ግንኙነት አያስፈልግም።",
+    "fast": "ፈጣን",
+    "secure": "ደህንነቱ የተጠበቀ",
+    "reliable": "ታማኝ",
+    "organizerProgram": "የአዘጋጅ ፕሮግራም",
+    "deployToday": "የእርስዎን ብጁ የተገደበ የዝግጅት አውድ ዛሬ ያሰማሩ",
+    "deployBody": "የላቀ የማስተካከያ ትንታኔ፣ የተቀናጁ የተሳታፊ ባለብዙ-ደረጃ ትኬት ሞዴሎች እና የተወሰኑ የኢንተርፕራይዝ የመተግበሪያ ስፋቶችን ይጠቀሙ።",
+    "initializeOrg": "የአዘጋጅ ኮንቴይነርን ጀምር"
+  },
   "auth": {
     "loginTitle": "እንኳን ተመለሱ",
     "loginSubtitle": "ወደ ኢቨንቶሎጂ አካውንትዎ ይግቡ",
@@ -71,7 +145,18 @@
     "agreeToTerms": "የአገልግሎት ውሎችን እና የግል መመሪያን እስማማለሁ",
     "loginSuccess": "እንኳን ተመለሱ!",
     "signupSuccess": "አካውንት በተሳካ ሁኔታ ተፈጥሯል",
-    "logoutSuccess": "ከአካውንትዎ ወጥተዋል"
+    "logoutSuccess": "ከአካውንትዎ ወጥተዋል",
+    "signingIn": "በመግባት ላይ...",
+    "signIn": "ግባ",
+    "redirectedTo": "ከመግባትህ በኋላ ወደ {{path}} ይዛወራል።",
+    "creatingAccount": "አካውንት በመፍጠር ላይ...",
+    "createAccount": "አካውንት ፍጠር",
+    "iWantTo": "ምን ማድረግ እፈልጋለሁ",
+    "attendEvents": "ዝግጅቶችን ላስተካክል",
+    "organizeEvents": "ዝግጅቶችን ማደራጀት",
+    "phoneOptional": "(አማራጭ)",
+    "passwordMinLength": "ቢያንስ 8 ቁምፆች መሆን አለበት",
+    "joinCommunity": "የኢቨንቶሎጂ ማህበረሰብን ተቀላቀል"
   },
   "events": {
     "title": "ዝግጅቶች",
@@ -132,7 +217,9 @@
       "training": "ስልጠና"
     },
     "ticketsFromPrice": "ከ {{price}} ጀምሮ",
-    "backToEvents": "ወደ ዝግጅቶች ተመለስ"
+    "backToEvents": "ወደ ዝግጅቶች ተመለስ",
+    "featuredEmptyTitle": "እስከ አሁን የተመረጡ ዝግጅቶች የሉም",
+    "featuredEmptyBody": "የአስተዳደር ቡድን ሲያቆሙ የተመረጡ ዝግጅቶች እዚህ ይታያሉ።"
   },
   "tickets": {
     "title": "የእኔ ትኬቶች",
@@ -224,7 +311,7 @@
   "notifications": {
     "registrationConfirmed": "የ{{event}} ምዝገባዎ ተረጋግጧል!",
     "eventReminder": "ማስታወሻ: {{event}} በ{{time}} ውስጥ ይጀምራል",
-    "eventCancelled": "不幸፣ {{event}} ተሰርዟል።",
+    "eventCancelled": "አስከፊ ነገር፣ {{event}} ተሰርዟል።",
     "eventApproved": "ዝግጅትዎ \"{{event}}\" ጸድቋል!",
     "eventRejected": "ዝግጅትዎ \"{{event}}\" አልጸደቀም።",
     "newRegistration": "{{name}} ለ{{event}} ተመዝግቧል",
@@ -251,9 +338,9 @@
       "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያደረጉት {{amount}} {{currency}} ክፍያ ተቀብለናል።\n\nደረሰኝ: {{receiptUrl}}\n\n— የኢቨንቶሎጂ ቡድን"
     },
     "refundProcessed": {
-      "subject": "ለ{{event}} ተመላሽ ክፍያ ተከናውኗል",
-      "inAppTitle": "ተመላሽ ክፍያ ተሰጥቷል",
-      "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያደረጉት {{amount}} {{currency}} ተመላሽ ክፍያ ተከናውኗል። ገንዘቡ በባንክዎ ላይ በመወሰን ከ5-10 የስራ ቀናት ውስጥ ይታያል።\n\nምክንያት: {{reason}}\n\n— የኢቨንቶሎጂ ቡድን"
+      "subject": "ለ{{event}} ተመዋሽ ክፍያ ተከናውኗል",
+      "inAppTitle": "ተመዋሽ ክፍያ ተሰጥቷል",
+      "emailBody": "ሰላም {{name}}፣\n\nለ{{event}} ያደረጉት {{amount}} {{currency}} ተመዋሽ ክፍያ ተከናውኗል። ገንዘቡ በባንክዎ ላይ በመወሰን ከ5-10 የስራ ቀናት ውስጥ ይታያል።\n\nምክንያት: {{reason}}\n\n— የኢቨንቶሎጂ ቡድን"
     },
     "payoutUpdate": {
       "subject": "ክፍያ {{status}}: {{amount}} {{currency}}",
@@ -281,7 +368,27 @@
     "privacyPolicy": "የግል መመሪያ",
     "termsOfService": "የአገልግሎት ውሎች",
     "copyright": "© 2026 ኢቨንቶሎጂ። ሁሉም መብቶች የተጠበቁ ናቸው።",
-    "madeIn": "በአዲስ አበባ ❤️ የተሰራ"
+    "allRightsReserved": "ሁሉም መብቶች የተጠበቁ ናቸው።",
+    "madeIn": "በአዲስ አበባ ❤️ የተሰራ",
+    "discover": "ያግኙ",
+    "allEvents": "ሁሉም ዝግጅቶች",
+    "techEvents": "የቴክኖሎጂ ዝግጅቶች",
+    "musicEvents": "የሙዚቃ ዝግጅቶች",
+    "businessEvents": "የንግድ ዝግጅቶች",
+    "forOrganizersColumn": "ለአዘጋጆች",
+    "dashboard": "ዳሽቦርድ",
+    "createEvent": "ዝግጅት ፍጠር",
+    "myDrafts": "የእኔ ረቂቆች",
+    "company": "ኩባንያ",
+    "aboutLink": "ስለ እኛ",
+    "contactLink": "አግኙን",
+    "privacyLink": "ግላዊነት",
+    "termsLink": "ውሎች",
+    "architectedBy": "የተሰራው በ",
+    "ctaTitle": "በመላው ኢትዮጵያ ዝግጅቶችን ያግኙ",
+    "ctaDescription": "ከአዲስ አበባ የሚደረጉ የቴክኒክ ኮንፈረንሶች እስከ አዋሳ የሚደረጉ የባህል አዝናኝ በዓላት ድረስ — ቀጣይዎን ልምድ በኢቨንቶሎጂ ያግኙ።",
+    "ctaBrowse": "ዝግጅቶችን ያስሱ",
+    "ctaCreate": "ዝግጅት ይፍጠሩ"
   },
   "errors": {
     "notFound": "ገጽ አልተገኘም",
@@ -317,7 +424,7 @@
     "newChat": "አዲስ",
     "tierEnforced": "ደረጃ: {{tier}} · በሰርቨር የተገደበ",
     "needHuman": "ሰው ያስፈልግዎታል?",
-    "needHumanMsg": "ከድጋፍ ቡድናችን ጋር ል�让您ዎት።",
+    "needHumanMsg": "ከድጋፍ ቡድናችን ጋር ልገናኝዎት።",
     "talkToSupport": "ከድጋፍ ጋር ይነጋገሩ",
     "insightsTitle": "AI ግንዛቤዎች",
     "insightsSubtitle": "የዚህን ዝግጅት አፈጻጸም ዋና ማጠቃለያ ያመንጩ።",
@@ -363,6 +470,7 @@
   "language": {
     "label": "ቋንቋ",
     "en": "እንግሊዝኛ",
-    "am": "አማርኛ"
+    "am": "አማርኛ",
+    "switchLabel": "ቋንቋ ቀይር"
   }
 }
