@@ -2,6 +2,7 @@
   "common": {
     "appName": "Eventology",
     "tagline": "Discover. Register. Experience.",
+    "region": "Ethiopia",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try again",

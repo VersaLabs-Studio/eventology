@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
 import { Search, Menu, X, Monitor, LayoutDashboard, Shield, ChevronRight } from "lucide-react";
@@ -16,6 +16,107 @@ const navLinks = [
   { href: "/events?featured=true", labelKey: "events.featured" },
   { href: "/search", labelKey: "nav.search" },
 ];
+
+/**
+ * R5: Active-state predicate. Splits the link href on "?" and requires the
+ * pathname to match the path AND every query kv-pair to match
+ * searchParams. Falls back to `false` when searchParams is null (defensive
+ * SSR boundary). The previous inline predicate (`href.includes("?") &&
+ * pathname.startsWith("/events")`) wrongly highlighted the Featured link on
+ * the bare `/events` route AND on event-detail pages (`/events/123`),
+ * producing duplicate active states and incorrect section highlighting.
+ */
+function isLinkActive(
+  href: string,
+  pathname: string,
+  searchParams: URLSearchParams | null
+): boolean {
+  const [path, query] = href.split("?");
+  if (pathname !== path) return false;
+  if (!query) return true;
+  if (!searchParams) return false;
+  for (const kv of query.split("&")) {
+    const [k, v] = kv.split("=");
+    if (searchParams.get(k) !== v) return false;
+  }
+  return true;
+}
+
+/**
+ * R5: Sub-component that uses `useSearchParams` so it can be wrapped in
+ * `<Suspense>` at the parent. Next 14+ requires this — see
+ * https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout.
+ * Without the Suspense boundary, statically prerendered pages under the
+ * (public) layout bail to dynamic rendering.
+ */
+function DesktopNavLinks({ pathname }: { pathname: string }) {
+  const searchParams = useSearchParams();
+  const { t } = useLocale();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
+  return (
+    <nav className="hidden md:flex items-center gap-1.5 bg-muted/40 p-1 rounded-full border border-border/40 backdrop-blur-md">
+      {navLinks.map((link) => {
+        const isActive = isLinkActive(link.href, pathname, searchParams);
+        return (
+          <Link
+            key={link.labelKey}
+            href={link.href}
+            className={cn(
+              "relative px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 select-none",
+              isActive
+                ? "text-primary-foreground font-bold shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {isActive && mounted && (
+              <motion.div
+                layoutId="navbar-indicator"
+                className="absolute inset-0 bg-primary rounded-full -z-10 shadow-glow"
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+              />
+            )}
+            <span className="relative z-10">{t(link.labelKey)}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+/**
+ * R5: Same Suspense boundary requirement as DesktopNavLinks. Renders the
+ * nav stack inside the mobile slide-out drawer.
+ */
+function MobileNavLinks({ pathname }: { pathname: string }) {
+  const searchParams = useSearchParams();
+  const { t } = useLocale();
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider px-3 mb-1">
+        {t("navbar.navigation")}
+      </span>
+      {navLinks.map((link) => {
+        const isActive = isLinkActive(link.href, pathname, searchParams);
+        return (
+          <Link
+            key={link.labelKey}
+            href={link.href}
+            className={cn(
+              "min-h-[44px] flex items-center px-4 rounded-xl text-base font-bold transition-all",
+              isActive
+                ? "bg-primary/10 text-primary font-extrabold"
+                : "text-foreground hover:bg-muted/50"
+            )}
+          >
+            {t(link.labelKey)}
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -52,33 +153,10 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           <Logo size="default" />
 
-          {/* Desktop Central Navigation */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-muted/40 p-1 rounded-full border border-border/40 backdrop-blur-md">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href || (link.href.includes("?") && pathname.startsWith("/events"));
-              return (
-                <Link
-                  key={link.labelKey}
-                  href={link.href}
-                  className={cn(
-                    "relative px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 select-none",
-                    isActive
-                      ? "text-primary-foreground font-bold shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {isActive && mounted && (
-                    <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute inset-0 bg-primary rounded-full -z-10 shadow-glow"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  <span className="relative z-10">{t(link.labelKey)}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Desktop Central Navigation — wrapped in Suspense because it uses useSearchParams */}
+          <React.Suspense fallback={<div className="hidden md:block w-px" />}>
+            <DesktopNavLinks pathname={pathname} />
+          </React.Suspense>
 
           {/* Desktop Controls Panel */}
           <div className="hidden md:flex items-center gap-3">
@@ -167,29 +245,10 @@ export function Navbar() {
                   </button>
                 </div>
 
-                {/* Primary Nav Stack */}
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                    {t("navbar.navigation")}
-                  </span>
-                  {navLinks.map((link) => {
-                    const isActive = pathname === link.href;
-                    return (
-                      <Link
-                        key={link.labelKey}
-                        href={link.href}
-                        className={cn(
-                          "min-h-[44px] flex items-center px-4 rounded-xl text-base font-bold transition-all",
-                          isActive
-                            ? "bg-primary/10 text-primary font-extrabold"
-                            : "text-foreground hover:bg-muted/50"
-                        )}
-                      >
-                        {t(link.labelKey)}
-                      </Link>
-                    );
-                  })}
-                </div>
+                {/* Primary Nav Stack — wrapped in Suspense because it uses useSearchParams */}
+                <React.Suspense fallback={null}>
+                  <MobileNavLinks pathname={pathname} />
+                </React.Suspense>
 
                 {/* Role Switcher Stack */}
                 <div className="flex flex-col gap-2">
@@ -231,4 +290,3 @@ export function Navbar() {
     </>
   );
 }
-

@@ -1,7 +1,10 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 
 interface LogoProps {
   size?: "sm" | "default" | "lg";
@@ -13,6 +16,13 @@ const sizeMap = { sm: 32, default: 44, lg: 88 };
 
 export function Logo({ size = "default", className, showText = true }: LogoProps) {
   const px = sizeMap[size];
+  // R5: Brand text localized via the standing i18n rule. The Logo renders
+  // inside the Navbar (header + mobile drawer), the Footer, and both auth
+  // pages — i.e. every chrome surface — so the hardcoded English was the
+  // last visible i18n gap on rot4's public sweep. Made "use client" (same
+  // pattern as Footer in rot4) to call useLocale().
+  const { t } = useLocale();
+
   return (
     <Link
       href="/"
@@ -33,7 +43,7 @@ export function Logo({ size = "default", className, showText = true }: LogoProps
         */}
         <Image
           src="/logo.png"
-          alt="Eventology Logo"
+          alt={t("common.appName") + " Logo"}
           width={px}
           height={px}
           className="object-contain drop-shadow-sm"
@@ -50,11 +60,11 @@ export function Logo({ size = "default", className, showText = true }: LogoProps
               size === "lg" && "text-3xl"
             )}
           >
-            Eventology
+            {t("common.appName")}
           </span>
           {size !== "sm" && (
             <span className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mt-0.5 block opacity-80 group-hover:text-accent transition-colors">
-              Ethiopia
+              {t("common.region")}
             </span>
           )}
         </div>
