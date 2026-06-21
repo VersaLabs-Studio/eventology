@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, ExternalLink } from 'lucide-react';
+import { useLocale } from '@/lib/i18n';
 
 interface ButtonProps {
   label: string;
@@ -24,30 +25,28 @@ interface FooterCTAProps {
 // Spring animation configuration
 const SPRING = { stiffness: 300, damping: 30 };
 
-const defaultProps: FooterCTAProps = {
-  title: "Discover Events Across Ethiopia",
-  description: "From tech conferences in Addis Ababa to cultural festivals in Hawassa — find your next experience on Eventology.",
-  primaryButton: {
-    label: "Browse Events",
-    href: "/events",
-    variant: "primary",
-  },
-  secondaryButton: {
-    label: "Create an Event",
-    href: "/auth/signup",
-    variant: "secondary",
-  },
-  showGlow: true,
-};
-
 export default function FooterCTA(props: FooterCTAProps = {}) {
+  // R4 / W2: FooterCTA default copy is i18n-aware. We deliberately keep
+  // this component generic (string props for callers to override), but
+  // the *defaults* now flow through t() so the public chrome is
+  // translated even when the parent layout doesn't pass strings.
+  const { t } = useLocale();
+
   const {
-    title = defaultProps.title,
-    description = defaultProps.description,
-    primaryButton = defaultProps.primaryButton,
-    secondaryButton = defaultProps.secondaryButton,
+    title = t("footer.ctaTitle"),
+    description = t("footer.ctaDescription"),
+    primaryButton = {
+      label: t("footer.ctaBrowse"),
+      href: "/events",
+      variant: "primary",
+    },
+    secondaryButton = {
+      label: t("footer.ctaCreate"),
+      href: "/auth/signup",
+      variant: "secondary",
+    },
     className = "",
-    showGlow = defaultProps.showGlow,
+    showGlow = true,
   } = props;
 
   return (

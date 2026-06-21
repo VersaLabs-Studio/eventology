@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/shared/logo';
 import { useAuth } from '@/hooks/use-auth';
+import { useLocale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
@@ -35,6 +36,7 @@ type UserRole = 'attend' | 'organize';
 
 export default function SignupPage() {
   const { register, isLoading } = useAuth();
+  const { t } = useLocale();
 
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -79,10 +81,10 @@ export default function SignupPage() {
               <Logo size="lg" />
             </motion.div>
             <motion.div variants={itemVariants}>
-              <CardTitle className="text-2xl">Create your account</CardTitle>
+              <CardTitle className="text-2xl">{t("auth.signupTitle")}</CardTitle>
             </motion.div>
             <motion.div variants={itemVariants}>
-              <CardDescription>Join the Eventology community</CardDescription>
+              <CardDescription>{t("auth.joinCommunity")}</CardDescription>
             </motion.div>
           </CardHeader>
 
@@ -90,7 +92,7 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Role Selection */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label className="text-sm font-medium">I want to</Label>
+                <Label className="text-sm font-medium">{t("auth.iWantTo")}</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
@@ -102,7 +104,7 @@ export default function SignupPage() {
                         : 'border-border text-muted-foreground hover:border-primary/50 hover:bg-muted/50'
                     )}
                   >
-                    <span className="text-sm font-medium">Attend Events</span>
+                    <span className="text-sm font-medium">{t("auth.attendEvents")}</span>
                   </button>
                   <button
                     type="button"
@@ -114,7 +116,7 @@ export default function SignupPage() {
                         : 'border-border text-muted-foreground hover:border-primary/50 hover:bg-muted/50'
                     )}
                   >
-                    <span className="text-sm font-medium">Organize Events</span>
+                    <span className="text-sm font-medium">{t("auth.organizeEvents")}</span>
                   </button>
                 </div>
               </motion.div>
@@ -122,12 +124,12 @@ export default function SignupPage() {
               {/* Full Name */}
               <motion.div variants={itemVariants} className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">
-                  Full Name
+                  {t("auth.fullName")}
                 </Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Abebe Kebede"
+                  placeholder={t("registration.fullNamePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -140,7 +142,7 @@ export default function SignupPage() {
               {/* Email */}
               <motion.div variants={itemVariants} className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
-                  Email
+                  {t("auth.email")}
                 </Label>
                 <Input
                   id="email"
@@ -158,7 +160,7 @@ export default function SignupPage() {
               {/* Phone */}
               <motion.div variants={itemVariants} className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium">
-                  Phone <span className="text-muted-foreground">(optional)</span>
+                  {t("auth.phone")} <span className="text-muted-foreground">{t("auth.phoneOptional")}</span>
                 </Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">
@@ -180,7 +182,7 @@ export default function SignupPage() {
               {/* Password */}
               <motion.div variants={itemVariants} className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">
-                  Password
+                  {t("auth.password")}
                 </Label>
                 <div className="relative">
                   <Input
@@ -205,7 +207,7 @@ export default function SignupPage() {
                   </button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Must be at least 8 characters
+                  {t("auth.passwordMinLength")}
                 </p>
               </motion.div>
 
@@ -221,10 +223,10 @@ export default function SignupPage() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
+                      {t("auth.creatingAccount")}
                     </>
                   ) : (
-                    'Create Account'
+                    t("auth.createAccount")
                   )}
                 </Button>
               </motion.div>
@@ -232,12 +234,12 @@ export default function SignupPage() {
 
             <motion.div variants={itemVariants} className="mt-6">
               <p className="text-center text-sm text-muted-foreground">
-                Already have an account?{' '}
+                {t("auth.hasAccount")}{' '}
                 <Link
                   href="/auth/login"
                   className="text-primary hover:underline font-medium"
                 >
-                  Sign in
+                  {t("auth.signIn")}
                 </Link>
               </p>
             </motion.div>

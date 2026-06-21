@@ -7,6 +7,7 @@ import { EventCard } from "@/components/shared/event-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useLocale } from "@/lib/i18n";
 import type { Event } from "@/lib/types";
 
 interface PublicEvent {
@@ -38,6 +39,7 @@ interface ListResponse<T> {
  * platform has no featured events (admin hasn't pinned any yet).
  */
 export function FeaturedCarousel() {
+  const { t } = useLocale();
   const q = useQuery<ListResponse<PublicEvent>>({
     queryKey: ['events', 'featured-carousel'],
     queryFn: async () => {
@@ -137,8 +139,8 @@ export function FeaturedCarousel() {
     return (
       <EmptyState
         icon={Star}
-        title="No featured events yet"
-        description="Featured events will appear here once the admin team pins them."
+        title={t("events.featuredEmptyTitle")}
+        description={t("events.featuredEmptyBody")}
       />
     );
   }

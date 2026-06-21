@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Cpu, Briefcase, Palette, Heart, GraduationCap, Music, UtensilsCrossed, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useLocale } from "@/lib/i18n";
 
 interface Category {
   id: string;
@@ -41,6 +42,7 @@ function iconColor(hex: string | null): string {
  * count); we show a "—" placeholder when missing rather than 0.
  */
 export function CategoryGrid() {
+  const { t } = useLocale();
   const q = useQuery<ListResponse<Category>>({
     queryKey: ['categories', 'grid'],
     queryFn: async () => {
@@ -88,7 +90,7 @@ export function CategoryGrid() {
               </div>
               <h3 className="font-display font-semibold text-sm">{cat.name}</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                {typeof cat.event_count === 'number' ? `${cat.event_count} events` : 'Browse →'}
+                {typeof cat.event_count === 'number' ? t("common.eventsCount", { count: cat.event_count }) : t("common.browseArrow")}
               </p>
             </Link>
           </motion.div>
