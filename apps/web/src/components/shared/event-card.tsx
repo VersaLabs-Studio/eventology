@@ -34,7 +34,7 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
           <CardContent className="flex-1 p-4 flex flex-col justify-between overflow-hidden">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="secondary" className="text-[10px]">{event.category.name}</Badge>
+                <Badge variant="secondary" className="text-[10px]">{event.category?.name ?? ''}</Badge>
                 {event.isFeatured && <Badge variant="accent" className="text-[10px]">Featured</Badge>}
               </div>
               <h3 className="font-display font-bold text-base line-clamp-1 group-hover:text-primary transition-colors">{event.title}</h3>
@@ -75,7 +75,7 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-20">
             <div className="flex items-center gap-2 mb-3">
-              <Badge variant="secondary" className="bg-secondary/90 text-white backdrop-blur-md border-none">{event.category.name}</Badge>
+              <Badge variant="secondary" className="bg-secondary/90 text-white backdrop-blur-md border-none">{event.category?.name ?? ''}</Badge>
               {event.isFeatured && <Badge variant="accent" className="shadow-accent-glow animate-pulse border-none">Featured</Badge>}
             </div>
             <h3 className="font-display font-extrabold text-xl sm:text-2xl tracking-tight leading-tight group-hover:text-primary transition-colors">{event.title}</h3>
@@ -101,7 +101,7 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
             className="w-full h-full rounded-b-none" 
           />
           <div className="absolute top-3 left-3 z-20">
-            <Badge variant="secondary" className="shadow-sm backdrop-blur-md bg-secondary/90 text-white border-none font-medium">{event.category.name}</Badge>
+            <Badge variant="secondary" className="shadow-sm backdrop-blur-md bg-secondary/90 text-white border-none font-medium">{event.category?.name ?? ''}</Badge>
           </div>
           {event.isFeatured && (
             <div className="absolute top-3 right-3 z-20">

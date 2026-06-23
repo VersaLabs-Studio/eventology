@@ -229,7 +229,7 @@ function DesktopAuthControls() {
 
             {/* Become an organizer CTA — for attendees */}
             {role === "attendee" && (
-              <Link href="/org/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-colors mt-1 border border-primary/10">
+              <Link href="/org/become" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-colors mt-1 border border-primary/10">
                 <Monitor className="h-3.5 w-3.5" /> {t("nav.becomeOrganizer")}
               </Link>
             )}
@@ -334,7 +334,7 @@ function MobileAuthControls() {
 
       {/* Become an organizer CTA — for attendees */}
       {role === "attendee" && (
-        <Link href="/org/dashboard" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 transition-colors border border-primary/10">
+        <Link href="/org/become" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 transition-colors border border-primary/10">
           <Monitor className="h-4 w-4" /> {t("nav.becomeOrganizer")}
         </Link>
       )}

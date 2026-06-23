@@ -5,7 +5,7 @@ import type { ErrorEnvelope } from '@/lib/api';
 const SELECT_FIELDS = `
   *,
   category:categories(id, name, slug, icon, color),
-  organizer:organizers(id, name, slug, email, phone, avatar_url, bio, website, is_verified, social_links, events_count, total_attendees, created_at),
+  organizer:organizers(id, name, slug, avatar_url, bio, website, is_verified, social_links, events_count, total_attendees, created_at),
   ticket_tiers(id, name, description, price, currency, capacity, sold_count, sort_order)
 `;
 

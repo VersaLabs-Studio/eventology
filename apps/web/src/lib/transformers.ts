@@ -76,9 +76,9 @@ interface RawEvent {
   registrations_count: number;
   views_count: number;
   created_at: string;
-  category: RawCategory;
-  organizer: RawOrganizer;
-  ticket_tiers: RawTicketTier[];
+  category: RawCategory | null;
+  organizer: RawOrganizer | null;
+  ticket_tiers: RawTicketTier[] | null;
   [key: string]: unknown;
 }
 
@@ -101,7 +101,15 @@ function formatTime(iso: string): string {
 // Transformers
 // ---------------------------------------------------------------------------
 
-function transformCategory(raw: RawCategory): Category {
+/**
+ * Null-safe category transformer. When the embedded category is null
+ * (e.g. RLS blocks the anon read for inactive categories), return a
+ * neutral fallback so the UI never dereferences null.
+ */
+function transformCategory(raw: RawCategory | null | undefined): Category {
+  if (!raw) {
+    return { id: '', name: '', slug: '', icon: '', description: '', eventCount: 0, color: '' };
+  }
   return {
     id: raw.id,
     name: raw.name,
@@ -113,7 +121,19 @@ function transformCategory(raw: RawCategory): Category {
   };
 }
 
-function transformOrganizer(raw: RawOrganizer): Organizer {
+/**
+ * Null-safe organizer transformer. When the embedded organizer is null
+ * (e.g. RLS blocks the anon read for unverified organizers), return a
+ * neutral fallback so the UI never dereferences null.
+ */
+function transformOrganizer(raw: RawOrganizer | null | undefined): Organizer {
+  if (!raw) {
+    return {
+      id: '', name: '', slug: '', email: '', phone: '', avatar: '',
+      bio: '', verified: false, eventsCount: 0, totalAttendees: 0,
+      joinedDate: '',
+    };
+  }
   return {
     id: raw.id,
     name: raw.name,
@@ -174,7 +194,7 @@ export function normalizeEvent(raw: RawEvent): Event {
     bannerImage: raw.banner_image ?? '/placeholder-event.jpg',
     gallery: raw.gallery ?? [],
     organizer: transformOrganizer(raw.organizer),
-    ticketTiers: (raw.ticket_tiers ?? []).map(transformTicketTier),
+    ticketTiers: raw.ticket_tiers ? raw.ticket_tiers.map(transformTicketTier) : [],
     ticketType: raw.ticket_type as Event['ticketType'],
     tags: raw.tags ?? [],
     isFeatured: raw.is_featured,
