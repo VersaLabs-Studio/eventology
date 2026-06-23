@@ -41,8 +41,18 @@ export function FallbackImage({
   className,
   ...props
 }: FallbackImageProps) {
-  const [tier, setTier] = React.useState<0 | 1 | 99>(0);
-  const [currentSrc, setCurrentSrc] = React.useState(src);
+  // W4: Lazy initializer — honor the same guard as the effect so the
+  // initial render never passes an empty string to <img>.
+  const [tier, setTier] = React.useState<0 | 1 | 99>(() => {
+    if (!src || src.trim() === "") return 1;
+    return 0;
+  });
+  const [currentSrc, setCurrentSrc] = React.useState(() => {
+    if (!src || src.trim() === "") {
+      return localFallbacks[categoryHint] || localFallbacks.default;
+    }
+    return src;
+  });
   const [isLoading, setIsLoading] = React.useState(true);
 
   // Reset when upstream src changes

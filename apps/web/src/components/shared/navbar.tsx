@@ -5,11 +5,12 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Logo } from "./logo";
 import { Button } from "@/components/ui/button";
-import { Search, Menu, X, Monitor, LayoutDashboard, Shield, ChevronRight } from "lucide-react";
+import { Menu, X, Monitor, LayoutDashboard, Shield, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { useLocale } from "@/lib/i18n";
+import { useAuth } from "@/hooks/use-auth";
 
 const navLinks = [
   { href: "/events", labelKey: "nav.home" },
@@ -46,8 +47,6 @@ function isLinkActive(
  * R5: Sub-component that uses `useSearchParams` so it can be wrapped in
  * `<Suspense>` at the parent. Next 14+ requires this — see
  * https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout.
- * Without the Suspense boundary, statically prerendered pages under the
- * (public) layout bail to dynamic rendering.
  */
 function DesktopNavLinks({ pathname }: { pathname: string }) {
   const searchParams = useSearchParams();
@@ -118,6 +117,239 @@ function MobileNavLinks({ pathname }: { pathname: string }) {
   );
 }
 
+/**
+ * R6: Auth-aware controls for the desktop header. Three states:
+ *   1. isLoading → pulsing skeleton (never the stale Log In/Sign Up)
+ *   2. !isAuthenticated → Log In + Sign Up buttons
+ *   3. isAuthenticated → user menu (avatar/name → dropdown with links + logout)
+ *
+ * Role-aware: Organizer Dashboard shows only for organizer/admin; Admin
+ * Dashboard only for admin. "Become an organizer" CTA shows for attendees.
+ */
+function DesktopAuthControls() {
+  const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { t } = useLocale();
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    if (menuOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
+
+  // ── Loading skeleton ──
+  if (isLoading) {
+    return (
+      <div className="hidden md:flex items-center gap-3">
+        <div className="h-9 w-20 rounded-xl bg-muted/60 animate-pulse" />
+        <div className="h-9 w-24 rounded-xl bg-muted/60 animate-pulse" />
+      </div>
+    );
+  }
+
+  // ── Not authenticated ──
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="hidden md:flex items-center gap-3">
+        <Link href="/auth/login">
+          <Button variant="ghost" size="sm" className="font-bold text-xs h-9 rounded-xl">{t("nav.login")}</Button>
+        </Link>
+        <Link href="/auth/signup">
+          <Button variant="accent" size="sm" className="font-extrabold text-xs h-9 rounded-xl shadow-accent-glow">{t("nav.signup")}</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  // ── Authenticated — user menu ──
+  const role = (user as { role?: string }).role;
+  const displayName = (user as { name?: string }).name || (user as { email?: string }).email || "";
+  const avatarUrl = (user as { avatar_url?: string }).avatar_url;
+  const initials = displayName.charAt(0).toUpperCase();
+
+  return (
+    <div className="hidden md:flex items-center gap-3" ref={menuRef}>
+      <div className="relative">
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className={cn(
+            "flex items-center gap-2 h-9 px-3 rounded-xl text-xs font-bold transition-all border",
+            menuOpen
+              ? "bg-primary/10 text-primary border-primary/30"
+              : "bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted/80 border-border/50"
+          )}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="w-5 h-5 rounded-full object-cover" />
+          ) : (
+            <span className="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[10px] font-black">
+              {initials}
+            </span>
+          )}
+          <span className="max-w-[100px] truncate">{displayName}</span>
+          <ChevronRight className={cn("h-3 w-3 transition-transform", menuOpen && "rotate-90")} />
+        </button>
+
+        {menuOpen && (
+          <div className="absolute right-0 top-full mt-2 w-56 bg-card border border-border/80 rounded-2xl shadow-xl p-2 z-[110] backdrop-blur-xl">
+            {/* User info header */}
+            <div className="px-3 py-2 border-b border-border/40 mb-1">
+              <p className="text-xs font-bold text-foreground truncate">{displayName}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{(user as { email?: string }).email}</p>
+            </div>
+
+            {/* Navigation links */}
+            <Link href="/my-events" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+              {t("nav.myEvents")}
+            </Link>
+            <Link href="/settings/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+              {t("nav.notifications")}
+            </Link>
+            <Link href="/settings/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+              {t("nav.profile")}
+            </Link>
+
+            {/* Role-specific links */}
+            {(role === "organizer" || role === "admin") && (
+              <Link href="/org/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-accent/10 hover:text-accent transition-colors">
+                <LayoutDashboard className="h-3.5 w-3.5" /> Organizer Dashboard
+              </Link>
+            )}
+            {role === "admin" && (
+              <Link href="/admin/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors">
+                <Shield className="h-3.5 w-3.5" /> Admin Dashboard
+              </Link>
+            )}
+
+            {/* Become an organizer CTA — for attendees */}
+            {role === "attendee" && (
+              <Link href="/org/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-colors mt-1 border border-primary/10">
+                <Monitor className="h-3.5 w-3.5" /> {t("nav.becomeOrganizer")}
+              </Link>
+            )}
+
+            {/* Logout */}
+            <div className="border-t border-border/40 mt-1 pt-1">
+              <button
+                onClick={() => { setMenuOpen(false); logout(); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors text-left"
+              >
+                {t("nav.logout")}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * R6: Auth-aware controls for the mobile drawer bottom section.
+ * Same three states as DesktopAuthControls but laid out vertically.
+ */
+function MobileAuthControls() {
+  const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { t } = useLocale();
+
+  // ── Loading skeleton ──
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
+        <div className="h-11 w-full rounded-xl bg-muted/60 animate-pulse" />
+        <div className="h-11 w-full rounded-xl bg-muted/60 animate-pulse" />
+      </div>
+    );
+  }
+
+  // ── Not authenticated ──
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
+        <Link href="/auth/login" className="w-full">
+          <Button variant="outline" className="w-full min-h-[44px] rounded-xl font-bold text-sm">
+            {t("nav.login")}
+          </Button>
+        </Link>
+        <Link href="/auth/signup" className="w-full">
+          <Button variant="accent" className="w-full min-h-[44px] rounded-xl font-extrabold text-sm shadow-accent-glow">
+            {t("nav.signup")}
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  // ── Authenticated — full menu ──
+  const role = (user as { role?: string }).role;
+  const displayName = (user as { name?: string }).name || (user as { email?: string }).email || "";
+  const avatarUrl = (user as { avatar_url?: string }).avatar_url;
+  const initials = displayName.charAt(0).toUpperCase();
+
+  return (
+    <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
+      {/* User info */}
+      <div className="flex items-center gap-3 px-2">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+        ) : (
+          <span className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-black">
+            {initials}
+          </span>
+        )}
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-bold text-foreground truncate">{displayName}</span>
+          <span className="text-[10px] text-muted-foreground truncate">{(user as { email?: string }).email}</span>
+        </div>
+      </div>
+
+      {/* Navigation links */}
+      <Link href="/my-events" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+        {t("nav.myEvents")}
+      </Link>
+      <Link href="/settings/notifications" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+        {t("nav.notifications")}
+      </Link>
+      <Link href="/settings/notifications" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+        {t("nav.profile")}
+      </Link>
+
+      {/* Role-specific links */}
+      {(role === "organizer" || role === "admin") && (
+        <Link href="/org/dashboard" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-accent hover:bg-accent/10 transition-colors">
+          <LayoutDashboard className="h-4 w-4" /> Organizer Dashboard
+        </Link>
+      )}
+      {role === "admin" && (
+        <Link href="/admin/dashboard" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-destructive hover:bg-destructive/10 transition-colors">
+          <Shield className="h-4 w-4" /> Admin Dashboard
+        </Link>
+      )}
+
+      {/* Become an organizer CTA — for attendees */}
+      {role === "attendee" && (
+        <Link href="/org/dashboard" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 transition-colors border border-primary/10">
+          <Monitor className="h-4 w-4" /> {t("nav.becomeOrganizer")}
+        </Link>
+      )}
+
+      {/* Logout */}
+      <button
+        onClick={logout}
+        className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-destructive hover:bg-destructive/10 transition-colors text-left"
+      >
+        {t("nav.logout")}
+      </button>
+    </div>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const { t } = useLocale();
@@ -160,42 +392,9 @@ export function Navbar() {
 
           {/* Desktop Controls Panel */}
           <div className="hidden md:flex items-center gap-3">
-            <div className="relative group">
-              <button className="h-10 px-3.5 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground bg-muted/40 hover:bg-muted/80 transition-all flex items-center gap-2 border border-border/50 backdrop-blur-sm">
-                <Monitor className="h-4 w-4 text-primary" />
-                <span>{t("navbar.switchRole")}</span>
-              </button>
-              <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border/80 rounded-2xl shadow-xl p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[110] backdrop-blur-xl">
-                <div className="text-[10px] font-extrabold text-muted-foreground px-3 py-1 uppercase tracking-wider">
-                  {t("navbar.selectContext")}
-                </div>
-                <Link href="/" className="flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors group/item">
-                  <span className="flex items-center gap-2"><Monitor className="h-3.5 w-3.5" /> {t("navbar.roleAttendee")}</span>
-                  <ChevronRight className="h-3 w-3 opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                </Link>
-                <Link href="/org/dashboard" className="flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl hover:bg-accent/10 hover:text-accent transition-colors group/item">
-                  <span className="flex items-center gap-2"><LayoutDashboard className="h-3.5 w-3.5" /> {t("navbar.roleOrganizer")}</span>
-                  <ChevronRight className="h-3 w-3 opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                </Link>
-                <Link href="/admin/dashboard" className="flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors group/item">
-                  <span className="flex items-center gap-2"><Shield className="h-3.5 w-3.5" /> {t("navbar.roleAdmin")}</span>
-                  <ChevronRight className="h-3 w-3 opacity-0 group-hover/item:opacity-100 transition-opacity" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="h-4 w-[1px] bg-border/80" />
-
             <LanguageSwitcher />
-
             <div className="h-4 w-[1px] bg-border/80" />
-
-            <Link href="/auth/login">
-              <Button variant="ghost" size="sm" className="font-bold text-xs h-9 rounded-xl">{t("nav.login")}</Button>
-            </Link>
-            <Link href="/auth/signup">
-              <Button variant="accent" size="sm" className="font-extrabold text-xs h-9 rounded-xl shadow-accent-glow">{t("nav.signup")}</Button>
-            </Link>
+            <DesktopAuthControls />
           </div>
 
           {/* Mobile Drawer Trigger with minimum 44px touch region rules */}
@@ -249,40 +448,10 @@ export function Navbar() {
                 <React.Suspense fallback={null}>
                   <MobileNavLinks pathname={pathname} />
                 </React.Suspense>
-
-                {/* Role Switcher Stack */}
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider px-3 mb-1">
-                    {t("navbar.platformContext")}
-                  </span>
-                  <Link href="/" className="min-h-[44px] flex items-center justify-between px-4 rounded-xl text-sm font-bold bg-muted/30 hover:bg-primary/10 hover:text-primary transition-colors group">
-                    <span className="flex items-center gap-3"><Monitor className="h-4 w-4 text-primary" /> {t("navbar.roleAttendeeView")}</span>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                  <Link href="/org/dashboard" className="min-h-[44px] flex items-center justify-between px-4 rounded-xl text-sm font-bold bg-muted/30 hover:bg-accent/10 hover:text-accent transition-colors group">
-                    <span className="flex items-center gap-3"><LayoutDashboard className="h-4 w-4 text-accent" /> {t("navbar.roleOrganizerView")}</span>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                  <Link href="/admin/dashboard" className="min-h-[44px] flex items-center justify-between px-4 rounded-xl text-sm font-bold bg-muted/30 hover:bg-destructive/10 hover:text-destructive transition-colors group">
-                    <span className="flex items-center gap-3"><Shield className="h-4 w-4 text-destructive" /> {t("navbar.roleAdminView")}</span>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </div>
               </div>
 
-              {/* Drawer Bottom Actions */}
-              <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
-                <Link href="/auth/login" className="w-full">
-                  <Button variant="outline" className="w-full min-h-[44px] rounded-xl font-bold text-sm">
-                    {t("nav.login")}
-                  </Button>
-                </Link>
-                <Link href="/auth/signup" className="w-full">
-                  <Button variant="accent" className="w-full min-h-[44px] rounded-xl font-extrabold text-sm shadow-accent-glow">
-                    {t("nav.signup")}
-                  </Button>
-                </Link>
-              </div>
+              {/* Drawer Bottom Actions — auth-aware */}
+              <MobileAuthControls />
             </motion.div>
           </>
         )}

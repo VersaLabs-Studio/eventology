@@ -28,27 +28,14 @@ export async function GET(_req: NextRequest) {
 
   const userId = session.user.id;
   const service = createServiceClient();
-
-  // Rate-limit (per-user) — recommendations is cheap but should still
-  // be capped to avoid runaway dashboard reloads.
-  const limit = await consumeRateLimit(service, userId, RATE_LIMITS.recommendations);
-  if (!limit.ok) {
-    return NextResponse.json(
-      {
-        error: {
-          code: 'RATE_LIMITED',
-          message: 'Too many recommendation requests. Try again shortly.',
-        },
-      } satisfies ErrorEnvelope,
-      { status: 429, headers: rateLimitHeaders(limit) }
-    );
-  }
-
   const authed = await createAuthedClient(userId);
 
-  // 1. Load the user's profile (for category preferences from the
-  // profiles table — V1 we have nothing richer; in V2 we'd track
-  // explicit preference rows)
+  // W5: Check profile existence BEFORE rate-limit. The onUserCreated
+  // callback (auth/server.ts:38) inserts into Supabase `profiles`
+  // asynchronously — if the insert is slow or fails, the profiles row
+  // won't exist when consumeRateLimit tries to UPSERT into
+  // ai_rate_limit_buckets (FK violation). By checking first, we return
+  // early with NO_PROFILE and never hit the bucket table.
   const { data: profile } = await authed
     .from('profiles')
     .select('id')
@@ -61,6 +48,20 @@ export async function GET(_req: NextRequest) {
       data: [],
       reason: 'NO_PROFILE',
     });
+  }
+
+  // Rate-limit (per-user) — now safe: profiles row is confirmed to exist.
+  const limit = await consumeRateLimit(service, userId, RATE_LIMITS.recommendations);
+  if (!limit.ok) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'RATE_LIMITED',
+          message: 'Too many recommendation requests. Try again shortly.',
+        },
+      } satisfies ErrorEnvelope,
+      { status: 429, headers: rateLimitHeaders(limit) }
+    );
   }
 
   // 2. Load past attendance: registrations with status='confirmed' or
