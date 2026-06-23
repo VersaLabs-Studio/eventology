@@ -53,19 +53,11 @@
     "myEvents": "የእኔ ዝግጅቶች",
     "myRegistrations": "የእኔ ምዝገባዎች",
     "myTickets": "የእኔ ትኬቶች",
+    "becomeOrganizer": "አዘጋጅ ሁን",
     "search": "ፈልግ"
   },
   "navbar": {
-    "switchRole": "ሚና ቀይር",
-    "selectContext": "አውድ ምረጥ",
-    "roleAttendee": "ተሳታፊ",
-    "roleOrganizer": "አዘጋጅ",
-    "roleAdmin": "አስተዳዳሪ",
-    "roleAttendeeView": "የተሳታፊ እይታ",
-    "roleOrganizerView": "የአዘጋጅ እይታ",
-    "roleAdminView": "የአስተዳዳሪ እይታ",
     "navigation": "አሰሳ",
-    "platformContext": "የመድረክ አውድ",
     "openMenu": "የሞባይል ምናሌ ክፈት",
     "closeMenu": "የሞባይል ምናሌ ዝጋ"
   },

@@ -53,19 +53,11 @@
     "myEvents": "My events",
     "myRegistrations": "My registrations",
     "myTickets": "My tickets",
+    "becomeOrganizer": "Become an organizer",
     "search": "Search"
   },
   "navbar": {
-    "switchRole": "Switch Role",
-    "selectContext": "Select Context",
-    "roleAttendee": "Attendee",
-    "roleOrganizer": "Organizer",
-    "roleAdmin": "Admin",
-    "roleAttendeeView": "Attendee View",
-    "roleOrganizerView": "Organizer View",
-    "roleAdminView": "Admin View",
     "navigation": "Navigation",
-    "platformContext": "Platform Context",
     "openMenu": "Open mobile menu",
     "closeMenu": "Close mobile menu"
   },
