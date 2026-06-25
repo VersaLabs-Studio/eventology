@@ -191,7 +191,7 @@ export function normalizeEvent(raw: RawEvent): Event {
       lat: raw.latitude ?? 0,
       lng: raw.longitude ?? 0,
     },
-    bannerImage: raw.banner_image ?? '/placeholder-event.jpg',
+    bannerImage: raw.banner_image ?? '/images/placeholders/event.svg',
     gallery: raw.gallery ?? [],
     organizer: transformOrganizer(raw.organizer),
     ticketTiers: raw.ticket_tiers ? raw.ticket_tiers.map(transformTicketTier) : [],

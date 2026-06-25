@@ -10,7 +10,7 @@ import { useLocale } from "@/lib/i18n";
 export function HeroSection() {
   const { t } = useLocale();
   return (
-    <section className="relative min-h-[45vh] bg-background flex items-center overflow-hidden border-b border-border/60">
+    <section className="relative min-h-[45vh] bg-background flex items-center overflow-hidden">
       {/* Ambient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background to-background pointer-events-none" />
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-br from-primary/10 via-accent/5 to-primary/10 blur-[120px] rounded-full pointer-events-none" />

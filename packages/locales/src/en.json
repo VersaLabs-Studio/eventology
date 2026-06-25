@@ -2,7 +2,7 @@
   "common": {
     "appName": "Eventology",
     "tagline": "Discover. Register. Experience.",
-    "region": "Ethiopia",
+    "region": "Addis Ababa",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Try again",
@@ -62,10 +62,10 @@
     "closeMenu": "Close mobile menu"
   },
   "hero": {
-    "badge": "The #1 Event Infrastructure Across Ethiopia",
-    "headlineStart": "Discover Amazing Events",
-    "headlineEnd": "Across Ethiopia",
-    "subtext": "From premier tech summits in Addis Ababa to sustainable agriculture panels in Hawassa. Register, secure QR passes, and connect instantly.",
+    "badge": "The Premium Event Platform in Addis Ababa",
+    "headlineStart": "Where Addis Ababa",
+    "headlineEnd": "Comes to Life",
+    "subtext": "From tech summits at the African Union to cultural festivals in the heart of the city. Discover, register, and experience — all in one place.",
     "statsEvents": "Events Hosted",
     "statsPartners": "Verified Partners",
     "statsAttendees": "Total Attendees",
@@ -76,8 +76,8 @@
     "floatingSoldOut": "🎟️ General Admission · Sold Out"
   },
   "home": {
-    "nationalHubs": "National Hubs",
-    "nationalHubsBody": "Expanding continuously to 12 regional cities.",
+    "nationalHubs": "Addis Ababa Hub",
+    "nationalHubsBody": "Centrally located with city-wide coverage.",
     "subSecondQR": "Sub-Second QR",
     "subSecondQRBody": "Instant local gate scan integration.",
     "enterpriseSecurity": "Enterprise Security Layer",
@@ -360,7 +360,7 @@
   },
   "footer": {
     "about": "About Eventology",
-    "aboutText": "Ethiopia's premier event discovery and registration platform.",
+    "aboutText": "Addis Ababa's premier event discovery and registration platform.",
     "quickLinks": "Quick links",
     "forOrganizers": "For organizers",
     "support": "Support",
@@ -386,8 +386,8 @@
     "privacyLink": "Privacy",
     "termsLink": "Terms",
     "architectedBy": "Architected by",
-    "ctaTitle": "Discover Events Across Ethiopia",
-    "ctaDescription": "From tech conferences in Addis Ababa to cultural festivals in Hawassa — find your next experience on Eventology.",
+    "ctaTitle": "Discover Events in Addis Ababa",
+    "ctaDescription": "From tech conferences at the African Union to cultural festivals in Piazza — find your next experience on Eventology.",
     "ctaBrowse": "Browse Events",
     "ctaCreate": "Create an Event"
   },
@@ -493,7 +493,7 @@
     "description": "Create events, manage registrations, and grow your audience on Eventology.",
     "benefit1": "Create and publish events in minutes",
     "benefit2": "Track registrations and attendance in real time",
-    "benefit3": "Reach thousands of attendees across Ethiopia",
+    "benefit3": "Reach thousands of attendees in Addis Ababa",
     "cta": "Become an Organizer",
     "note": "Your organizer profile will be reviewed by our team. You can start creating events immediately.",
     "success": "Welcome to the organizer program!",

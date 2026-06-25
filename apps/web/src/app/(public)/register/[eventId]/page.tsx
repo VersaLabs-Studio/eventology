@@ -190,7 +190,7 @@ export default function RegisterPage() {
         <Card className="mb-6">
           <div className="relative h-32 rounded-t-xl overflow-hidden">
             <Image
-              src={event.bannerImage || "/placeholder-event.jpg"}
+              src={event.bannerImage || "/images/placeholders/event.svg"}
               alt={event.title}
               fill
               className="object-cover"

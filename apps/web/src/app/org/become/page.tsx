@@ -49,7 +49,7 @@ export default function BecomeOrganizerPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-lg"
       >
         <Card className="border-border/60 shadow-xl">
           <CardContent className="p-8 text-center">

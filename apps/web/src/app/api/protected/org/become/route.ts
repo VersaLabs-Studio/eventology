@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import type { ErrorEnvelope } from '@/lib/api';
 
 /**
@@ -28,9 +28,9 @@ export async function POST(req: NextRequest) {
   const userName = (session.user as { name?: string }).name || userEmail.split('@')[0];
 
   // Use the service-role client to bypass RLS for the organizer insert
-  // and profile update (the authenticated create policy allows it, but
-  // the service-role client is simpler for this server-side operation).
-  const supabase = await createClient();
+  // and profile update. App-level auth is verified above via auth.api.getSession;
+  // service-role is correct and ownership-safe here.
+  const supabase = createServiceClient();
 
   // 1. Check if the user already has an organizer profile
   const { data: existing } = await supabase
@@ -113,5 +113,5 @@ export async function POST(req: NextRequest) {
     // Non-fatal — the organizer record exists, role will be synced on next session
   }
 
-  return NextResponse.json({ ok: false, redirect: '/org/dashboard' });
+  return NextResponse.json({ ok: true, redirect: '/org/dashboard' });
 }
