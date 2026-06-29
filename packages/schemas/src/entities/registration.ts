@@ -33,6 +33,7 @@ export const registrationSchema = z.object({
 export const createRegistrationSchema = registrationSchema
   .omit({
     id: true,
+    user_id: true, // Server-derived from auth.uid(), never client-supplied
     status: true, // Defaults to 'confirmed' via DB
     checked_in_at: true,
     qr_data: true, // Generated server-side
@@ -40,6 +41,7 @@ export const createRegistrationSchema = registrationSchema
     updated_at: true,
   })
   .extend({
+    attendee_phone: z.string().trim().min(1).nullish(), // Optional/blank phone is valid
     metadata: z.record(z.string(), z.unknown()).default({}),
   });
 

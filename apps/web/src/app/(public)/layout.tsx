@@ -7,7 +7,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-16 sm:pt-20">{children}</main>
+      <main className="min-h-screen pt-16 sm:pt-20 md:pt-0">{children}</main>
       <FooterCTA className="bg-foreground text-background border-b border-white/5" />
       <Footer />
       <AIChatWidget />

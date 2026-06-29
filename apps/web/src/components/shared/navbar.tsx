@@ -13,8 +13,8 @@ import { useLocale } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 
 const navLinks = [
-  { href: "/events", labelKey: "nav.home" },
-  { href: "/events?featured=true", labelKey: "events.featured" },
+  { href: "/", labelKey: "nav.home" },
+  { href: "/events", labelKey: "nav.events" },
   { href: "/search", labelKey: "nav.search" },
 ];
 
