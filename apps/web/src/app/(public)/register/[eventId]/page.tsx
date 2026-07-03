@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { useQuery } from "@tanstack/react-query";
+import { ProfileKeys } from "@eventology/config";
 import { useEventBySlug } from "@/hooks/use-events";
 import { useCreateRegistration } from "@/hooks/use-registrations";
 import { formatDate, formatCurrency } from "@/lib/utils";
@@ -43,6 +45,22 @@ export default function RegisterPage() {
   const { data: event, isLoading, isError } = useEventBySlug(eventId);
   const createRegistration = useCreateRegistration();
 
+  // Fetch the current user's profile for pre-fill (full_name, email, phone)
+  const { data: profile } = useQuery({
+    queryKey: ProfileKeys.doc('me'),
+    queryFn: async () => {
+      const res = await fetch('/api/protected/profile');
+      if (!res.ok) return null;
+      return res.json() as Promise<{
+        full_name: string | null;
+        email: string | null;
+        phone: string | null;
+      }>;
+    },
+    staleTime: 60_000,
+    enabled: true,
+  });
+
   // Tiers the user can actually select. When payments are off we filter
   // out any paid tier; if every tier is paid, the form is replaced with
   // a "Tickets on sale soon" placeholder.
@@ -58,13 +76,12 @@ export default function RegisterPage() {
   const [attendeePhone, setAttendeePhone] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Pre-fill with user data
+  // Pre-fill with profile data (fall back to auth session, then empty)
   React.useEffect(() => {
-    if (user) {
-      setAttendeeName(user.name ?? "");
-      setAttendeeEmail(user.email ?? "");
-    }
-  }, [user]);
+    setAttendeeName(profile?.full_name ?? user?.name ?? "");
+    setAttendeeEmail(profile?.email ?? user?.email ?? "");
+    setAttendeePhone(profile?.phone ?? "");
+  }, [profile, user]);
 
   // Auto-select the first SELECTABLE tier (skips paid tiers when off)
   React.useEffect(() => {
@@ -133,7 +150,7 @@ export default function RegisterPage() {
         ticket_tier_id: selectedTier,
         attendee_name: attendeeName,
         attendee_email: attendeeEmail,
-        attendee_phone: attendeePhone || undefined,
+        attendee_phone: attendeePhone.trim() ? attendeePhone.trim() : undefined,
       });
 
       // R3 / A1: when payments are off, the server never returns a

@@ -41,7 +41,9 @@ export function useAuth() {
 
   /**
    * Register a new user account.
-   * The `onUserCreated` callback in auth.ts handles profile sync to Supabase.
+   * Profile sync is handled by `databaseHooks.user.create.after` in
+   * `lib/auth/server.ts` — the better-auth hook creates a Supabase profiles
+   * row for every new user immediately after sign-up.
    * @returns `true` on success, `false` on failure.
    */
   const register = async (data: RegisterData): Promise<boolean> => {
