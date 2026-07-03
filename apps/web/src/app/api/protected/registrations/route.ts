@@ -40,10 +40,12 @@ export async function POST(req: NextRequest) {
 
   const parsed = createRegistrationSchema.safeParse(body);
   if (!parsed.success) {
+    const b = (body ?? {}) as Record<string, unknown>;
     console.error(
       '[registrations] validation failed:',
       JSON.stringify(parsed.error.flatten().fieldErrors),
-      '| received keys:', Object.keys((body ?? {}) as Record<string, unknown>)
+      '| received values:', JSON.stringify(b),
+      '| event_id type:', typeof b.event_id, 'ticket_tier_id type:', typeof b.ticket_tier_id
     );
     return NextResponse.json(
       {
