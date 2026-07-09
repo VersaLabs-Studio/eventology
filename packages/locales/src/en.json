@@ -267,7 +267,47 @@
     "totalRevenue": "Total revenue",
     "totalViews": "Total views",
     "recentActivity": "Recent activity",
-    "upcomingEvents": "Upcoming events"
+    "upcomingEvents": "Upcoming events",
+    "nav": {
+      "overview": "Overview",
+      "manage": "Manage",
+      "events": "Events",
+      "drafts": "Drafts",
+      "createEvent": "Create Event",
+      "account": "Account",
+      "settings": "Settings",
+      "moderation": "Moderation",
+      "organizers": "Organizers",
+      "featured": "Featured",
+      "people": "People",
+      "users": "Users",
+      "system": "System",
+      "auditLog": "Audit Log"
+    },
+    "crumb": {
+      "org": "Organizer",
+      "admin": "Admin",
+      "dashboard": "Dashboard",
+      "events": "Events",
+      "drafts": "Drafts",
+      "create": "Create",
+      "registrations": "Registrations",
+      "analytics": "Analytics",
+      "checkIn": "Check-in",
+      "settings": "Settings",
+      "moderation": "Moderation",
+      "organizers": "Organizers",
+      "featured": "Featured",
+      "users": "Users",
+      "auditLog": "Audit Log"
+    },
+    "userMenu": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "notifications": "Notifications",
+      "backToSite": "Back to site",
+      "signOut": "Sign out"
+    }
   },
   "admin": {
     "title": "Admin Panel",
