@@ -17,7 +17,12 @@
     },
     "android": {
       "package": "com.eventology.mobile",
-      "permissions": ["NOTIFICATIONS", "CAMERA"]
+      "permissions": [
+        "NOTIFICATIONS",
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -43,7 +48,12 @@
       "typedRoutes": true
     },
     "extra": {
-      "paymentsEnabled": false
-    }
+      "paymentsEnabled": false,
+      "router": {},
+      "eas": {
+        "projectId": "03061523-b7cc-49af-90ec-275fc50b5412"
+      }
+    },
+    "owner": "kidus-abdula"
   }
 }

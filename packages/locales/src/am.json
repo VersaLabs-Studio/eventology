@@ -267,7 +267,47 @@
     "totalRevenue": "ጠቅላላ ገቢ",
     "totalViews": "ጠቅላላ ትይይዞች",
     "recentActivity": "የቅርብ ጊዜ እንቅስቃሴ",
-    "upcomingEvents": "መጪ ዝግጅቶች"
+    "upcomingEvents": "መጪ ዝግጅቶች",
+    "nav": {
+      "overview": "አጠቃላይ እይታ",
+      "manage": "አስተዳድር",
+      "events": "ዝግጅቶች",
+      "drafts": "ረቂቆች",
+      "createEvent": "ዝግጅት ፍጠር",
+      "account": "መለያ",
+      "settings": "ቅንብሮች",
+      "moderation": "ግምገማ",
+      "organizers": "አዘጋጆች",
+      "featured": "ተለይተው የቀረቡ",
+      "people": "ሰዎች",
+      "users": "ተጠቃሚዎች",
+      "system": "ሲስተም",
+      "auditLog": "የክትትል መዝገብ"
+    },
+    "crumb": {
+      "org": "አዘጋጅ",
+      "admin": "አስተዳዳሪ",
+      "dashboard": "ዳሽቦርድ",
+      "events": "ዝግጅቶች",
+      "drafts": "ረቂቆች",
+      "create": "ፍጠር",
+      "registrations": "ምዝገባዎች",
+      "analytics": "ትንታኔዎች",
+      "checkIn": "ቼክ-ኢን",
+      "settings": "ቅንብሮች",
+      "moderation": "ግምገማ",
+      "organizers": "አዘጋጆች",
+      "featured": "ተለይተው የቀረቡ",
+      "users": "ተጠቃሚዎች",
+      "auditLog": "የክትትል መዝገብ"
+    },
+    "userMenu": {
+      "profile": "መገለጫ",
+      "settings": "ቅንብሮች",
+      "notifications": "ማሳወቂያዎች",
+      "backToSite": "ወደ ጣቢያው ተመለስ",
+      "signOut": "ውጣ"
+    }
   },
   "admin": {
     "title": "የአስተዳደር ፓነል",
