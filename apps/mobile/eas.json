@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://eventology-nu.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://dgpccoegetxwkabcujje.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_76Tm3LigAhUnypUG8pOX9Q_wkJ_sjLH",
+        "EXPO_PUBLIC_PAYMENTS_ENABLED": "false"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://eventology-nu.vercel.app",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://dgpccoegetxwkabcujje.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_76Tm3LigAhUnypUG8pOX9Q_wkJ_sjLH",
+        "EXPO_PUBLIC_PAYMENTS_ENABLED": "false"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
