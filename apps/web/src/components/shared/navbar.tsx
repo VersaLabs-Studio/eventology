@@ -9,12 +9,13 @@ import { Menu, X, Monitor, LayoutDashboard, Shield, ChevronRight } from "lucide-
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { NotificationBell } from "@/components/comms/notification-bell";
 import { useLocale } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 
 const navLinks = [
-  { href: "/events", labelKey: "nav.home" },
-  { href: "/events?featured=true", labelKey: "events.featured" },
+  { href: "/", labelKey: "nav.home" },
+  { href: "/events", labelKey: "nav.events" },
   { href: "/search", labelKey: "nav.search" },
 ];
 
@@ -175,6 +176,7 @@ function DesktopAuthControls() {
 
   return (
     <div className="hidden md:flex items-center gap-3" ref={menuRef}>
+      <NotificationBell />
       <div className="relative">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -211,7 +213,7 @@ function DesktopAuthControls() {
             <Link href="/settings/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
               {t("nav.notifications")}
             </Link>
-            <Link href="/settings/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+            <Link href="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
               {t("nav.profile")}
             </Link>
 
@@ -229,7 +231,7 @@ function DesktopAuthControls() {
 
             {/* Become an organizer CTA — for attendees */}
             {role === "attendee" && (
-              <Link href="/org/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-colors mt-1 border border-primary/10">
+              <Link href="/org/become" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-colors mt-1 border border-primary/10">
                 <Monitor className="h-3.5 w-3.5" /> {t("nav.becomeOrganizer")}
               </Link>
             )}
@@ -294,6 +296,7 @@ function MobileAuthControls() {
 
   return (
     <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
+      <NotificationBell />
       {/* User info */}
       <div className="flex items-center gap-3 px-2">
         {avatarUrl ? (
@@ -316,7 +319,7 @@ function MobileAuthControls() {
       <Link href="/settings/notifications" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
         {t("nav.notifications")}
       </Link>
-      <Link href="/settings/notifications" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+      <Link href="/profile" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
         {t("nav.profile")}
       </Link>
 
@@ -334,7 +337,7 @@ function MobileAuthControls() {
 
       {/* Become an organizer CTA — for attendees */}
       {role === "attendee" && (
-        <Link href="/org/dashboard" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 transition-colors border border-primary/10">
+        <Link href="/org/become" className="min-h-[44px] flex items-center gap-3 px-4 rounded-xl text-sm font-bold text-primary bg-primary/5 hover:bg-primary/10 transition-colors border border-primary/10">
           <Monitor className="h-4 w-4" /> {t("nav.becomeOrganizer")}
         </Link>
       )}

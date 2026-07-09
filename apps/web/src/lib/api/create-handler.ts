@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAuthedClient } from '@/lib/supabase/server';
+import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 import type { EntityKey } from '@eventology/config';
 import { ENTITY_CONFIG } from '@eventology/config';
@@ -89,6 +89,13 @@ export function createCreateHandler<T>(entity: EntityKey, schema: ZodSchema<T>) 
 
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
+      // Surface the exact failing fields server-side for diagnosis.
+      console.error(
+        '[create-handler] validation failed for',
+        entity,
+        ':',
+        JSON.stringify(parsed.error.flatten().fieldErrors)
+      );
       return NextResponse.json(
         {
           error: {
@@ -100,6 +107,14 @@ export function createCreateHandler<T>(entity: EntityKey, schema: ZodSchema<T>) 
         { status: 400 }
       );
     }
+
+    // Capture create-time status intent BEFORE stripping server fields.
+    // Only draft|pending are allowed at create; never approved/rejected.
+    const rawStatus = (parsed.data as { status?: unknown }).status;
+    const createStatus: 'draft' | 'pending' =
+      entity === 'events' && (rawStatus === 'pending' || rawStatus === 'draft')
+        ? rawStatus
+        : 'draft';
 
     // Strip server-controlled fields from client input
     const clientData = { ...parsed.data } as Record<string, unknown>;
@@ -124,11 +139,21 @@ export function createCreateHandler<T>(entity: EntityKey, schema: ZodSchema<T>) 
       }
 
       clientData.organizer_id = organizer.id;
-      clientData.status = 'draft'; // force initial status
+      // Single-shot create: draft (Save) or pending (Submit for Review).
+      // Avoids a follow-up PUT that RLS + SERVER_CONTROLLED_FIELDS block.
+      clientData.status = createStatus;
     }
 
-    // Insert
-    const { data, error } = await supabase
+    // Insert.
+    // Events RLS INSERT policy relies on is_organizer() (a SECURITY DEFINER
+    // helper) which cannot read auth.uid() inside the definer context, so the
+    // authed client's INSERT is denied even though auth.uid() resolves for
+    // SELECT. Ownership is already verified above (organizer lookup by
+    // profile_id) and organizer_id is injected server-side, so inserting via
+    // the service client is authorization-safe. All other entities keep the
+    // authed client (their RLS uses auth.uid() directly).
+    const insertClient = entity === 'events' ? createServiceClient() : supabase;
+    const { data, error } = await insertClient
       .from(config.table)
       .insert(clientData)
       .select()

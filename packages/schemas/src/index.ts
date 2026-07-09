@@ -9,6 +9,9 @@ export * from './generated/database.types';
 // Enum constants
 export * from './enums';
 
+// Shared primitives (e.g. pgUuid)
+export * from './primitives';
+
 // Entity schemas
 export * from './entities/profile';
 export * from './entities/organizer';

@@ -112,12 +112,14 @@ export default function TicketPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8">
+    <div className="max-w-lg mx-auto px-4 py-8 print:max-w-none print:p-0">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <PageHeader title={`Your Ticket — ${ticket.event?.title ?? "Event"}`} />
+        <div className="print:hidden">
+          <PageHeader title={`Your Ticket — ${ticket.event?.title ?? "Event"}`} />
+        </div>
         <TicketView ticket={ticketData} />
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center print:hidden">
           <Link href="/my-events">
             <Button variant="outline">
               <Calendar className="mr-2 h-4 w-4" />

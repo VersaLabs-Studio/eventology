@@ -10,8 +10,7 @@ import { EventCard } from "@/components/shared/event-card";
 import { RecommendationsRail } from "@/components/ai/recommendations-rail";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Search, UserPlus, Ticket, ArrowRight, Sparkles, Globe2, ShieldCheck, Zap, Infinity as InfinityIcon, Calendar, MapPin } from "lucide-react";
+import { Search, UserPlus, Ticket, ArrowRight, Globe2, ShieldCheck, Zap } from "lucide-react";
 import { useEvents } from "@/hooks/use-events";
 import { useLocale } from "@/lib/i18n";
 
@@ -27,23 +26,6 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
           {subtitle}
         </p>
       )}
-    </div>
-  );
-}
-
-function HowItWorksCard({ icon: Icon, title, description, badge }: { icon: React.ComponentType<{ className?: string }>; title: string; description: string; badge?: string }) {
-  return (
-    <div className="relative group bg-card border border-border/60 hover:border-primary/40 rounded-3xl p-8 transition-all duration-300 hover:shadow-xl">
-      {badge && (
-        <span className="absolute top-6 right-6 text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-primary/10 text-primary uppercase tracking-wider">
-          {badge}
-        </span>
-      )}
-      <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-        <Icon className="h-8 w-8 text-primary" />
-      </div>
-      <h3 className="font-display font-bold text-xl text-foreground mb-3">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }
@@ -65,98 +47,13 @@ export function PublicHomePage() {
     if (tab === "free") return e.ticketType === "free";
     return true;
   });
-  const displayEvents = filtered.slice(0, 6);
+  const displayEvents = filtered.slice(0, 12);
 
   return (
     <>
       <HeroSection />
 
-      {/* Brand Architecture & Bloated Text Storytelling Section */}
-      <section className="py-16 sm:py-24 bg-muted/20 border-b border-border/40 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-accent/10 text-accent text-xs font-extrabold uppercase tracking-wider mb-4">
-                <InfinityIcon className="h-4 w-4" /> {t("home.brandPhilosophy")}
-              </div>
-              <h2 className="font-display font-black text-3xl sm:text-5xl text-foreground tracking-tight leading-[1.1] mb-6">
-                {t("home.infinitePossibilities")} <br />
-                <span className="text-primary">{t("home.definedBy")}</span>
-              </h2>
-              <p className="text-muted-foreground text-base sm:text-lg leading-relaxed mb-6 font-medium">
-                {t("home.brandStoryBefore")}
-                <strong>{t("home.boundlessContinuum")}</strong>
-                {t("home.brandStoryAfter")}
-              </p>
-              <div className="grid grid-cols-2 gap-6 pt-4 border-t border-border/60">
-                <div className="flex gap-3">
-                  <Calendar className="h-5 w-5 text-accent shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-bold text-sm text-foreground">{t("home.temporalPrecision")}</h4>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t("home.temporalPrecisionBody")}</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <MapPin className="h-5 w-5 text-primary shrink-0 mt-1" />
-                  <div>
-                    <h4 className="font-bold text-sm text-foreground">{t("home.spatialPresence")}</h4>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t("home.spatialPresenceBody")}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* IMAX-Grade Bento Box Visual Showcase */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            >
-              <div className="bg-card border border-border/80 rounded-3xl p-6 shadow-xl flex flex-col justify-between aspect-square relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
-                <Globe2 className="h-8 w-8 text-primary" />
-                <div>
-                  <div className="text-2xl font-black text-foreground">{t("home.nationalHubs")}</div>
-                  <p className="text-xs text-muted-foreground mt-1">{t("home.nationalHubsBody")}</p>
-                </div>
-              </div>
-
-              <div className="bg-primary rounded-3xl p-6 shadow-glow flex flex-col justify-between aspect-square text-primary-foreground relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_50%)]" />
-                <Zap className="h-8 w-8 text-primary-foreground animate-bounce" />
-                <div>
-                  <div className="text-2xl font-black">{t("home.subSecondQR")}</div>
-                  <p className="text-xs text-primary-foreground/80 mt-1">{t("home.subSecondQRBody")}</p>
-                </div>
-              </div>
-
-              <div className="col-span-2 bg-card border border-border/80 rounded-3xl p-6 shadow-xl flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-accent/10">
-                    <ShieldCheck className="h-6 w-6 text-accent" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm text-foreground">{t("home.enterpriseSecurity")}</div>
-                    <p className="text-xs text-muted-foreground">{t("home.enterpriseSecurityBody")}</p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-extrabold uppercase px-2 py-1 rounded bg-muted text-muted-foreground">{t("home.active")}</span>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Carousel Stack */}
+      {/* Featured Carousel — above the fold */}
       <section className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
@@ -173,22 +70,8 @@ export function PublicHomePage() {
         </div>
       </section>
 
-      {/* Dynamic Category Matrix */}
+      {/* Upcoming Events stream — raised above categories */}
       <section className="py-16 sm:py-24 bg-muted/30 border-y border-border/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title={t("home.browseByCategory")}
-            subtitle={t("home.browseByCategorySub")}
-          />
-          <CategoryGrid />
-        </div>
-      </section>
-
-      {/* AI Recommendations rail (skips on no-user / AI outage) */}
-      <RecommendationsRail />
-
-      {/* Main Upcoming Event Discovery Stream */}
-      <section className="py-16 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <SectionHeader
@@ -203,7 +86,7 @@ export function PublicHomePage() {
             </Tabs>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 min-h-[400px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 min-h-[400px]">
             {mounted && !eventsQ.isLoading ? (
               displayEvents.map((event, idx) => (
                 <motion.div
@@ -217,8 +100,7 @@ export function PublicHomePage() {
                 </motion.div>
               ))
             ) : (
-              // Initial skeleton rendering state to avoid hydration mismatch
-              Array.from({ length: 6 }).map((_, i) => (
+              Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="h-[380px] w-full rounded-xl bg-card border border-border/40 animate-pulse" />
               ))
             )}
@@ -234,53 +116,125 @@ export function PublicHomePage() {
         </div>
       </section>
 
-      {/* How It Works Showcase */}
-      <section className="py-16 sm:py-24 bg-muted/20 border-t border-border/40">
+      {/* Category grid */}
+      <section className="py-16 sm:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader
+            title={t("home.browseByCategory")}
+            subtitle={t("home.browseByCategorySub")}
+          />
+          <CategoryGrid />
+        </div>
+      </section>
+
+      {/* AI Recommendations rail */}
+      <RecommendationsRail />
+
+      {/* Compact metrics/trust strip — replaces the bloated bento */}
+      <section className="py-12 sm:py-16 bg-muted/20 border-t border-border/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex items-center gap-4 bg-card border border-border/60 rounded-2xl p-5"
+            >
+              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Globe2 className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <div className="text-lg font-black text-foreground">{t("home.nationalHubs")}</div>
+                <p className="text-xs text-muted-foreground">{t("home.nationalHubsBody")}</p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.05 }}
+              className="flex items-center gap-4 bg-card border border-border/60 rounded-2xl p-5"
+            >
+              <div className="h-12 w-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                <Zap className="h-6 w-6 text-accent" />
+              </div>
+              <div>
+                <div className="text-lg font-black text-foreground">{t("home.subSecondQR")}</div>
+                <p className="text-xs text-muted-foreground">{t("home.subSecondQRBody")}</p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-4 bg-card border border-border/60 rounded-2xl p-5"
+            >
+              <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <div className="text-lg font-black text-foreground">{t("home.enterpriseSecurity")}</div>
+                <p className="text-xs text-muted-foreground">{t("home.enterpriseSecurityBody")}</p>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works — compact row */}
+      <section className="py-12 sm:py-16 border-t border-border/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader
             title={t("home.threeStepFunnel")}
             subtitle={t("home.threeStepFunnelSub")}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <HowItWorksCard
-              icon={Search}
-              title={t("home.step1Title")}
-              description={t("home.step1Desc")}
-              badge={t("home.fast")}
-            />
-            <HowItWorksCard
-              icon={UserPlus}
-              title={t("home.step2Title")}
-              description={t("home.step2Desc")}
-              badge={t("home.secure")}
-            />
-            <HowItWorksCard
-              icon={Ticket}
-              title={t("home.step3Title")}
-              description={t("home.step3Desc")}
-              badge={t("home.reliable")}
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { icon: Search, title: t("home.step1Title"), desc: t("home.step1Desc") },
+              { icon: UserPlus, title: t("home.step2Title"), desc: t("home.step2Desc") },
+              { icon: Ticket, title: t("home.step3Title"), desc: t("home.step3Desc") },
+            ].map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="flex items-start gap-4 bg-card border border-border/60 rounded-2xl p-5"
+              >
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <step.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-sm text-foreground">{step.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.desc}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* High Conversion Storefront Ending CTA */}
-      <section className="py-12 sm:py-16">
+      {/* Organizer CTA — at the bottom, smaller */}
+      <section className="py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative bg-gradient-to-br from-primary via-emerald-600 to-accent rounded-3xl p-10 sm:p-16 text-center text-white overflow-hidden shadow-2xl">
+          <div className="relative bg-gradient-to-br from-primary via-emerald-600 to-accent rounded-3xl p-8 sm:p-12 text-center text-white overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.15),transparent_60%)]" />
-            <div className="relative z-10 max-w-3xl mx-auto">
-              <span className="inline-block text-[10px] font-extrabold uppercase px-3 py-1 rounded-full bg-white/20 backdrop-blur-md mb-4 tracking-widest">
+            <div className="relative z-10 max-w-2xl mx-auto">
+              <span className="inline-block text-[10px] font-extrabold uppercase px-3 py-1 rounded-full bg-white/20 backdrop-blur-md mb-3 tracking-widest">
                 {t("home.organizerProgram")}
               </span>
-              <h2 className="font-display font-black text-3xl sm:text-5xl leading-tight mb-4">
+              <h2 className="font-display font-black text-2xl sm:text-4xl leading-tight mb-3">
                 {t("home.deployToday")}
               </h2>
-              <p className="text-white/80 text-base sm:text-lg mb-8 font-medium">
+              <p className="text-white/80 text-sm sm:text-base mb-6 font-medium">
                 {t("home.deployBody")}
               </p>
               <Link href="/auth/signup">
-                <Button variant="secondary" size="lg" className="min-h-[52px] px-10 rounded-xl font-black text-sm text-primary hover:bg-white/90 shadow-xl transition-all">
+                <Button variant="secondary" size="lg" className="min-h-[48px] px-8 rounded-xl font-black text-sm text-primary hover:bg-white/90 shadow-xl transition-all">
                   {t("home.initializeOrg")}
                 </Button>
               </Link>
@@ -291,4 +245,3 @@ export function PublicHomePage() {
     </>
   );
 }
-

@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 
 import { auth } from '@/lib/auth';
-import { AdminSidebar } from '@/components/admin/admin-sidebar';
-import { DashboardTopbar } from '@/components/dashboard/topbar';
+import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 
 /**
  * Admin route-group layout — server-side role enforcement.
@@ -22,13 +21,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/');
   }
 
-  return (
-    <div className="flex h-screen bg-background">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardTopbar breadcrumb="Admin Panel" />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
-      </div>
-    </div>
-  );
+  return <DashboardShell variant="admin">{children}</DashboardShell>;
 }

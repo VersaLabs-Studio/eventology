@@ -135,15 +135,43 @@ function renderForTemplate(
       return renderPayoutUpdate(locale, templateInput.data);
     case 'ticket_issued':
       return renderTicketIssued(locale, templateInput.data);
-    default: {
+    case 'system_announcement':
+      // Structured { title, body } — render as a proper in-app message,
+      // never as raw JSON (that leaked into the bell UI previously).
       return {
-        subject: templateInput.kind,
-        inAppTitle: templateInput.kind,
-        textBody: JSON.stringify(templateInput.data),
-        htmlBody: `<p>${JSON.stringify(templateInput.data)}</p>`,
+        subject: templateInput.data.title,
+        inAppTitle: templateInput.data.title,
+        textBody: templateInput.data.body,
+        htmlBody: `<p>${templateInput.data.body}</p>`,
+      };
+    default: {
+      // Other structured payloads — render a human-readable message from
+      // the string fields instead of dumping JSON.
+      const d = templateInput.data as Record<string, unknown>;
+      const title =
+        typeof d.title === 'string' ? d.title : prettifyKind(templateInput.kind);
+      const body =
+        typeof d.body === 'string'
+          ? d.body
+          : Object.values(d)
+              .filter((v): v is string => typeof v === 'string')
+              .join(' — ');
+      return {
+        subject: title,
+        inAppTitle: title,
+        textBody: body,
+        htmlBody: `<p>${body}</p>`,
       };
     }
   }
+}
+
+/** Turns a template kind like 'event_approved' into a readable label. */
+function prettifyKind(kind: string): string {
+  return kind
+    .split('_')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
 }
 
 /**

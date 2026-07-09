@@ -176,7 +176,7 @@ function RegistrationCard({ registration }: { registration: import("@/hooks/use-
         <div className="flex items-center gap-4">
           <div className="relative h-16 w-16 rounded-lg overflow-hidden shrink-0">
             <Image
-              src={registration.event?.banner_image ?? "/placeholder-event.jpg"}
+              src={registration.event?.banner_image ?? "/images/placeholders/event.svg"}
               alt={registration.event?.title ?? "Event"}
               fill
               className="object-cover"

@@ -104,10 +104,14 @@ export async function GET(req: NextRequest) {
     .range(offset, offset + limit - 1);
 
   // Search — escape special characters to prevent PostgREST filter syntax breakage
+  // NOTE: PostgREST's .or() filter language uses * (NOT %) as the wildcard for
+  // like/ilike. Individual .ilike() calls translate %→* internally, but .or()
+  // passes the string directly to PostgREST. Using % would be treated as a
+  // literal character by PostgREST's filter parser.
   if (search) {
     const escaped = escapeSearchTerm(search);
     query = query.or(
-      `title.ilike.%${escaped}%,description.ilike.%${escaped}%,short_description.ilike.%${escaped}%`
+      `title.ilike.*${escaped}*,description.ilike.*${escaped}*,short_description.ilike.*${escaped}*`
     );
   }
 
@@ -205,17 +209,29 @@ export async function GET(req: NextRequest) {
       query = query.order('start_date', { ascending: false });
   }
 
-  const { data, error, count } = await query;
+  let data: unknown;
+  let error: unknown;
+  let count: number | null;
+  try {
+    ({ data, error, count } = await query);
+  } catch (caught) {
+    console.error('[public/events] unhandled exception:', caught instanceof Error ? caught.message : caught, caught instanceof Error ? caught.stack : '');
+    return NextResponse.json(
+      { error: { code: 'UNHANDLED', message: caught instanceof Error ? caught.message : 'Unknown error' } } satisfies ErrorEnvelope,
+      { status: 500 }
+    );
+  }
 
   if (error) {
+    console.error('[public/events] DB error:', (error as { message?: string; code?: string; details?: string }).message, (error as { code?: string }).code, (error as { details?: string }).details);
     return NextResponse.json(
-      { error: { code: 'DB_ERROR', message: error.message } } satisfies ErrorEnvelope,
+      { error: { code: 'DB_ERROR', message: (error as { message?: string }).message ?? 'Database error' } } satisfies ErrorEnvelope,
       { status: 500 }
     );
   }
 
   return NextResponse.json({
-    data: data ?? [],
+    data: (data ?? []) as unknown[],
     meta: { total: count ?? 0, page, limit },
   } satisfies ListEnvelope<unknown>);
 }

@@ -30,6 +30,7 @@ const localFallbacks: Record<string, string> = {
   music: "/images/placeholders/music.svg",
   food: "/images/placeholders/food.svg",
   community: "/images/placeholders/community.svg",
+  event: "/images/placeholders/event.svg",
   default: "/images/placeholders/default.svg",
 };
 
@@ -124,7 +125,7 @@ export function FallbackImage({
               <Sparkles className="w-3 h-3 text-accent" /> Active
             </span>
             <span className="flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-primary-foreground" /> Ethiopia
+              <MapPin className="w-3 h-3 text-primary-foreground" /> Addis Ababa
             </span>
           </div>
         </div>

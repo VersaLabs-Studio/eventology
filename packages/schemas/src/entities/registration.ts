@@ -5,6 +5,7 @@
 
 import { z } from 'zod';
 import { REGISTRATION_STATUSES } from '../enums';
+import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
@@ -33,6 +34,7 @@ export const registrationSchema = z.object({
 export const createRegistrationSchema = registrationSchema
   .omit({
     id: true,
+    user_id: true, // Server-derived from auth.uid(), never client-supplied
     status: true, // Defaults to 'confirmed' via DB
     checked_in_at: true,
     qr_data: true, // Generated server-side
@@ -40,6 +42,12 @@ export const createRegistrationSchema = registrationSchema
     updated_at: true,
   })
   .extend({
+    // Override UUID fields with PostgreSQL-compatible pattern.
+    // Zod v4's built-in .uuid() enforces RFC 9562 (only version 1-8),
+    // but DB IDs may use version 0 (e.g. "e1000000-...-000000000048").
+    event_id: pgUuid('Invalid UUID'),
+    ticket_tier_id: pgUuid('Invalid UUID'),
+    attendee_phone: z.string().trim().min(1).nullish(), // Optional/blank phone is valid
     metadata: z.record(z.string(), z.unknown()).default({}),
   });
 

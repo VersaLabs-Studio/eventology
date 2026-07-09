@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { I18nProvider, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import "./globals.css";
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | Eventology",
   },
   description:
-    "Discover, attend, and organize events in Addis Ababa. The premium event management platform for Ethiopia.",
+    "Discover, attend, and organize events in Addis Ababa. The premium event management platform.",
   keywords: [
     "events",
     "Addis Ababa",
@@ -98,7 +99,9 @@ export default async function RootLayout({
       <body className="min-h-screen antialiased selection:bg-primary/20">
         <I18nProvider initialLocale={initialLocale}>
           <QueryProvider>
-            {children}
+            <TooltipProvider delayDuration={300}>
+              {children}
+            </TooltipProvider>
             <Toaster position="bottom-right" richColors closeButton />
           </QueryProvider>
         </I18nProvider>

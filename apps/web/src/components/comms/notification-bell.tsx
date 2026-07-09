@@ -53,6 +53,32 @@ function typeIcon(type: string): string {
   return "🔔";
 }
 
+/**
+ * Resolves display title/message. Historically some notifications were
+ * persisted with a JSON-stringified payload as `message` (and a raw kind as
+ * `title`). New notifications are rendered as plain text, but already-stored
+ * rows must still display correctly, so we parse JSON defensively here.
+ */
+function resolveNotificationContent(item: NotificationItem): { title: string; message: string } {
+  let title = item.title;
+  let message = item.message;
+  const trimmed = message.trim();
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+      if (parsed && typeof parsed === "object") {
+        if (typeof parsed.body === "string") message = parsed.body;
+        if (typeof parsed.title === "string" && (title === "system_announcement" || !title)) {
+          title = parsed.title;
+        }
+      }
+    } catch {
+      // Not JSON — keep as-is
+    }
+  }
+  return { title, message };
+}
+
 export function NotificationBell() {
   const [open, setOpen] = React.useState(false);
   const [items, setItems] = React.useState<NotificationItem[]>([]);
@@ -173,7 +199,7 @@ export function NotificationBell() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[380px] max-h-[520px] overflow-y-auto p-0"
+        className="w-[380px] max-h-[520px] overflow-y-auto p-0 z-[120]"
       >
         {/* Header */}
         <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border p-3 flex items-center justify-between">
@@ -252,6 +278,7 @@ interface NotificationRowProps {
 }
 
 function NotificationRow({ item, onMarkRead, onDelete }: NotificationRowProps) {
+  const { title, message } = resolveNotificationContent(item);
   return (
     <div
       className={cn(
@@ -265,13 +292,13 @@ function NotificationRow({ item, onMarkRead, onDelete }: NotificationRowProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
           <p className={cn("text-sm font-medium truncate", !item.is_read && "text-foreground")}>
-            {item.title}
+            {title}
           </p>
           {!item.is_read && (
             <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" aria-label="unread" />
           )}
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{item.message}</p>
+        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{message}</p>
         <p className="text-[10px] text-muted-foreground mt-1">{timeAgo(item.created_at)}</p>
         {item.action_url && (
           <Link

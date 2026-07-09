@@ -9,8 +9,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Plus, MoreHorizontal, CalendarDays } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Plus, MoreHorizontal, CalendarDays, Eye, Pencil, Trash2 } from "lucide-react";
 import { useMyOrganizerEvents } from "@/hooks/use-my-organizer-events";
+import { useDeleteEvent } from "@/hooks/use-events";
 import { formatDate } from "@/lib/utils";
 import Image from "next/image";
 
@@ -20,11 +28,14 @@ const statusColors: Record<string, "success" | "warning" | "default" | "destruct
 
 export default function OrgEventsPage() {
   const [tab, setTab] = React.useState("all");
+  const [confirmingId, setConfirmingId] = React.useState<string | null>(null);
 
   const { data, isLoading, isError } = useMyOrganizerEvents({
     limit: 50,
     status: tab === "all" ? undefined : tab,
   });
+
+  const deleteEvent = useDeleteEvent();
 
   const events = data?.data ?? [];
 
@@ -101,9 +112,60 @@ export default function OrgEventsPage() {
                   </div>
                 </div>
                   <Badge variant={statusColors[event.status] || "default"}>{event.status}</Badge>
-                  <button className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        aria-label={`Actions for ${event.title}`}
+                        className="h-9 w-9 rounded-lg hover:bg-muted flex items-center justify-center transition-colors"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {confirmingId === event.id ? (
+                        <>
+                          <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                            Delete this event?
+                          </div>
+                          <DropdownMenuItem
+                            className="text-destructive focus:bg-destructive/10"
+                            disabled={deleteEvent.isPending}
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              deleteEvent.mutate(event.id, {
+                                onSuccess: () => setConfirmingId(null),
+                              });
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" /> Delete
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setConfirmingId(null); }}>
+                            Cancel
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/org/events/${event.id}`}>
+                              <Eye className="h-4 w-4" /> View
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/org/events/${event.id}`}>
+                              <Pencil className="h-4 w-4" /> Edit
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive focus:bg-destructive/10"
+                            onSelect={(e) => { e.preventDefault(); setConfirmingId(event.id); }}
+                          >
+                            <Trash2 className="h-4 w-4" /> Delete
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               ))}
             </div>
