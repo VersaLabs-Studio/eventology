@@ -11,7 +11,7 @@ import { phoneNumber } from 'better-auth/plugins/phone-number';
  *
  * It is imported by:
  *   - `src/lib/auth/server.ts` (Node runtime — extends with the `pg.Pool`
- *     database adapter and the `onUserCreated` Supabase callback)
+ *     database adapter and the `databaseHooks` Supabase profile sync)
  *   - Anything else that needs the *configuration* (secret, base URL,
  *     additional fields, OTP settings) on either runtime.
  *
@@ -50,7 +50,8 @@ export const authOptions: BetterAuthOptions = {
   // ── Database ID Generation ──────────────────────────────────────────
   // better-auth defaults to random strings for user.id.  Our schema keys
   // identity on UUID (`profiles.id` is UUID, all domain FKs point there).
-  // Mint UUIDs so `onUserCreated` inserts a valid UUID into profiles.
+  // Mint UUIDs so the `databaseHooks.user.create.after` profile sync (in
+  // server.ts) inserts a valid UUID into profiles.
   advanced: {
     database: {
       generateId: () => crypto.randomUUID(),

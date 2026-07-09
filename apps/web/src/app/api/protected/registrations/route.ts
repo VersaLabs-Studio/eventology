@@ -377,7 +377,8 @@ export async function GET(req: NextRequest) {
     .select(`
       *,
       event:events(id, title, slug, banner_image, start_date, end_date, venue_name),
-      ticket_tier:ticket_tiers(id, name, price, currency)
+      ticket_tier:ticket_tiers(id, name, price, currency),
+      ticket:tickets(id, ticket_number, status)
     `, { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
@@ -396,8 +397,18 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // Normalize the to-many `ticket` relation to a single object (a registration
+  // issues at most one ticket in practice; the FK is not unique so PostgREST
+  // returns an array). The client contract expects `ticket?: {…}` (single).
+  const normalized = (data ?? []).map((row: Record<string, unknown>) => ({
+    ...row,
+    ticket: Array.isArray(row.ticket)
+      ? (row.ticket[0] ?? null)
+      : (row.ticket ?? null),
+  }));
+
   return NextResponse.json({
-    data: data ?? [],
+    data: normalized,
     meta: { total: count ?? 0, page, limit },
   } satisfies ListEnvelope<unknown>);
 }

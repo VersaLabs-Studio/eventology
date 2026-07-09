@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
-import { requireOrganizerOwnership } from '@/lib/ai/role-guard';
+import { requireOrganizerOwnership, getCallerContext } from '@/lib/ai/role-guard';
 import { consumeRateLimit, RATE_LIMITS, rateLimitHeaders } from '@/lib/ai/rate-limit';
 import {
   aiGenerateEventDescription,
@@ -72,7 +72,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
       tags: Array.isArray(input.tags) ? (input.tags as string[]) : undefined,
       short_description: (input.short_description as string | null | undefined) ?? null,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   tags: async ({ eventId, input }) => {
@@ -82,7 +85,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
       event_type: String(input.event_type ?? ''),
       category: String(input.category ?? ''),
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   marketing: async ({ eventId, input }) => {
@@ -96,7 +102,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
       platform,
       tone,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   pricing: async ({ eventId, input }) => {
@@ -111,7 +120,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
         : undefined,
       organizer_tier,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   narrative: async ({ eventId, input }) => {
@@ -125,7 +137,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
       previous_registrations: input.previous_registrations != null ? Number(input.previous_registrations) : undefined,
       previous_views: input.previous_views != null ? Number(input.previous_views) : undefined,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   insights: async ({ eventId, input }) => {
@@ -144,7 +159,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
         ? (input.top_sub_cities as string[])
         : undefined,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   prediction: async ({ eventId, input }) => {
@@ -160,7 +178,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
         : [],
       is_featured: input.is_featured === true,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   report: async ({ eventId, input }) => {
@@ -178,7 +199,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
       },
       audience,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 
   recap: async ({ eventId, input }) => {
@@ -196,7 +220,10 @@ const TASK_HANDLERS: Record<Task, TaskHandler> = {
       feedback_summary: (input.feedback_summary as string | undefined) ?? undefined,
       revenue: input.revenue != null ? Number(input.revenue) : undefined,
     });
-    return { event_id: eventId, ...result };
+    // Unwrap the AIServiceResult envelope so the response `data` is the
+    // actual output (e.g. { description, short_description }) the client
+    // expects — not the { ok, data, error } envelope.
+    return result.data ?? {};
   },
 };
 
@@ -255,29 +282,43 @@ export async function POST(req: NextRequest) {
 
   const { task, event_id, input = {} } = parsed.data;
 
-  // Role guard — every organizer task is event-scoped
-  if (!event_id) {
-    return NextResponse.json(
-      { error: { code: 'VALIDATION_ERROR', message: 'event_id is required' } } satisfies ErrorEnvelope,
-      { status: 400 }
-    );
-  }
-
   const authed = await createAuthedClient(userId);
-  const guard = await requireOrganizerOwnership(authed, session.user, event_id);
-  if (!guard.ok) {
-    return NextResponse.json(
-      {
-        error: {
-          code: guard.reason ?? 'FORBIDDEN',
-          message:
-            guard.reason === 'NOT_OWNER'
-              ? 'You do not own this event.'
-              : 'You are not authorized to use AI for this event.',
-        },
-      } satisfies ErrorEnvelope,
-      { status: guard.reason === 'NOT_OWNER' || guard.reason === 'NOT_ORGANIZER' || guard.reason === 'NO_ORGANIZER_PROFILE' ? 403 : 401 }
-    );
+
+  // Role guard.
+  //  • event_id present  → require ownership of that event (edit flow).
+  //  • event_id absent   → create flow: the event doesn't exist yet, so we
+  //    only gate on organizer/admin role (description/tags tasks don't touch
+  //    event rows). This unblocks the AI-assist button on the create form.
+  if (event_id) {
+    const guard = await requireOrganizerOwnership(authed, session.user, event_id);
+    if (!guard.ok) {
+      return NextResponse.json(
+        {
+          error: {
+            code: guard.reason ?? 'FORBIDDEN',
+            message:
+              guard.reason === 'NOT_OWNER'
+                ? 'You do not own this event.'
+                : 'You are not authorized to use AI for this event.',
+          },
+        } satisfies ErrorEnvelope,
+        { status: guard.reason === 'NOT_OWNER' || guard.reason === 'NOT_ORGANIZER' || guard.reason === 'NO_ORGANIZER_PROFILE' ? 403 : 401 }
+      );
+    }
+  } else {
+    const ctx = await getCallerContext(authed, session.user);
+    if (!ctx.ok) {
+      return NextResponse.json(
+        { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } } satisfies ErrorEnvelope,
+        { status: 401 }
+      );
+    }
+    if (ctx.profileRole !== 'organizer' && ctx.profileRole !== 'admin') {
+      return NextResponse.json(
+        { error: { code: 'FORBIDDEN', message: 'Organizer or admin role required to use AI assist.' } } satisfies ErrorEnvelope,
+        { status: 403 }
+      );
+    }
   }
 
   // Dispatch
@@ -285,7 +326,7 @@ export async function POST(req: NextRequest) {
   const data = await handler({
     authed,
     service,
-    eventId: event_id,
+    eventId: event_id ?? '',
     input,
   });
 

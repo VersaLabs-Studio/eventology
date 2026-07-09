@@ -13,26 +13,27 @@ import { Separator } from "@/components/ui/separator";
 import { AIGenerateButton } from "@/components/ai/ai-generate-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCategories } from "@/hooks/use-categories-venues";
-import { useCreateEvent, useUpdateEvent } from "@/hooks/use-events";
+import { useCreateEvent } from "@/hooks/use-events";
 import { toast } from "sonner";
 import { ADDIS_SUB_CITIES } from "@eventology/config";
+import { EVENT_TYPES } from "@eventology/schemas";
+
+type EventType = (typeof EVENT_TYPES)[number];
 
 /**
- * R2: Event form now posts to /api/protected/events (real CRUD) and
- * loads categories/venues from the public APIs. The form is currently
- * a single create path; editing pre-existing events would re-use the
- * same fields and POST a draft first, then PATCH to update.
+ * Create-only event form. Posts once to /api/protected/events with
+ * status 'draft' (Save) or 'pending' (Submit for Review). Status is
+ * server-controlled on update, so we never follow-up with a PUT.
  */
 export function EventForm() {
   const router = useRouter();
   const catsQ = useCategories();
   const create = useCreateEvent();
-  const update = useUpdateEvent();
 
   const [title, setTitle] = React.useState("");
   const [shortDescription, setShortDescription] = React.useState("");
   const [category, setCategory] = React.useState("");
-  const [eventType, setEventType] = React.useState("conference");
+  const [eventType, setEventType] = React.useState<EventType>("conference");
   const [date, setDate] = React.useState("");
   const [startTime, setStartTime] = React.useState("");
   const [endTime, setEndTime] = React.useState("");
@@ -41,6 +42,12 @@ export function EventForm() {
   const [subCity, setSubCity] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [tags, setTags] = React.useState("");
+
+  // Real media state — uploaded to Supabase Storage (event-banners bucket).
+  const [bannerImage, setBannerImage] = React.useState<string | null>(null);
+  const [gallery, setGallery] = React.useState<(string | null)[]>(Array(4).fill(null));
+  const setGallerySlot = (i: number, url: string | null) =>
+    setGallery((prev) => prev.map((u, idx) => (idx === i ? url : u)));
 
   // AI-004: "✨ Generate" handlers — populate form fields from AI output
   function applyDescription(result: { description?: string; short_description?: string }) {
@@ -76,14 +83,17 @@ export function EventForm() {
       return;
     }
     try {
+      // Single POST — status is set server-side from this field (draft|pending only).
+      // No follow-up PUT: status is SERVER_CONTROLLED and events UPDATE RLS is strict.
       const created = await create.mutateAsync({
         title: title.trim(),
-        slug: title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60) || `event-${Date.now()}`,
+        slug:
+          (title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 50) ||
+            `event-${Date.now()}`) + `-${Math.random().toString(36).slice(2, 8)}`,
         description: description || undefined,
         short_description: shortDescription || undefined,
-        banner_image: undefined,
+        banner_image: bannerImage || undefined,
         category_id: category,
-        organizer_id: '', // server-side injected
         event_type: eventType,
         ticket_type: 'paid',
         start_date: new Date(`${date}T${startTime || '09:00'}:00`).toISOString(),
@@ -94,12 +104,10 @@ export function EventForm() {
         sub_city: subCity || undefined,
         capacity: 100,
         tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
-        gallery: [],
+        gallery: gallery.filter((u): u is string => Boolean(u)),
+        metadata: {},
+        status,
       });
-      // If the caller wants to submit for review, PATCH the status
-      if (status === 'pending' && created.id) {
-        await update.mutateAsync({ id: created.id, data: { status: 'pending' } });
-      }
       toast.success(status === 'draft' ? 'Saved as draft' : 'Submitted for review');
       router.push(`/org/events/${created.id}`);
     } catch (err) {
@@ -108,7 +116,7 @@ export function EventForm() {
   };
 
   const categories = catsQ.data?.data ?? [];
-  const submitting = create.isPending || update.isPending;
+  const submitting = create.isPending;
 
   return (
     <div className="space-y-8 max-w-3xl">
@@ -141,7 +149,7 @@ export function EventForm() {
             </div>
             <div>
               <Label>Event Type</Label>
-              <Select value={eventType} onValueChange={setEventType}>
+              <Select value={eventType} onValueChange={(v) => setEventType(v as EventType)}>
                 <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                 <SelectContent>
                   {["conference", "workshop", "meetup", "seminar", "networking", "concert", "exhibition", "training"].map((t) => (
@@ -208,15 +216,18 @@ export function EventForm() {
         <div className="space-y-4">
           <div>
             <Label>Banner Image</Label>
-            <ImageUpload />
+            <ImageUpload value={bannerImage} onChange={setBannerImage} />
           </div>
           <div>
             <Label>Gallery Images (up to 4)</Label>
             <div className="grid grid-cols-2 gap-3">
-              <ImageUpload />
-              <ImageUpload />
-              <ImageUpload />
-              <ImageUpload />
+              {gallery.map((url, i) => (
+                <ImageUpload
+                  key={i}
+                  value={url}
+                  onChange={(next) => setGallerySlot(i, next)}
+                />
+              ))}
             </div>
           </div>
         </div>

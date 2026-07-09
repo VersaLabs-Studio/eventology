@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminRoute, writeAuditLog } from '@/lib/api/admin-guard';
 import { notify } from '@/lib/comms/notify';
+import { setUserRole } from '@/lib/auth/server';
 import type { ErrorEnvelope } from '@/lib/api';
 
 export async function POST(
@@ -61,6 +62,14 @@ export async function POST(
       { error: { code: 'DB_ERROR', message: error.message } } satisfies ErrorEnvelope,
       { status: 500 }
     );
+  }
+
+  // Grant the organizer role — the ONLY path that does so. Self-signup
+  // (become route) leaves role as 'attendee'; verification is what unlocks
+  // /org/*. setUserRole writes both the better-auth "user" table and the
+  // domain profiles table.
+  if (current.profile_id) {
+    await setUserRole(current.profile_id, 'organizer');
   }
 
   await writeAuditLog(service, {

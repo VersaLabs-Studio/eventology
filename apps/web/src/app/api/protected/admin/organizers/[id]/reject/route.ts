@@ -91,6 +91,11 @@ export async function POST(
     );
   }
 
+  // Role is intentionally NOT elevated on rejection — the applicant stays
+  // 'attendee'. Only admin verification (verify route → setUserRole) grants
+  // the organizer role. notify() below writes the in-app notification row
+  // (and best-effort external channels) with the rejection reason.
+
   await writeAuditLog(service, {
     actor_id: userId,
     action: 'organizer_rejected',

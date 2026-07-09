@@ -17,16 +17,6 @@ interface ModerationCardProps {
 }
 
 export function ModerationCard({ event, onApprove, onReject, isPending }: ModerationCardProps) {
-  const [showRejectDialog, setShowRejectDialog] = React.useState(false);
-  const [reason, setReason] = React.useState("");
-
-  const handleConfirmReject = () => {
-    if (!reason.trim()) return;
-    onReject?.();
-    setShowRejectDialog(false);
-    setReason("");
-  };
-
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-col sm:flex-row">
@@ -57,29 +47,10 @@ export function ModerationCard({ event, onApprove, onReject, isPending }: Modera
             <Button size="sm" variant="default" onClick={onApprove} disabled={isPending}>
               <CheckCircle className="mr-1 h-4 w-4" /> Approve
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => setShowRejectDialog(true)} disabled={isPending}>
+            <Button size="sm" variant="destructive" onClick={() => onReject?.()} disabled={isPending}>
               <XCircle className="mr-1 h-4 w-4" /> Reject
             </Button>
           </div>
-
-          {showRejectDialog && (
-            <div className="mt-3 p-3 rounded-lg bg-muted border border-border space-y-2">
-              <textarea
-                className="w-full min-h-[80px] rounded-lg border border-border bg-background p-2 text-sm"
-                placeholder="Rejection reason..."
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-              />
-              <div className="flex gap-2">
-                <Button size="sm" variant="destructive" onClick={handleConfirmReject} disabled={isPending || !reason.trim()}>
-                  Confirm Reject
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setShowRejectDialog(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
         </CardContent>
       </div>
     </Card>

@@ -9,6 +9,7 @@ import { Menu, X, Monitor, LayoutDashboard, Shield, ChevronRight } from "lucide-
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
+import { NotificationBell } from "@/components/comms/notification-bell";
 import { useLocale } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -175,6 +176,7 @@ function DesktopAuthControls() {
 
   return (
     <div className="hidden md:flex items-center gap-3" ref={menuRef}>
+      <NotificationBell />
       <div className="relative">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
@@ -294,6 +296,7 @@ function MobileAuthControls() {
 
   return (
     <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
+      <NotificationBell />
       {/* User info */}
       <div className="flex items-center gap-3 px-2">
         {avatarUrl ? (

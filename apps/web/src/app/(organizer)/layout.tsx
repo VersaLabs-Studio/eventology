@@ -2,8 +2,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 
 import { auth } from '@/lib/auth';
-import { DashboardSidebar } from '@/components/dashboard/sidebar';
-import { DashboardTopbar } from '@/components/dashboard/topbar';
+import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 
 /**
  * Organizer route-group layout — server-side role enforcement.
@@ -25,13 +24,5 @@ export default async function OrganizerLayout({ children }: { children: React.Re
     redirect('/');
   }
 
-  return (
-    <div className="flex h-screen bg-background">
-      <DashboardSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardTopbar breadcrumb="Organizer Dashboard" />
-        <main className="flex-1 overflow-y-auto p-6 lg:p-8">{children}</main>
-      </div>
-    </div>
-  );
+  return <DashboardShell variant="org">{children}</DashboardShell>;
 }

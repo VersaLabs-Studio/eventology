@@ -124,3 +124,21 @@ html { scroll-behavior: smooth; }
   animation: glow-pulse 4s ease-in-out infinite;
 }
 
+/* ── Print: kill the browser-inserted header/footer ──
+   Chrome/Edge draw the URL + date + page number inside the @page
+   margin box. Setting margin to 0 removes that box, so the default
+   header/footer have nowhere to render. Force color-adjust so the
+   QR code and brand colors print accurately. */
+@page {
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff;
+  }
+}
+

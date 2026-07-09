@@ -62,10 +62,10 @@
     "closeMenu": "የሞባይል ምናሌ ዝጋ"
   },
   "hero": {
-    "badge": "በአዲስ አበባ ውስጥ የপሬሚየም ዝግጅት መድረክ",
-    "headlineStart": "አዲስ አበባ",
-    "headlineEnd": "በሕይወት ይሞላል",
-    "subtext": "ከአፍሪካ ህብረት ስብሰባ ቤት የሚደረጉ የቴክኖሎጂ ስብሰባዎች እስከ ከተማው ማዕከል ያሉ የባህል አዝናኝ በዓላት። ያግኙ፣ ይመዝገቡ፣ ተሞክሮውን ይለማመዱ።",
+    "badge": "የአዲስ አበባ AI-ተኮር የዝግጅት መድረክ",
+    "headlineStart": "በአዲስ አበባ የሚካሄድ ሁሉም ነገር።",
+    "headlineEnd": "በአንድ መድረክ።",
+    "subtext": "ከቴክ ስብሰባዎች እና ኮንሰርቶች እስከ የባህል በዓላት እና ወርክሾፖች — ያግኙት፣ ይያዙት፣ በሰከንዶች ውስጥ ቲኬትዎን ያግኙ።",
     "statsEvents": "የተደረጉ ዝግጅቶች",
     "statsPartners": "የተረጋገጡ አጋሮች",
     "statsAttendees": "ጠቅላላ ተሳታፊዎች",
@@ -498,7 +498,18 @@
     "note": "የአዘጋጅ መገለጫዎ በእኛ ቡድን ይመረጣል። ዝግጅቶችን ወዲያውኑ መፍጠር ይችላሉ።",
     "success": "ወደ የአዘጋጅ ፕሮግራም እንኳን በደህና መጡ!",
     "successTitle": "አዘጋጅ ነዎ!",
-    "successBody": "ወደ የአዘጋጅ ዳሽቦርድ በመምራት ላይ..."
+    "successBody": "ወደ የአዘጋጅ ዳሽቦርድ በመምራት ላይ...",
+    "statusPendingTitle": "ማመለከትዎ በመገምገም ላይ",
+    "statusPendingBody": "የአዘጋጅ ማመለከትዎን ቡድናችን እየመረመረ ነው። ከተፈቀደ በኋላ በኢሜል እና በመተግበሪያው ውስጥ ይገለጻል — ከዚያ ዝግጅቶችን መፍጠር ይችላሉ።",
+    "statusVerifiedTitle": "ተረጋግጠዋል!",
+    "statusVerifiedBody": "የአዘጋጅ ሂሳብዎ ጸድቋል። አሁን በኢቨንቶሎጂ ላይ ዝግጅቶችን መፍጠር እና ማስተዳደር ይችላሉ።",
+    "goToDashboard": "ወደ የአዘጋጅ ዳሽቦርድ",
+    "statusRejectedTitle": "ማመለከትዎ አልተፈቀደም",
+    "statusRejectedBody": "ከሚያምሰው ጊዜ የአዘጋጅ ማመለከትዎ አልተፈቀደም።",
+    "statusRejectedReason": "ምክንያት፡ {{reason}}",
+    "statusRejectedCta": "ድጋፍ ያግኙ",
+    "submitting": "በመላክ ላይ…",
+    "alreadyApplied": "ይህን አስቀድረዋል"
   },
   "language": {
     "label": "ቋንቋ",

@@ -62,10 +62,10 @@
     "closeMenu": "Close mobile menu"
   },
   "hero": {
-    "badge": "The Premium Event Platform in Addis Ababa",
-    "headlineStart": "Where Addis Ababa",
-    "headlineEnd": "Comes to Life",
-    "subtext": "From tech summits at the African Union to cultural festivals in the heart of the city. Discover, register, and experience — all in one place.",
+    "badge": "Addis Ababa's AI-Native Event Platform",
+    "headlineStart": "Everything Happening in Addis.",
+    "headlineEnd": "One Platform.",
+    "subtext": "From tech summits and concerts to cultural festivals and workshops — find it, book it, and get your ticket in seconds.",
     "statsEvents": "Events Hosted",
     "statsPartners": "Verified Partners",
     "statsAttendees": "Total Attendees",
@@ -498,7 +498,18 @@
     "note": "Your organizer profile will be reviewed by our team. You can start creating events immediately.",
     "success": "Welcome to the organizer program!",
     "successTitle": "You're an Organizer!",
-    "successBody": "Redirecting you to the organizer dashboard..."
+    "successBody": "Redirecting you to the organizer dashboard...",
+    "statusPendingTitle": "Application Under Review",
+    "statusPendingBody": "Our team is reviewing your organizer application. You'll be notified by email and in the app once it's verified — then you can start creating events.",
+    "statusVerifiedTitle": "You're Verified!",
+    "statusVerifiedBody": "Your organizer account has been approved. You can now create and publish events on Eventology.",
+    "goToDashboard": "Go to Organizer Dashboard",
+    "statusRejectedTitle": "Application Not Approved",
+    "statusRejectedBody": "Unfortunately your organizer application was not approved at this time.",
+    "statusRejectedReason": "Reason: {{reason}}",
+    "statusRejectedCta": "Contact Support",
+    "submitting": "Submitting…",
+    "alreadyApplied": "You've already applied"
   },
   "language": {
     "label": "Language",

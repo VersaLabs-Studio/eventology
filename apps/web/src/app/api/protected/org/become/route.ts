@@ -6,14 +6,43 @@ import type { ErrorEnvelope } from '@/lib/api';
 /**
  * POST /api/protected/org/become
  *
- * Instant self-service organizer upgrade. Creates an organizer profile
- * and grants the organizer role. Respects existing RLS — the
- * "Organizers: authenticated create" policy (016:143) allows any
- * authenticated user to insert into the organizers table.
+ * Self-service organizer APPLICATION only. Creates a PENDING organizer row
+ * (is_verified=false, verification_status='pending'). The role stays
+ * 'attendee' — it is granted ONLY on admin verification via setUserRole()
+ * (see lib/auth/server.ts), called from the admin verify route. This is the
+ * linchpin of the organizer role model: self-signup must never grant access.
  *
- * Post-MVP: admin verification stays gated by is_verified = false.
- * This just grants the role + creates the organizer row.
+ * GET /api/protected/org/become
+ *   Returns the caller's current organizer application status so the
+ *   become page can branch its UI (none / pending / verified / rejected).
  */
+export async function GET(_req: NextRequest) {
+  const session = await auth.api.getSession({ headers: _req.headers });
+  if (!session) {
+    return NextResponse.json(
+      { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } } satisfies ErrorEnvelope,
+      { status: 401 }
+    );
+  }
+
+  const supabase = createServiceClient();
+  const { data } = await supabase
+    .from('organizers')
+    .select('id, name, verification_status, verification_notes')
+    .eq('profile_id', session.user.id)
+    .maybeSingle();
+
+  if (!data) {
+    return NextResponse.json({ status: null });
+  }
+
+  return NextResponse.json({
+    status: data.verification_status,
+    reason: data.verification_notes ?? null,
+    name: data.name,
+  });
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session) {
@@ -27,26 +56,24 @@ export async function POST(req: NextRequest) {
   const userEmail = session.user.email;
   const userName = (session.user as { name?: string }).name || userEmail.split('@')[0];
 
-  // Use the service-role client to bypass RLS for the organizer insert
-  // and profile update. App-level auth is verified above via auth.api.getSession;
-  // service-role is correct and ownership-safe here.
+  // Service-role client bypasses RLS for the organizer insert. App-level
+  // auth is verified above via auth.api.getSession; this is ownership-safe.
   const supabase = createServiceClient();
 
-  // 1. Check if the user already has an organizer profile
+  // 1. Check if the user already has an organizer application
   const { data: existing } = await supabase
     .from('organizers')
-    .select('id')
+    .select('id, verification_status')
     .eq('profile_id', userId)
     .maybeSingle();
 
   if (existing) {
-    // Already an organizer — just update the role if needed and redirect
-    await supabase
-      .from('profiles')
-      .update({ role: 'organizer' })
-      .eq('id', userId);
-
-    return NextResponse.json({ ok: true, alreadyOrganizer: true });
+    // Already applied — return the current status. Do NOT bump the role.
+    return NextResponse.json({
+      ok: true,
+      alreadyOrganizer: true,
+      status: existing.verification_status,
+    });
   }
 
   // 2. Generate a slug from the user's name
@@ -67,7 +94,7 @@ export async function POST(req: NextRequest) {
     slug = `${baseSlug}-${userId.slice(0, 6)}`;
   }
 
-  // 3. Create the organizer record
+  // 3. Create the organizer record — PENDING. Role granted only on admin verify.
   const { error: orgError } = await supabase
     .from('organizers')
     .insert({
@@ -87,31 +114,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 4. Update the profile role to organizer
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ role: 'organizer' })
-    .eq('id', userId);
-
-  if (profileError) {
-    console.error('[OrgBecome] Failed to update profile role:', profileError);
-    // Non-fatal — the organizer record exists, the role will be synced
-  }
-
-  // 5. Update the better-auth user's role directly in the database
-  //    better-auth stores role as an additional field on its user table.
-  try {
-    const pool = (auth as unknown as { pool?: { query: (sql: string, args: unknown[]) => Promise<unknown> } }).pool;
-    if (pool) {
-      await pool.query(
-        'UPDATE "user" SET role = $1 WHERE id = $2',
-        ['organizer', userId]
-      );
-    }
-  } catch (e) {
-    console.error('[OrgBecome] Failed to update auth user role:', e);
-    // Non-fatal — the organizer record exists, role will be synced on next session
-  }
-
-  return NextResponse.json({ ok: true, redirect: '/org/dashboard' });
+  // Role stays 'attendee'. No profile/role mutation here — verification is
+  // the only path that grants the organizer role (see setUserRole).
+  return NextResponse.json({ ok: true, status: 'pending' });
 }

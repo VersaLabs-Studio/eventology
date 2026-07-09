@@ -378,7 +378,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Link href={`/register/${event.id}`}>
+              <Link href={`/register/${event.slug}`}>
                 <Button variant="accent" size="sm" className="font-bold h-9 rounded-lg min-h-[44px]">Register Now</Button>
               </Link>
             </div>
@@ -459,7 +459,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
                     </div>
                   ))}
                 </div>
-                <Link href={`/register/${event.id}`} className="block">
+                <Link href={`/register/${event.slug}`} className="block">
                   <Button variant="accent" size="lg" className="w-full min-h-[48px] rounded-xl font-extrabold text-sm shadow-accent-glow">
                     Register Now
                   </Button>

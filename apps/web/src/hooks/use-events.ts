@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { EventKeys } from '@eventology/config';
 import { useList, useDoc, useCreate, useUpdate, useDelete } from '@/hooks/factory';
 import type { ListOptions, ListResponse } from '@/hooks/factory';
-import type { Tables } from '@eventology/schemas';
+import type { Tables, EventFormData, EventUpdateData } from '@eventology/schemas';
 import { transformEvent } from '@/lib/transformers';
 import type { Event } from '@/lib/types';
 
@@ -20,34 +20,9 @@ import type { Event } from '@/lib/types';
 // ---------------------------------------------------------------------------
 
 export type EventRow = Tables<'events'>;
-export type EventFormData = {
-  title: string;
-  slug: string;
-  description?: string;
-  short_description?: string;
-  banner_image?: string;
-  category_id: string;
-  organizer_id: string;
-  event_type: string;
-  ticket_type?: string;
-  start_date: string;
-  end_date: string;
-  timezone?: string;
-  venue_name?: string;
-  venue_address?: string;
-  sub_city?: string;
-  capacity?: number;
-  tags?: string[];
-  gallery?: string[];
-  metadata?: Record<string, unknown>;
-};
-
-export type EventUpdateData = Partial<EventFormData> & {
-  status?: string;
-  rejection_reason?: string;
-  is_featured?: boolean;
-  featured_until?: string;
-};
+// EventFormData / EventUpdateData are the canonical schema-inferred types
+// (packages/schemas). They are re-exported here so feature hooks and forms
+// import a single source of truth.
 
 // ---------------------------------------------------------------------------
 // List hook — returns enriched Event[] with joined relations

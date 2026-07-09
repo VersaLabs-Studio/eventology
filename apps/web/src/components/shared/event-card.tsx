@@ -121,15 +121,15 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
               <span className="truncate">{event.location}</span>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
-            <div className="flex items-center gap-2.5">
-              <Avatar className="h-7 w-7 ring-1 ring-border">
+          <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-border/50">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <Avatar className="h-7 w-7 ring-1 ring-border shrink-0">
                 <AvatarImage src={event.organizer?.avatar} />
                 <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">{getInitials(event.organizer?.name || "Org")}</AvatarFallback>
               </Avatar>
-              <span className="text-sm text-muted-foreground font-medium truncate max-w-[120px]">{event.organizer?.name}</span>
+              <span className="text-sm text-muted-foreground font-medium truncate">{event.organizer?.name}</span>
             </div>
-            <span className="text-sm font-extrabold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">
+            <span className="text-sm font-extrabold text-primary bg-primary/10 px-2.5 py-1 rounded-lg shrink-0 whitespace-nowrap">
               {event.ticketType === "free" ? "Free" : `ETB ${(event.ticketTiers[0]?.price || 0).toLocaleString()}`}
             </span>
           </div>

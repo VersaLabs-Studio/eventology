@@ -78,15 +78,15 @@ function DataTable<T>({
           />
         </div>
       )}
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-2xl border border-border/60 bg-card shadow-sm">
         <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-muted/50">
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-muted/40 backdrop-blur">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   className={cn(
-                    "text-left text-xs font-medium text-muted-foreground uppercase tracking-wider px-4 py-3",
+                    "text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 py-3.5 whitespace-nowrap",
                     col.sortable && "cursor-pointer select-none hover:text-foreground"
                   )}
                   onClick={() => col.sortable && handleSort(col.key)}
@@ -104,15 +104,15 @@ function DataTable<T>({
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-8 text-muted-foreground text-sm">
+                <td colSpan={columns.length} className="text-center py-12 text-muted-foreground text-sm">
                   No results found
                 </td>
               </tr>
             ) : (
               filtered.map((item, idx) => (
-                <tr key={idx} className="border-b border-border hover:bg-muted/30 transition-colors">
+                <tr key={idx} className="border-b border-border/60 last:border-0 hover:bg-muted/40 transition-colors">
                   {columns.map((col) => (
-                    <td key={col.key} className="px-4 py-3 text-sm">
+                    <td key={col.key} className="px-4 py-3.5 text-sm align-middle">
                       {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? "")}
                     </td>
                   ))}

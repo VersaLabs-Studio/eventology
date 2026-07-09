@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -115,18 +116,19 @@ export default function OrgDashboardPage() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard title="Total Events" value={stats?.totalEvents ?? 0} icon={Calendar} />
-            <StatCard title="Total Registrations" value={stats?.totalRegistrations ?? 0} icon={Users} />
-            <StatCard title="Total Views" value={stats?.totalViews ?? 0} icon={Eye} />
+            <StatCard title="Total Events" value={stats?.totalEvents ?? 0} icon={Calendar} variant="org" />
+            <StatCard title="Total Registrations" value={stats?.totalRegistrations ?? 0} icon={Users} variant="org" />
+            <StatCard title="Total Views" value={stats?.totalViews ?? 0} icon={Eye} variant="org" />
             <StatCard
               title="Conversion Rate"
               value={`${Math.round((stats?.conversionRate ?? 0) * 100)}%`}
               icon={TrendingUp}
+              variant="org"
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-card rounded-xl border border-border shadow-sm p-5">
+            <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-display font-semibold text-sm">Registrations (last 30 days)</h3>
                 <Badge variant="outline" className="text-[10px]">Live</Badge>
@@ -139,7 +141,7 @@ export default function OrgDashboardPage() {
                 </p>
               )}
             </div>
-            <div className="bg-card rounded-xl border border-border shadow-sm p-5">
+            <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-display font-semibold text-sm">Views (last 30 days)</h3>
                 <Badge variant="outline" className="text-[10px]">Live</Badge>
@@ -154,7 +156,7 @@ export default function OrgDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-xl border border-border shadow-sm p-5">
+          <div className="bg-card rounded-2xl border border-border/60 shadow-sm p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-semibold text-sm">Recent Events</h3>
               <Link href="/org/events">
@@ -164,20 +166,27 @@ export default function OrgDashboardPage() {
               </Link>
             </div>
             {events.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border p-6 text-center">
+              <div className="rounded-2xl border border-dashed border-border p-6 text-center">
                 <p className="text-sm text-muted-foreground mb-3">No events yet — create your first one.</p>
                 <Link href="/org/events/create">
                   <Button size="sm" variant="accent">Create Event</Button>
                 </Link>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {events.slice(0, 5).map((e) => (
                   <Link
                     key={e.id}
                     href={`/org/events/${e.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/40 transition-colors"
+                    className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border/60 hover:shadow-md hover:-translate-y-0.5 transition-all"
                   >
+                    <div className="relative h-12 w-12 rounded-xl overflow-hidden shrink-0 bg-muted">
+                      {e.banner_image ? (
+                        <Image src={e.banner_image} alt={e.title} fill className="object-cover" sizes="48px" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">No img</div>
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{e.title}</p>
                       <p className="text-xs text-muted-foreground">
@@ -198,7 +207,7 @@ export default function OrgDashboardPage() {
             )}
           </div>
 
-          <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl border border-border/60 shadow-sm p-5 mt-6">
+          <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-border/60 shadow-sm p-5 mt-6">
             <div className="flex items-start gap-3">
               <Sparkles className="h-5 w-5 text-accent mt-0.5" />
               <div className="flex-1">

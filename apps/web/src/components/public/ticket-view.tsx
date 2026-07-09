@@ -25,9 +25,9 @@ export function TicketView({ ticket }: TicketViewProps) {
   const { event } = ticket;
 
   return (
-    <div className="max-w-lg mx-auto">
-      <Card className="overflow-hidden print:shadow-none print:border">
-        <div className="relative h-32">
+    <div className="max-w-lg mx-auto print:max-w-none print:px-0">
+      <Card className="overflow-hidden print:shadow-none print:border-0 print:rounded-none">
+        <div className="relative h-32 print:h-28">
           <Image src={event.bannerImage} alt={event.title} fill className="object-cover" sizes="500px" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-3 left-4 right-4">
@@ -36,7 +36,7 @@ export function TicketView({ ticket }: TicketViewProps) {
           </div>
         </div>
 
-        <CardContent className="p-6">
+        <CardContent className="p-6 print:p-8">
           <div className="flex justify-center mb-6">
             <QRCode data={ticket.qrData} size={180} />
           </div>
@@ -72,7 +72,7 @@ export function TicketView({ ticket }: TicketViewProps) {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 print:hidden">
             <Button variant="default" className="flex-1" onClick={() => window.print()}><Download className="mr-2 h-4 w-4" />Print / Save</Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -117,7 +117,7 @@ export function TicketView({ ticket }: TicketViewProps) {
         </CardContent>
       </Card>
 
-      <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/10 flex items-start gap-3">
+      <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/10 flex items-start gap-3 print:hidden">
         <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
         <p className="text-sm text-muted-foreground">
           📧 Reminders will be sent 24h and 1h before the event.

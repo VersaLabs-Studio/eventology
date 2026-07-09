@@ -5,12 +5,7 @@
 
 import { z } from 'zod';
 import { REGISTRATION_STATUSES } from '../enums';
-
-// PostgreSQL-compatible UUID pattern: any 32 hex digits in 8-4-4-4-12 format.
-// Zod v4's z.string().uuid() enforces RFC 9562 (only version 1-8, variant 8/a/b),
-// which rejects DB IDs using version 0 (e.g. "e1000000-0000-0000-0000-000000000048").
-// PostgreSQL itself accepts any hex sequence in UUID format — match that.
-const pgUuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
@@ -50,8 +45,8 @@ export const createRegistrationSchema = registrationSchema
     // Override UUID fields with PostgreSQL-compatible pattern.
     // Zod v4's built-in .uuid() enforces RFC 9562 (only version 1-8),
     // but DB IDs may use version 0 (e.g. "e1000000-...-000000000048").
-    event_id: z.string().regex(pgUuidRegex, 'Invalid UUID'),
-    ticket_tier_id: z.string().regex(pgUuidRegex, 'Invalid UUID'),
+    event_id: pgUuid('Invalid UUID'),
+    ticket_tier_id: pgUuid('Invalid UUID'),
     attendee_phone: z.string().trim().min(1).nullish(), // Optional/blank phone is valid
     metadata: z.record(z.string(), z.unknown()).default({}),
   });
