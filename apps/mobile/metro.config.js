@@ -18,8 +18,11 @@ config.resolver = {
     projectRoot + '/node_modules',
     monorepoRoot + '/node_modules',
   ],
-  // Keep package entrypoint resolution consistent
-  unstable_enablePackageExports: false,
+  // Package "exports" resolution — Expo SDK 54's default. Must stay enabled:
+  // better-auth (and other modern packages) expose subpaths like
+  // `better-auth/react` only via their exports map. Disabling it makes Metro
+  // fail to resolve those subpaths.
+  unstable_enablePackageExports: true,
 };
 
 module.exports = config;
