@@ -35,7 +35,7 @@ export async function GET(
     .from('tickets')
     .select(`
       *,
-      event:events(id, title, slug, banner_image, start_date, end_date, venue_name),
+      event:events(id, title, slug, banner_image, start_date, end_date, venue_name, category:categories(slug)),
       registration:registrations(id, attendee_name, attendee_email, ticket_tier_id, checked_in_at)
     `)
     .eq('id', id)

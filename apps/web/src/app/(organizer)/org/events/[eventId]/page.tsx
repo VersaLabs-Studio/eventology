@@ -17,11 +17,12 @@ import { MessagingPanel } from "@/components/dashboard/messaging-panel";
 import { RegistrationTable } from "@/components/dashboard/registration-table";
 import { AnalyticsCharts } from "@/components/dashboard/analytics-charts";
 import { CheckInScanner } from "@/components/dashboard/check-in-scanner";
+import { OrganizerAiPanel } from "@/components/ai/organizer-ai-panel";
 import { useQuery } from "@tanstack/react-query";
 import { useEventAnalytics } from "@/hooks/use-event-analytics";
 import { useEventRegistrations } from "@/hooks/use-registrations";
 import { formatDate } from "@/lib/utils";
-import { Calendar, Eye, TrendingUp, Percent, ExternalLink, Megaphone } from "lucide-react";
+import { Calendar, Eye, TrendingUp, Percent, ExternalLink, Megaphone, Sparkles } from "lucide-react";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
 
@@ -183,6 +184,9 @@ export default function EventManagePage() {
           <TabsTrigger value="messaging">
             <Megaphone className="mr-1 h-3.5 w-3.5" /> Messaging
           </TabsTrigger>
+          <TabsTrigger value="ai">
+            <Sparkles className="mr-1 h-3.5 w-3.5" /> AI Studio
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
@@ -229,6 +233,20 @@ export default function EventManagePage() {
               )}
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="ai" className="mt-6">
+          <OrganizerAiPanel
+            eventId={event.id}
+            title={event.title}
+            eventType={event.event_type}
+            description={event.description ?? ""}
+            category={event.event_type}
+            capacity={event.capacity}
+            registrationsCount={event.registrations_count}
+            startDate={event.start_date}
+            isFeatured={event.is_featured}
+          />
         </TabsContent>
 
         <TabsContent value="registrations" className="mt-6">

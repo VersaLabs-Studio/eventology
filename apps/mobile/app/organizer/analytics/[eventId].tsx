@@ -14,7 +14,6 @@ import {
   StyleSheet,
   Text,
   View,
-  useColorScheme,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -27,6 +26,8 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { useLocale } from '@/lib/i18n';
+import { usePalette } from '@/lib/palette';
+import { mono } from '@/lib/fonts';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // ---------------------------------------------------------------------------
@@ -76,12 +77,11 @@ async function fetchEventAnalytics(organizerId: string, eventId: string): Promis
 
 export default function OrganizerAnalyticsScreen(): React.ReactElement {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
-  const border = isDark ? colors.borderDark : colors.border;
-  const surface = isDark ? colors.surfaceDark : colors.surface;
+  const p = usePalette();
+  const text = p.text;
+  const textMuted = p.textMuted;
+  const border = p.border;
+  const surface = p.surface;
   const { t } = useLocale();
   const router = useRouter();
 
@@ -99,7 +99,7 @@ export default function OrganizerAnalyticsScreen(): React.ReactElement {
 
   if (!meQ.isLoading && meQ.data && !meQ.data.organizerId) {
     return (
-      <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+      <View style={[styles.root, { backgroundColor: p.background }]}>
         <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
           <View style={{ padding: spacing.md }}>
             <EmptyState
@@ -116,7 +116,7 @@ export default function OrganizerAnalyticsScreen(): React.ReactElement {
 
   if (meQ.isLoading || analyticsQ.isLoading) {
     return (
-      <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+      <View style={[styles.root, { backgroundColor: p.background }]}>
         <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
           <View style={styles.content}>
             <Skeleton height={120} radius={12} />
@@ -134,7 +134,7 @@ export default function OrganizerAnalyticsScreen(): React.ReactElement {
         ? analyticsQ.error.message
         : 'Failed to load analytics.';
     return (
-      <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+      <View style={[styles.root, { backgroundColor: p.background }]}>
         <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
           <Stack.Screen options={{ title: t('organizer.analyticsTitle') }} />
           <View style={styles.content}>
@@ -149,7 +149,7 @@ export default function OrganizerAnalyticsScreen(): React.ReactElement {
   const a = analyticsQ.data!;
 
   return (
-    <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+    <View style={[styles.root, { backgroundColor: p.background }]}>
       <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
         <Stack.Screen options={{ title: t('organizer.analyticsTitle') }} />
         <ScrollView contentContainerStyle={styles.content}>
@@ -258,10 +258,9 @@ function StatCard({
   surface: string;
   border: string;
 }) {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
+  const p = usePalette();
+  const text = p.text;
+  const textMuted = p.textMuted;
   const accent =
     tone === 'primary' ? colors.primary : tone === 'accent' ? colors.accent : colors.primary;
   return (
@@ -373,7 +372,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statLabel: { ...typography.caption, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
-  statValue: { ...typography.h2, fontSize: 24, fontWeight: '800' },
+  statValue: { ...typography.h2, fontSize: 24, fontFamily: mono('700'), letterSpacing: -0.5 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   cardTitle: { ...typography.bodyBold, fontSize: 14, fontWeight: '700' },
   empty: { ...typography.caption, fontSize: 12 },

@@ -34,7 +34,8 @@
     "success": "ተሳክቷል",
     "copied": "ወደ ቅንጥብ ሰሌዳ ተቀድቷል",
     "eventsCount": "{{count}} ዝግጅቶች",
-    "browseArrow": "ያስሱ →"
+    "browseArrow": "ያስሱ →",
+    "goBack": "ተመለስ"
   },
   "nav": {
     "home": "መነሻ",
@@ -396,7 +397,33 @@
     "organizers": "አዘጋጆች",
     "categories": "ምድቦች",
     "noResults": "ለ\"{{query}}\" ምንም ውጤት አልተገኘም",
-    "tryAgain": "የተለየ የፍለጋ ቃል ይሞክሩ"
+    "tryAgain": "የተለየ የፍለጋ ቃል ይሞክሩ",
+    "title": "ፈልግ",
+    "subtitle": "በአዲስ አበባ ዙሪያ",
+    "result": "ውጤት",
+    "clear": "አጽዳ",
+    "aiUnderstood": "AI የተረዳው",
+    "filters": "ማጣሪያዎች",
+    "sortBy": "ደርድር በ",
+    "when": "መቼ",
+    "price": "ዋጋ",
+    "type": "አይነት",
+    "sortNewest": "አዲስ",
+    "sortSoonest": "በቅርቡ",
+    "sortPopular": "ተወዳጅ",
+    "anyTime": "ማንኛውም ጊዜ",
+    "today": "ዛሬ",
+    "thisWeek": "በዚህ ሳምንት",
+    "thisMonth": "በዚህ ወር",
+    "anyPrice": "ማንኛውም ዋጋ",
+    "free": "ነጻ",
+    "paid": "የሚከፈል",
+    "anyType": "ሁሉም አይነት",
+    "emptyTitle": "ዝግጅቶችን ፈልግ",
+    "emptyBody": "የቴክ ስብሰባዎችን፣ ኮንሰርቶችን፣ የንግድ መድረኮችን እና ሌሎችንም በአዲስ አበባ ዙሪያ ያግኙ።",
+    "noResultsQuery": "ምንም አይዛመድም",
+    "noResultsCategory": "በዚህ ምድብ ውስጥ እስካሁን ዝግጅት የለም።",
+    "clearFilters": "ማጣሪያዎችን አጽዳ"
   },
   "footer": {
     "about": "ስለ ኢቨንቶሎጂ",
@@ -470,7 +497,17 @@
     "insightsTitle": "AI ግንዛቤዎች",
     "insightsSubtitle": "የዚህን ዝግጅት አፈጻጸም ዋና ማጠቃለያ ያመንጩ።",
     "recommendations": "ምክሮች",
-    "rateLimited": "በጣም ብዙ AI ጥያቄዎች። በቅርቡ እንደገና ይሞክሩ።"
+    "rateLimited": "በጣም ብዙ AI ጥያቄዎች። በቅርቡ እንደገና ይሞክሩ።",
+    "summarize": "በ AI ማጠቃለያ",
+    "aiSummary": "AI ማጠቃለያ",
+    "summarizing": "በማጠቃለል ላይ…",
+    "highlights": "ዋና ዋና ነጥቦች",
+    "send": "ላክ",
+    "signInForChat": "ከረዳቱ ጋር ለመወያየት ይግቡ።",
+    "signInForRecommendations": "ለግል የተመረጡ ምክሮች ይግቡ።",
+    "poweredByAi": "በ AI የተፈጠረ · ሊሳሳት ይችላል",
+    "assistantTitle": "ኢቬንቶሎጂ AI",
+    "retry": "እንደገና ሞክር"
   },
   "payments": {
     "comingSoon": "ክፍያዎች በቅርቡ ይመጣሉ",
@@ -556,5 +593,31 @@
     "en": "እንግሊዝኛ",
     "am": "አማርኛ",
     "switchLabel": "ቋንቋ ቀይር"
+  },
+  "event": {
+    "about": "ስለ ዝግጅቱ",
+    "tags": "መለያዎች",
+    "share": "አጋራ",
+    "addToCalendar": "ወደ ቀን መቁጠሪያ ጨምር",
+    "featured": "የተለየ",
+    "organizer": "አዘጋጅ",
+    "orgEvents": "ዝግጅቶች",
+    "orgAttendees": "ተሳታፊዎች",
+    "visitWebsite": "ድህረ ገጹን ጎብኝ",
+    "reviews": "ግምገማዎች",
+    "similar": "እነዚህም ሊወዷቸው ይችላሉ"
+  },
+  "ticket": {
+    "title": "ትኬት",
+    "loadErrorTitle": "ይህን ትኬት መጫን አልተቻለም",
+    "loadErrorBody": "እባክዎ ቆይተው ይሞክሩ።",
+    "showAtDoor": "ይህን ኮድ በሩ ላይ ያሳዩ። ከመስመር ውጭ ይሰራል።",
+    "tier": "የትኬት አይነት",
+    "attendee": "ተሳታፊ",
+    "when": "መቼ",
+    "where": "የት",
+    "issued": "የተሰጠበት",
+    "checkedIn": "የገባበት",
+    "viewEvent": "ዝግጅቱን ተመልከት"
   }
 }

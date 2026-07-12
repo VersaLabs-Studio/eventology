@@ -1,36 +1,41 @@
 // ============================================================================
 // Login screen
 // ============================================================================
+// Accepts `?redirect=<in-app path>` so a gated action returns the user where
+// they started. The param is untrusted (deep links can set it) — see
+// lib/redirect.ts.
+//
+// On success we `replace`, never `push`: the auth screen must not stay on the
+// back stack, or hardware-back from Discover lands the signed-in user on a
+// login form.
+// ============================================================================
+
 import React from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  useColorScheme,
-} from 'react-native';
-import { Link, useRouter } from 'expo-router';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePalette } from '@/lib/palette';
+import { safeRedirect } from '@/lib/redirect';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 export default function LoginScreen(): React.ReactElement {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
-  const border = isDark ? colors.borderDark : colors.border;
+  const p = usePalette();
   const { signIn } = useAuth();
   const router = useRouter();
+  const { redirect } = useLocalSearchParams<{ redirect?: string }>();
+
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Reached via a deep link there may be nothing to go back to.
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
   const onSubmit = async () => {
     setError(null);
@@ -42,92 +47,109 @@ export default function LoginScreen(): React.ReactElement {
     const result = await signIn(email.trim(), password);
     setLoading(false);
     if (result.ok) {
-      router.replace('/(tabs)/index');
+      router.replace(safeRedirect(redirect));
     } else {
       setError(result.error);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}
-    >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <View style={styles.hero}>
-          <Ionicons name="log-in" size={48} color={colors.primary} />
-          <Text style={[styles.title, { color: text }]}>Welcome back</Text>
-          <Text style={[styles.subtitle, { color: textMuted }]}>
-            Sign in to your Eventology account
-          </Text>
-        </View>
+    <View style={[styles.root, { backgroundColor: p.background }]}>
+      <SafeAreaView edges={['top', 'bottom']} style={styles.flex}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.flex}
+        >
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+            <Pressable
+              onPress={goBack}
+              hitSlop={10}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              style={[styles.backButton, { backgroundColor: p.surface, borderColor: p.border }]}
+            >
+              <Ionicons name="chevron-back" size={20} color={p.text} />
+            </Pressable>
 
-        {error && (
-          <View style={[styles.errorBox, { backgroundColor: colors.destructiveMuted }]}>
-            <Ionicons name="alert-circle" size={16} color={colors.destructive} />
-            <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
-          </View>
-        )}
+            <View style={styles.hero}>
+              <Logo size="lg" markOnly />
+              <Text style={[styles.title, { color: p.text }]}>Welcome back</Text>
+              <Text style={[styles.subtitle, { color: p.textMuted }]}>
+                Sign in to register for events and keep your tickets in one place.
+              </Text>
+            </View>
 
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: textMuted }]}>Email</Text>
-          <TextInput
-            style={[styles.input, { color: text, backgroundColor: isDark ? colors.surfaceDark : colors.surface, borderColor: border }]}
-            placeholder="you@example.com"
-            placeholderTextColor={textMuted}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            autoComplete="email"
-          />
-        </View>
+            {error ? (
+              <View style={[styles.errorBox, { backgroundColor: p.destructiveMuted }]}>
+                <Ionicons name="alert-circle" size={16} color={colors.destructive} />
+                <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
+              </View>
+            ) : null}
 
-        <View style={styles.field}>
-          <Text style={[styles.label, { color: textMuted }]}>Password</Text>
-          <TextInput
-            style={[styles.input, { color: text, backgroundColor: isDark ? colors.surfaceDark : colors.surface, borderColor: border }]}
-            placeholder="••••••••"
-            placeholderTextColor={textMuted}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="password"
-          />
-        </View>
+            <View style={styles.form}>
+              <Input
+                label="Email"
+                leftIcon="mail-outline"
+                placeholder="you@example.com"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                autoComplete="email"
+                returnKeyType="next"
+              />
+              <Input
+                label="Password"
+                leftIcon="lock-closed-outline"
+                placeholder="••••••••"
+                value={password}
+                onChangeText={setPassword}
+                password
+                autoCapitalize="none"
+                autoComplete="password"
+                returnKeyType="go"
+                onSubmitEditing={() => void onSubmit()}
+              />
+            </View>
 
-        <Button label="Sign in" leftIcon="log-in-outline" loading={loading} onPress={onSubmit} fullWidth />
+            <Button label="Sign in" leftIcon="log-in-outline" loading={loading} onPress={() => void onSubmit()} fullWidth />
 
-        <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: textMuted }]}>Don't have an account?</Text>
-          <Link href="/auth/signup" asChild>
-            <Text style={[styles.link, { color: colors.primary }]}> Sign up</Text>
-          </Link>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.footer}>
+              <Text style={[styles.footerText, { color: p.textMuted }]}>Don't have an account?</Text>
+              <Pressable
+                onPress={() =>
+                  router.replace({ pathname: '/auth/signup', params: redirect ? { redirect } : {} })
+                }
+                hitSlop={8}
+                accessibilityRole="link"
+              >
+                <Text style={[styles.link, { color: colors.primary }]}> Sign up</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  content: { padding: spacing.lg, gap: spacing.md },
-  hero: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xl },
-  title: { ...typography.h1, textAlign: 'center' },
-  subtitle: { ...typography.body, textAlign: 'center' },
-  field: { gap: spacing.xs },
-  label: { ...typography.caption, fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
-  input: {
-    ...typography.body,
-    fontSize: 15,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
-    borderRadius: radius.md,
+  flex: { flex: 1 },
+  content: { padding: spacing.lg, gap: spacing.md, flexGrow: 1 },
+  backButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.full,
     borderWidth: 1,
-    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  hero: { alignItems: 'center', gap: spacing.sm, paddingTop: spacing.lg, paddingBottom: spacing.md },
+  title: { ...typography.display, textAlign: 'center', marginTop: spacing.sm },
+  subtitle: { ...typography.body, textAlign: 'center', maxWidth: 300, lineHeight: 20 },
+  form: { gap: spacing.md },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',

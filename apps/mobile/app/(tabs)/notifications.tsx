@@ -2,21 +2,24 @@
 // Notifications screen — Phase 3 Rotation 2
 // ============================================================================
 // Lists the caller's notifications from /api/protected/notifications and
-// supports "mark all as read" + tap-to-deep-link. Wired into the
-// (tabs) layout as a 5th tab (replaces Profile in our case — see
-// layout).
+// supports "mark all as read" + tap-to-deep-link. Rendered as the
+// "Inbox" tab; the tab bar supplies the header, so this screen draws its
+// own title row.
 // ============================================================================
 
 import React from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View, useColorScheme } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { api } from '@/lib/api';
+import { useLocale } from '@/lib/i18n';
+import { usePalette } from '@/lib/palette';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 import { formatDateTime } from '@eventology/utils';
 
@@ -43,11 +46,8 @@ async function fetchNotifications(): Promise<NotificationsResponse> {
 }
 
 export default function NotificationsScreen(): React.ReactElement {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
-  const surface = isDark ? colors.surfaceDark : colors.surface;
+  const p = usePalette();
+  const { t } = useLocale();
   const qc = useQueryClient();
   const router = useRouter();
 
@@ -86,43 +86,38 @@ export default function NotificationsScreen(): React.ReactElement {
       try {
         const u = new URL(n.action_url, 'http://x');
         if (u.pathname.startsWith('/my-tickets')) {
-          router.push('/(tabs)/tickets?registered=1');
+          router.push('/tickets?registered=1');
         } else if (u.pathname.startsWith('/events/')) {
           const slug = u.pathname.split('/').pop()!;
           router.push(`/event/${slug}`);
         } else {
-          // Fallback: open the events tab
-          router.push('/(tabs)/index');
+          // Fallback: open the Discover tab
+          router.push('/');
         }
       } catch {
-        router.push('/(tabs)/index');
+        router.push('/');
       }
     }
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+    <View style={[styles.root, { backgroundColor: p.background }]}>
       <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-        <Stack.Screen options={{ title: 'Notifications' }} />
-        <View style={styles.header}>
-          <View>
-            <Text style={[styles.title, { color: text }]}>Notifications</Text>
-            {unread > 0 && (
-              <Text style={[styles.subtitle, { color: textMuted }]}>
-                {unread} unread
-              </Text>
-            )}
-          </View>
-          {unread > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              label="Mark all read"
-              onPress={() => markAll.mutate()}
-              loading={markAll.isPending}
-            />
-          )}
-        </View>
+        <ScreenHeader
+          title="Notifications"
+          subtitle={unread > 0 ? `${unread} unread` : undefined}
+          action={
+            unread > 0 ? (
+              <Button
+                size="sm"
+                variant="outline"
+                label={t('notifications.markAllRead')}
+                onPress={() => markAll.mutate()}
+                loading={markAll.isPending}
+              />
+            ) : undefined
+          }
+        />
 
         <FlatList
           data={notifications}
@@ -137,10 +132,8 @@ export default function NotificationsScreen(): React.ReactElement {
                 style={[
                   styles.row,
                   {
-                    backgroundColor: surface,
-                    borderColor: item.is_read
-                      ? (isDark ? colors.borderDark : colors.border)
-                      : colors.primary,
+                    backgroundColor: p.surface,
+                    borderColor: item.is_read ? p.border : colors.primary,
                     borderLeftWidth: item.is_read ? 1 : 3,
                   },
                 ]}
@@ -148,29 +141,29 @@ export default function NotificationsScreen(): React.ReactElement {
                 <View
                   style={[
                     styles.iconWrap,
-                    { backgroundColor: item.is_read ? colors.surfaceMuted : colors.primaryMuted },
+                    { backgroundColor: item.is_read ? p.surfaceMuted : colors.primaryMuted },
                   ]}
                 >
                   <Ionicons
                     name={iconName}
                     size={20}
-                    color={item.is_read ? textMuted : colors.primary}
+                    color={item.is_read ? p.textMuted : colors.primary}
                   />
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text
                     style={[
                       styles.rowTitle,
-                      { color: text, fontWeight: item.is_read ? '500' : '700' },
+                      { color: p.text, fontWeight: item.is_read ? '500' : '700' },
                     ]}
                     numberOfLines={1}
                   >
                     {item.title}
                   </Text>
-                  <Text style={[styles.rowMessage, { color: textMuted }]} numberOfLines={2}>
+                  <Text style={[styles.rowMessage, { color: p.textMuted }]} numberOfLines={2}>
                     {item.message}
                   </Text>
-                  <Text style={[styles.rowTime, { color: textMuted }]}>
+                  <Text style={[styles.rowTime, { color: p.textSubtle }]}>
                     {formatDateTime(item.created_at)}
                   </Text>
                 </View>
@@ -188,7 +181,7 @@ export default function NotificationsScreen(): React.ReactElement {
             ) : (
               <EmptyState
                 icon="notifications-off-outline"
-                title="No notifications yet"
+                title={t('notifications.noNotifications')}
                 description="Updates about your registrations, events, and organizer replies appear here."
               />
             )

@@ -1,57 +1,67 @@
 // ============================================================================
 // Eventology Mobile — Design Tokens
 // ============================================================================
-// Brand identity: emerald (#10B981 / #059669) on deep-obsidian.
-// Mirrors the web app's OKLCH palette in explicit hex so it works on
-// native (no Tailwind). Typography is Plus Jakarta Sans (loaded by
-// the platform default; Android falls back to system sans-serif).
+// Brand identity: emerald (#10B981) over deep obsidian, warm orange accent.
+//
+// These hexes are the literal resolution of the OKLCH custom properties in
+// apps/web/src/app/globals.css — native has no OKLCH and no Tailwind, so the
+// values are duplicated here rather than derived. When a brand token changes
+// on the web, change it here too; the comment next to each value names the
+// web token it mirrors.
+//
+// Typography is Plus Jakarta Sans on web; Android falls back to system
+// sans-serif, so weights carry the brand rather than the face.
 // ============================================================================
 
 export const colors = {
-  // Brand
+  // Brand — --color-primary / --color-secondary / --color-accent
   primary: '#10B981',
   primaryLight: '#34D399',
   primaryDark: '#059669',
   primaryDeep: '#047857',
   primaryMuted: '#D1FAE5',
 
-  // Accent (used for highlights, hero banners)
-  accent: '#F59E0B',
-  accentLight: '#FBBF24',
-  accentMuted: '#FEF3C7',
-  accentMutedDark: '#78350F',
+  secondary: '#065F46',
+  secondaryLight: '#0F766E',
 
-  // Surfaces — light theme
-  background: '#FAFAFA',
+  // Accent is warm orange on web, NOT amber. Matching it matters: the
+  // "Featured" pill and map pins read as a different brand otherwise.
+  accent: '#F97316',
+  accentLight: '#FB923C',
+  accentMuted: '#FFEDD5',
+  accentMutedDark: '#7C2D12',
+
+  // Surfaces — light (--color-background / --color-card / --color-muted)
+  background: '#F5F5F7',
   surface: '#FFFFFF',
-  surfaceMuted: '#F4F4F5',
+  surfaceMuted: '#E5E5EA',
   surfaceElevated: '#FFFFFF',
 
-  // Surfaces — dark theme (deep obsidian)
-  backgroundDark: '#0A0A0A',
-  surfaceDark: '#171717',
-  surfaceMutedDark: '#262626',
-  surfaceElevatedDark: '#1F1F23',
+  // Surfaces — dark (deep obsidian)
+  backgroundDark: '#090A0F',
+  surfaceDark: '#12131A',
+  surfaceMutedDark: '#1E202B',
+  surfaceElevatedDark: '#171923',
 
-  // Text
-  text: '#0A0A0A',
-  textMuted: '#71717A',
-  textSubtle: '#A1A1AA',
-  textDark: '#FAFAFA',
-  textMutedDark: '#A1A1AA',
-  textSubtleDark: '#71717A',
+  // Text — --color-foreground / --color-muted-foreground
+  text: '#1D1D1F',
+  textMuted: '#86868B',
+  textSubtle: '#A1A1A6',
+  textDark: '#F5F5F7',
+  textMutedDark: '#8E92A4',
+  textSubtleDark: '#6B6F7E',
 
-  // Borders
-  border: '#E4E4E7',
-  borderDark: '#27272A',
+  // Borders — --color-border
+  border: '#D2D2D7',
+  borderDark: '#2B2D38',
 
   // Status
-  success: '#22C55E',
+  success: '#34C759',
   successMuted: '#DCFCE7',
-  warning: '#F59E0B',
-  warningMuted: '#FEF3C7',
-  destructive: '#EF4444',
-  destructiveMuted: '#FEE2E2',
+  warning: '#FF9500',
+  warningMuted: '#FFF4E5',
+  destructive: '#FF3B30',
+  destructiveMuted: '#FFE5E3',
   info: '#3B82F6',
   infoMuted: '#DBEAFE',
 
@@ -59,6 +69,25 @@ export const colors = {
   overlay: 'rgba(0,0,0,0.5)',
   overlayLight: 'rgba(255,255,255,0.18)',
   glassBorder: 'rgba(255,255,255,0.12)',
+  white: '#FFFFFF',
+} as const;
+
+/**
+ * Gradient stop tuples, consumed by <Gradient/>. Kept here so a screen never
+ * hand-rolls brand colours inline.
+ */
+export const gradients = {
+  /** Brand wash — deep emerald into vibrant emerald. Auth hero, logo mark. */
+  brand: ['#047857', '#10B981'] as const,
+  /** Warm counterpart, used sparingly for accent surfaces. */
+  ember: ['#C2410C', '#F97316'] as const,
+  /** Bottom-up scrim so white text stays legible over any photo. */
+  scrim: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.35)', 'rgba(0,0,0,0.88)'] as const,
+  /** Softer scrim for smaller cards where the title sits lower. */
+  scrimSoft: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.72)'] as const,
+  /** Placeholder body when an image is missing entirely. */
+  placeholder: ['#065F46', '#10B981', '#34D399'] as const,
+  placeholderDark: ['#04231A', '#065F46', '#0F766E'] as const,
 } as const;
 
 export const spacing = {
@@ -79,9 +108,9 @@ export const radius = {
 } as const;
 
 export const typography = {
-  display: { fontSize: 28, fontWeight: '800' as const, lineHeight: 34 },
-  h1: { fontSize: 24, fontWeight: '700' as const, lineHeight: 30 },
-  h2: { fontSize: 20, fontWeight: '700' as const, lineHeight: 26 },
+  display: { fontSize: 30, fontWeight: '800' as const, lineHeight: 36, letterSpacing: -0.6 },
+  h1: { fontSize: 24, fontWeight: '700' as const, lineHeight: 30, letterSpacing: -0.4 },
+  h2: { fontSize: 20, fontWeight: '700' as const, lineHeight: 26, letterSpacing: -0.2 },
   h3: { fontSize: 16, fontWeight: '600' as const, lineHeight: 22 },
   body: { fontSize: 14, fontWeight: '400' as const, lineHeight: 20 },
   bodyBold: { fontSize: 14, fontWeight: '600' as const, lineHeight: 20 },
@@ -111,33 +140,48 @@ export const shadows = {
     shadowRadius: 16,
     elevation: 6,
   },
+  /** Emerald ambient glow — mirrors the web's --shadow-glow. */
+  glow: {
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    elevation: 8,
+  },
 } as const;
 
 export type ThemeMode = 'light' | 'dark';
 
+/**
+ * Named on purpose: `interface Palette extends Theme['colors']` does not carry
+ * the members across (an indexed access type is not a statically known base),
+ * so consumers extend this instead.
+ */
+export interface ThemeColors {
+  primary: string;
+  primaryText: string;
+  accent: string;
+  background: string;
+  surface: string;
+  surfaceMuted: string;
+  surfaceElevated: string;
+  text: string;
+  textMuted: string;
+  textSubtle: string;
+  border: string;
+  success: string;
+  successMuted: string;
+  warning: string;
+  warningMuted: string;
+  destructive: string;
+  destructiveMuted: string;
+  info: string;
+  infoMuted: string;
+}
+
 export interface Theme {
   mode: ThemeMode;
-  colors: {
-    primary: string;
-    primaryText: string;
-    accent: string;
-    background: string;
-    surface: string;
-    surfaceMuted: string;
-    surfaceElevated: string;
-    text: string;
-    textMuted: string;
-    textSubtle: string;
-    border: string;
-    success: string;
-    successMuted: string;
-    warning: string;
-    warningMuted: string;
-    destructive: string;
-    destructiveMuted: string;
-    info: string;
-    infoMuted: string;
-  };
+  colors: ThemeColors;
 }
 
 export const lightTheme: Theme = {
@@ -189,3 +233,12 @@ export const darkTheme: Theme = {
     infoMuted: '#1E3A8A',
   },
 };
+
+/**
+ * Resolve the active palette from RN's `useColorScheme()` value. Screens
+ * previously repeated `isDark ? colors.textDark : colors.text` on every
+ * line; prefer `usePalette()` from '@/lib/palette' instead.
+ */
+export function themeFor(scheme: 'light' | 'dark' | null | undefined): Theme {
+  return scheme === 'dark' ? darkTheme : lightTheme;
+}

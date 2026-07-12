@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { requireAdminRoute, writeAuditLog } from '@/lib/api/admin-guard';
 import type { ErrorEnvelope } from '@/lib/api';
 
@@ -58,7 +59,9 @@ export async function GET(req: NextRequest) {
 }
 
 const featureSchema = z.object({
-  event_id: z.string().uuid(),
+  // pgUuid (not z.string().uuid()) — DB/seed event IDs use version-0 UUIDs
+  // that Zod v4's .uuid() rejects, which surfaced as "Invalid request body".
+  event_id: pgUuid(),
   duration: z.enum(['7_days', '14_days', '30_days']),
 });
 
@@ -151,7 +154,7 @@ export async function POST(req: NextRequest) {
 }
 
 const unfeatureSchema = z.object({
-  event_id: z.string().uuid(),
+  event_id: pgUuid(),
 });
 
 export async function DELETE(req: NextRequest) {

@@ -3,6 +3,10 @@
   "private": true,
   "packageManager": "npm@11.6.0",
   "workspaces": ["apps/*", "packages/*"],
+  "overrides": {
+    "expo-font": "14.0.12",
+    "react-native-svg": "15.12.1"
+  },
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",

@@ -71,6 +71,7 @@ const ADMIN_NAV: NavGroup[] = [
   {
     labelKey: "dashboard.nav.moderation",
     items: [
+      { href: "/admin/events", labelKey: "dashboard.nav.events", icon: Calendar },
       { href: "/admin/moderation", labelKey: "dashboard.nav.moderation", icon: ShieldCheck },
       { href: "/admin/organizers", labelKey: "dashboard.nav.organizers", icon: BadgeCheck },
       { href: "/admin/featured", labelKey: "dashboard.nav.featured", icon: Star },
@@ -111,8 +112,9 @@ export function DashboardSidebar({
   const isAdmin = variant === "admin";
 
   const identityColor = isAdmin ? "text-accent" : "text-primary";
-  const identityBg = isAdmin ? "bg-accent/10" : "bg-primary/10";
-  const identityBorder = isAdmin ? "border-accent" : "border-primary";
+  const identityGradient = isAdmin
+    ? "bg-gradient-to-br from-accent to-[oklch(0.55_0.18_35)]"
+    : "bg-gradient-to-br from-primary to-secondary";
 
   const displayName =
     (user as { name?: string } | null)?.name ||
@@ -134,10 +136,24 @@ export function DashboardSidebar({
         <div className="h-16 flex items-center px-4 border-b border-border/60 shrink-0">
           {collapsed ? (
             <Link href={isAdmin ? "/admin/dashboard" : "/org/dashboard"} className="mx-auto">
-              <span className={cn("text-xl font-bold", identityColor)}>{isAdmin ? "A" : "E"}</span>
+              <span
+                className={cn(
+                  "flex h-9 w-9 items-center justify-center rounded-xl text-base font-black text-white shadow-glow",
+                  identityGradient
+                )}
+              >
+                {isAdmin ? "A" : "E"}
+              </span>
             </Link>
           ) : (
-            <Logo size="sm" showText={false} />
+            <div className="flex items-center gap-2">
+              <Logo size="sm" showText={false} />
+              {isAdmin && (
+                <span className="rounded-md bg-accent/10 px-1.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-accent">
+                  Admin
+                </span>
+              )}
+            </div>
           )}
         </div>
 
@@ -158,9 +174,9 @@ export function DashboardSidebar({
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "relative flex items-center gap-3 mx-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                        "relative flex items-center gap-3 mx-2 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all",
                         active
-                          ? cn(identityBg, identityColor)
+                          ? "text-white"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
@@ -168,14 +184,16 @@ export function DashboardSidebar({
                         <motion.span
                           layoutId="dash-nav-indicator"
                           className={cn(
-                            "absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-full",
-                            isAdmin ? "bg-accent" : "bg-primary"
+                            "absolute inset-0 rounded-xl shadow-glow",
+                            isAdmin
+                              ? "bg-gradient-to-r from-accent to-[oklch(0.55_0.18_35)]"
+                              : "bg-gradient-to-r from-primary to-secondary"
                           )}
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
                         />
                       )}
-                      <item.icon className="h-5 w-5 shrink-0" />
-                      {!collapsed && <span className="truncate">{t(item.labelKey)}</span>}
+                      <item.icon className="relative h-5 w-5 shrink-0" />
+                      {!collapsed && <span className="relative truncate">{t(item.labelKey)}</span>}
                     </Link>
                   );
 
