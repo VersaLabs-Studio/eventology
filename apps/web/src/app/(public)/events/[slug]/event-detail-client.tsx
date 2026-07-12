@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from "next/dynamic";
 import { EventCard } from "@/components/shared/event-card";
 import { FallbackImage } from "@/components/shared/fallback-image";
+import { EventSummaryButton } from "@/components/ai/event-summary-button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEventBySlug, useEvents } from "@/hooks/use-events";
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils";
@@ -389,6 +390,7 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
           <div>
             <section>
               <h2 className="font-display font-semibold text-xl mb-4">About This Event</h2>
+              <EventSummaryButton eventId={event.id} />
               <div className="prose prose-sm max-w-none text-muted-foreground" dangerouslySetInnerHTML={{ __html: event.description }} />
             </section>
 

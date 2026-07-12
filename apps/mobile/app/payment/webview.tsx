@@ -14,24 +14,24 @@
 // ============================================================================
 
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { WebView } from 'react-native-webview';
 import { useQueryClient } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/ui/Button';
+import { usePalette } from '@/lib/palette';
 import { colors, spacing, typography } from '@/lib/theme';
 
 type NavigationState = { url: string };
 
 export default function PaymentWebViewScreen(): React.ReactElement {
   const { url, registrationId } = useLocalSearchParams<{ url: string; registrationId: string }>();
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
-  const surface = isDark ? colors.surfaceDark : colors.surface;
+  const p = usePalette();
+  const text = p.text;
+  const textMuted = p.textMuted;
+  const surface = p.surface;
   const router = useRouter();
   const qc = useQueryClient();
   const [loading, setLoading] = React.useState(true);
@@ -51,13 +51,13 @@ export default function PaymentWebViewScreen(): React.ReactElement {
       void qc.invalidateQueries({ queryKey: ['tickets'] });
       void qc.invalidateQueries({ queryKey: ['registrations'] });
       void qc.invalidateQueries({ queryKey: ['notifications'] });
-      router.replace('/(tabs)/tickets?registered=1');
+      router.replace('/tickets?registered=1');
     }
   };
 
   if (!url) {
     return (
-      <View style={[styles.fallback, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+      <View style={[styles.fallback, { backgroundColor: p.background }]}>
         <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
           <Stack.Screen options={{ title: 'Payment', headerShown: true }} />
           <View style={styles.fallbackInner}>
@@ -75,7 +75,7 @@ export default function PaymentWebViewScreen(): React.ReactElement {
 
   if (errored) {
     return (
-      <View style={[styles.fallback, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+      <View style={[styles.fallback, { backgroundColor: p.background }]}>
         <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
           <Stack.Screen options={{ title: 'Payment', headerShown: true }} />
           <View style={styles.fallbackInner}>
@@ -93,7 +93,7 @@ export default function PaymentWebViewScreen(): React.ReactElement {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+    <View style={[styles.root, { backgroundColor: p.background }]}>
       <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
         <Stack.Screen options={{ title: 'Payment', headerShown: true }} />
         <WebView

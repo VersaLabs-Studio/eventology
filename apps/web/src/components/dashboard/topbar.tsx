@@ -155,6 +155,16 @@ export function DashboardTopbar({ variant, onMenuClick }: DashboardTopbarProps) 
 
   return (
     <header className="relative z-30 h-16 bg-card/80 backdrop-blur-xl border-b border-border/60 flex items-center justify-between px-4 md:px-6 shrink-0">
+      {/* Hairline brand gradient under the topbar */}
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-0 bottom-0 h-px opacity-70",
+          isAdmin
+            ? "bg-gradient-to-r from-transparent via-accent/50 to-transparent"
+            : "bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+        )}
+      />
       <div className="flex items-center gap-2 min-w-0">
         <button
           onClick={onMenuClick}

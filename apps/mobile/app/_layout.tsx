@@ -9,12 +9,19 @@
 // ============================================================================
 
 import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { colors } from '@/lib/theme';
+import { fontAssets, installFontPatch } from '@/lib/fonts';
+
+// Map every fontWeight to the matching Plus Jakarta Sans face, app-wide, before
+// the first <Text> mounts. Idempotent.
+installFontPatch();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +34,18 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout(): React.ReactElement {
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+
+  // Hold on the brand background until the typeface is ready, so text never
+  // flashes in the system font first. Font errors fall through to system.
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
@@ -35,8 +54,8 @@ export default function RootLayout(): React.ReactElement {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="auth" />
-            <Stack.Screen name="event/[slug]" options={{ headerShown: true, title: 'Event' }} />
-            <Stack.Screen name="notifications" options={{ headerShown: true, title: 'Notifications' }} />
+            {/* Draws its own floating back button over a full-bleed hero. */}
+            <Stack.Screen name="event/[slug]" />
             <Stack.Screen name="payment/webview" options={{ headerShown: true, title: 'Payment' }} />
             <Stack.Screen name="organizer/index" options={{ headerShown: true, title: 'Organizer area' }} />
             <Stack.Screen name="organizer/checkin/[eventId]" options={{ headerShown: true, title: 'Check-in' }} />

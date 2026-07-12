@@ -1,169 +1,289 @@
 // ============================================================================
 // Profile screen
 // ============================================================================
-// Shows the authed user's name/email + a sign-out button + an EN/AM
-// language toggle that writes to SecureStore via the i18n helper.
+// Signed in  → identity card over a brand wash, then settings rows.
+// Signed out → a single sign-in prompt; the settings that don't need a session
+//              (language) stay available.
+//
+// The organizer link is shown on a role claim, but the organizer route
+// re-validates ownership server-side — this is an affordance, not a gate.
 // ============================================================================
 
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useColorScheme } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { Gradient } from '@/components/ui/Gradient';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocale, LOCALES, LOCALE_NAMES, type Locale } from '@/lib/i18n';
-import { colors, radius, spacing, typography } from '@/lib/theme';
+import { usePalette } from '@/lib/palette';
+import { colors, gradients, radius, shadows, spacing, typography } from '@/lib/theme';
+
+type IoniconName = keyof typeof Ionicons.glyphMap;
 
 export default function ProfileScreen(): React.ReactElement {
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
-  const border = isDark ? colors.borderDark : colors.border;
+  const p = usePalette();
   const { user, signOut, loading } = useAuth();
   const { locale, setLocale, t } = useLocale();
   const router = useRouter();
 
   const handleSignOut = async () => {
     await signOut();
-    router.replace('/(tabs)/index');
+    router.replace('/');
   };
 
+  const name = (user as { name?: string } | null)?.name ?? 'Eventology user';
+  const email = (user as { email?: string } | null)?.email ?? '';
+  const role = (user as { role?: string } | null)?.role;
+  const isOrganizer = Boolean(role) && role !== 'attendee';
+
   return (
-    <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[styles.title, { color: text }]}>Profile</Text>
+    <View style={[styles.root, { backgroundColor: p.background }]}>
+      <SafeAreaView edges={['top']} style={styles.flex}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <ScreenHeader title="Profile" />
 
-        {loading ? (
-          <Card>
-            <Text style={{ color: textMuted }}>Loading…</Text>
-          </Card>
-        ) : user ? (
-          <Card>
-            <View style={styles.profileRow}>
-              <View style={[styles.avatar, { backgroundColor: colors.primaryMuted ?? '#D1FAE5' }]}>
-                <Text style={[styles.avatarText, { color: colors.primaryDark }]}>
-                  {((user as { name?: string }).name ?? (user as { email?: string }).email ?? '?').slice(0, 1).toUpperCase()}
-                </Text>
+          {/* ── Identity ── */}
+          {loading ? (
+            <View style={[styles.identityCard, { backgroundColor: p.surfaceMuted }]} />
+          ) : user ? (
+            <Gradient
+              colors={gradients.brand}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.identityCard, shadows.md]}
+            >
+              <View style={styles.identityRow}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>
+                    {(name || email || '?').slice(0, 1).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={styles.flexMin}>
+                  <Text style={styles.identityName} numberOfLines={1}>
+                    {name}
+                  </Text>
+                  {email ? (
+                    <Text style={styles.identityEmail} numberOfLines={1}>
+                      {email}
+                    </Text>
+                  ) : null}
+                </View>
               </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={[styles.name, { color: text }]} numberOfLines={1}>
-                  {(user as { name?: string }).name ?? 'Eventology user'}
-                </Text>
-                <Text style={[styles.email, { color: textMuted }]} numberOfLines={1}>
-                  {(user as { email?: string }).email}
-                </Text>
-                {((user as { role?: string }).role) && (
-                  <Badge
-                    label={(user as { role?: string }).role ?? 'attendee'}
-                    variant={(user as { role?: string }).role === 'admin' ? 'destructive' : 'default'}
-                    style={{ marginTop: spacing.xs }}
+              {role ? (
+                <Badge
+                  label={role}
+                  variant={role === 'admin' ? 'destructive' : 'secondary'}
+                  style={styles.roleBadge}
+                />
+              ) : null}
+            </Gradient>
+          ) : (
+            <View style={[styles.signedOut, { backgroundColor: p.surface, borderColor: p.border }, shadows.sm]}>
+              <View style={[styles.signedOutIcon, { backgroundColor: `${colors.primary}1A` }]}>
+                <Ionicons name="person-outline" size={22} color={colors.primary} />
+              </View>
+              <Text style={[styles.signedOutTitle, { color: p.text }]}>You're not signed in</Text>
+              <Text style={[styles.signedOutBody, { color: p.textMuted }]}>
+                Sign in to register for events and keep your tickets in one place.
+              </Text>
+              <View style={styles.signedOutActions}>
+                <Button
+                  label="Sign in"
+                  leftIcon="log-in-outline"
+                  fullWidth
+                  onPress={() => router.push('/auth/login')}
+                />
+                <Button
+                  label="Create account"
+                  variant="outline"
+                  leftIcon="person-add-outline"
+                  fullWidth
+                  onPress={() => router.push('/auth/signup')}
+                />
+              </View>
+            </View>
+          )}
+
+          {/* ── Language ── */}
+          <Section title="Language">
+            <View style={styles.langRow}>
+              {LOCALES.map((l) => {
+                const active = l === locale;
+                return (
+                  <Pressable
+                    key={l}
+                    onPress={() => void setLocale(l as Locale)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: active }}
+                    style={[
+                      styles.langChip,
+                      {
+                        backgroundColor: active ? colors.primary : p.surface,
+                        borderColor: active ? colors.primary : p.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.langLabel, { color: active ? colors.white : p.text }]}>
+                      {LOCALE_NAMES[l as Locale]}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Section>
+
+          {/* ── Navigation ── */}
+          {user ? (
+            <Section title="Account">
+              <View style={[styles.rowGroup, { backgroundColor: p.surface, borderColor: p.border }]}>
+                <SettingsRow
+                  icon="notifications-outline"
+                  label="Notifications"
+                  onPress={() => router.push('/notifications')}
+                />
+                <SettingsRow
+                  icon="ticket-outline"
+                  label="My tickets"
+                  onPress={() => router.push('/tickets')}
+                />
+                {isOrganizer ? (
+                  <SettingsRow
+                    icon="briefcase-outline"
+                    label={t('organizer.manageEvents')}
+                    onPress={() => router.push('/organizer')}
+                    last
                   />
-                )}
+                ) : null}
               </View>
+            </Section>
+          ) : null}
+
+          {user ? (
+            <View style={styles.signOut}>
+              <Button
+                label="Sign out"
+                variant="destructive"
+                leftIcon="log-out-outline"
+                onPress={() => void handleSignOut()}
+                fullWidth
+              />
             </View>
-          </Card>
-        ) : (
-          <Card>
-            <Text style={[styles.email, { color: textMuted }]}>You're not signed in.</Text>
-            <View style={{ marginTop: spacing.md }}>
-              <Link href="/auth/login" asChild>
-                <Button label="Sign in" leftIcon="log-in-outline" fullWidth />
-              </Link>
-            </View>
-            <View style={{ marginTop: spacing.sm }}>
-              <Link href="/auth/signup" asChild>
-                <Button label="Create account" variant="secondary" leftIcon="person-add-outline" fullWidth />
-              </Link>
-            </View>
-          </Card>
-        )}
+          ) : null}
 
-        {/* Language toggle */}
-        <Text style={[styles.sectionTitle, { color: text }]}>Language</Text>
-        <View style={styles.langRow}>
-          {LOCALES.map((l) => {
-            const isActive = l === locale;
-            return (
-              <Pressable
-                key={l}
-                onPress={() => void setLocale(l as Locale)}
-                style={[
-                  styles.langChip,
-                  {
-                    backgroundColor: isActive ? colors.primary : isDark ? colors.surfaceDark : colors.surface,
-                    borderColor: isActive ? colors.primary : border,
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.langLabel,
-                    { color: isActive ? '#FFFFFF' : text },
-                  ]}
-                >
-                  {LOCALE_NAMES[l as Locale]}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        <Link href="/notifications" asChild>
-          <Button label="Notifications" leftIcon="notifications-outline" variant="outline" fullWidth style={{ marginTop: spacing.md }} />
-        </Link>
-
-        {/* R3 / B1: Organizer area link — only when the user is an
-            organizer. The check uses the role claim; the actual gate
-            lives on the organizer route (which re-validates ownership). */}
-        {user && (user as { role?: string }).role && (user as { role?: string }).role !== 'attendee' && (
-          <Link href="/organizer" asChild>
-            <Button
-              label={t('organizer.manageEvents')}
-              leftIcon="briefcase-outline"
-              variant="outline"
-              fullWidth
-              style={{ marginTop: spacing.sm }}
-            />
-          </Link>
-        )}
-
-        {user && (
-          <View style={{ marginTop: spacing.lg }}>
-            <Button label="Sign out" variant="destructive" leftIcon="log-out-outline" onPress={handleSignOut} fullWidth />
-          </View>
-        )}
-
-        <Text style={[styles.footer, { color: textMuted }]}>
-          {t('common.appName')} · v0.1.0
-        </Text>
-      </ScrollView>
+          <Text style={[styles.footer, { color: p.textSubtle }]}>
+            {t('common.appName')} · v0.1.0
+          </Text>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
 }
 
+function Section({ title, children }: { title: string; children: React.ReactNode }): React.ReactElement {
+  const p = usePalette();
+  return (
+    <View style={styles.section}>
+      <Text style={[styles.sectionTitle, { color: p.textMuted }]}>{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+function SettingsRow({
+  icon,
+  label,
+  onPress,
+  last = false,
+}: {
+  icon: IoniconName;
+  label: string;
+  onPress: () => void;
+  last?: boolean;
+}): React.ReactElement {
+  const p = usePalette();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={({ pressed }) => [
+        styles.settingsRow,
+        !last ? { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: p.border } : null,
+        pressed ? { backgroundColor: p.surfaceMuted } : null,
+      ]}
+    >
+      <Ionicons name={icon} size={19} color={p.textMuted} />
+      <Text style={[styles.settingsLabel, { color: p.text }]}>{label}</Text>
+      <Ionicons name="chevron-forward" size={17} color={p.textSubtle} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  content: { padding: spacing.md, gap: spacing.md, paddingBottom: spacing.xxl },
-  title: { ...typography.h1 },
-  sectionTitle: { ...typography.h2, marginTop: spacing.md },
-  profileRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  flex: { flex: 1 },
+  flexMin: { flex: 1, minWidth: 0 },
+  content: { paddingBottom: spacing.xxl, gap: spacing.lg },
+
+  identityCard: {
+    marginHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    minHeight: 116,
+    gap: spacing.md,
+    overflow: 'hidden',
+  },
+  identityRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   avatar: {
     width: 56,
     height: 56,
     borderRadius: 28,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.32)',
   },
-  avatarText: { fontSize: 22, fontWeight: '700' },
-  name: { ...typography.h3, fontSize: 16 },
-  email: { ...typography.caption, fontSize: 12 },
-  langRow: { flexDirection: 'row', gap: spacing.sm },
+  avatarText: { fontSize: 22, fontWeight: '800', color: colors.white },
+  identityName: { ...typography.h2, fontSize: 19, color: colors.white },
+  identityEmail: { ...typography.caption, fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  roleBadge: { alignSelf: 'flex-start' },
+
+  signedOut: {
+    marginHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    padding: spacing.lg,
+    alignItems: 'center',
+    gap: spacing.xs,
+  },
+  signedOutIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  signedOutTitle: { ...typography.h3, fontSize: 16 },
+  signedOutBody: { ...typography.caption, fontSize: 12, textAlign: 'center', maxWidth: 260, lineHeight: 17 },
+  signedOutActions: { alignSelf: 'stretch', gap: spacing.sm, marginTop: spacing.md },
+
+  section: { gap: spacing.sm },
+  sectionTitle: {
+    ...typography.small,
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    paddingHorizontal: spacing.md,
+  },
+
+  langRow: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.md },
   langChip: {
     flex: 1,
     paddingVertical: spacing.md,
@@ -171,6 +291,23 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
   },
-  langLabel: { ...typography.bodyBold, fontSize: 14 },
-  footer: { ...typography.small, fontSize: 11, textAlign: 'center', marginTop: spacing.xl },
+  langLabel: { ...typography.bodyBold, fontSize: 14, fontWeight: '700' },
+
+  rowGroup: {
+    marginHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  settingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  settingsLabel: { ...typography.body, fontSize: 15, fontWeight: '500', flex: 1 },
+
+  signOut: { paddingHorizontal: spacing.md, marginTop: spacing.xs },
+  footer: { ...typography.small, fontSize: 11, textAlign: 'center', marginTop: spacing.md },
 });

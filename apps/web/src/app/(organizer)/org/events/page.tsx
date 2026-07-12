@@ -20,7 +20,7 @@ import { Plus, MoreHorizontal, CalendarDays, Eye, Pencil, Trash2 } from "lucide-
 import { useMyOrganizerEvents } from "@/hooks/use-my-organizer-events";
 import { useDeleteEvent } from "@/hooks/use-events";
 import { formatDate } from "@/lib/utils";
-import Image from "next/image";
+import { FallbackImage } from "@/components/shared/fallback-image";
 
 const statusColors: Record<string, "success" | "warning" | "default" | "destructive"> = {
   approved: "success", draft: "warning", pending: "default", rejected: "destructive",
@@ -94,13 +94,12 @@ export default function OrgEventsPage() {
             <div className="space-y-3">
             {events.map((event) => (
               <div key={event.id} className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border shadow-sm hover:shadow-md transition-all">
-                <div className="relative h-16 w-16 rounded-lg overflow-hidden shrink-0 bg-muted">
-                  {event.banner_image ? (
-                    <Image src={event.banner_image} alt={event.title} fill className="object-cover" sizes="64px" />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">No img</div>
-                  )}
-                </div>
+                <FallbackImage
+                  src={event.banner_image ?? ""}
+                  alt={event.title}
+                  aspectRatio="square"
+                  className="h-16 w-16 shrink-0 rounded-lg"
+                />
                 <div className="flex-1 min-w-0">
                   <Link href={`/org/events/${event.id}`} className="font-medium text-sm hover:text-primary transition-colors line-clamp-1">
                     {event.title}

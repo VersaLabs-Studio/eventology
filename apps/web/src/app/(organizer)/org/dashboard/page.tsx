@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
+import { FallbackImage } from "@/components/shared/fallback-image";
 import { StatCard } from "@/components/shared/stat-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -180,13 +180,12 @@ export default function OrgDashboardPage() {
                     href={`/org/events/${e.id}`}
                     className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border/60 hover:shadow-md hover:-translate-y-0.5 transition-all"
                   >
-                    <div className="relative h-12 w-12 rounded-xl overflow-hidden shrink-0 bg-muted">
-                      {e.banner_image ? (
-                        <Image src={e.banner_image} alt={e.title} fill className="object-cover" sizes="48px" />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">No img</div>
-                      )}
-                    </div>
+                    <FallbackImage
+                      src={e.banner_image ?? ""}
+                      alt={e.title}
+                      aspectRatio="square"
+                      className="h-12 w-12 shrink-0 rounded-xl"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{e.title}</p>
                       <p className="text-xs text-muted-foreground">

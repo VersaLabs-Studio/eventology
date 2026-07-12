@@ -2,14 +2,16 @@
   "expo": {
     "name": "Eventology",
     "slug": "eventology-mobile",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "scheme": "eventology",
+    "icon": "./assets/icon.png",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.eventology.mobile",
+      "icon": "./assets/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Eventology needs camera access to scan ticket QR codes at the door."
@@ -17,6 +19,10 @@
     },
     "android": {
       "package": "com.eventology.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#065F46"
+      },
       "permissions": [
         "NOTIFICATIONS",
         "CAMERA",
@@ -42,7 +48,17 @@
           "icon": "./assets/notification-icon.png",
           "color": "#065F46"
         }
-      ]
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain",
+          "backgroundColor": "#065F46"
+        }
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

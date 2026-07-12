@@ -7,15 +7,31 @@
 // where profile_id = auth.uid().
 // ============================================================================
 
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { api } from '@/lib/api';
+
+type NotificationsModule = typeof import('expo-notifications');
 
 const API_BASE_URL: string =
   (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
   process.env.EXPO_PUBLIC_API_URL ??
   'http://localhost:3000';
+
+// Expo Go dropped remote-push support in SDK 53. Importing expo-notifications
+// eagerly runs its DevicePushTokenAutoRegistration side effect, which errors on
+// import — and because expo-router evaluates route modules during render, that
+// error surfaces while the tree is mounting. Load the module lazily so Expo Go
+// never evaluates it; a development build or the standalone APK still gets push.
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let notificationsModule: NotificationsModule | null = null;
+
+function getNotifications(): NotificationsModule | null {
+  if (isExpoGo) return null;
+  notificationsModule ??= require('expo-notifications') as NotificationsModule;
+  return notificationsModule;
+}
 
 let cachedToken: string | null = null;
 
@@ -27,6 +43,9 @@ export async function resolveExpoPushToken(): Promise<string | null> {
   if (cachedToken) return cachedToken;
 
   if (Platform.OS === 'web') return null;
+
+  const Notifications = getNotifications();
+  if (!Notifications) return null; // Expo Go — push tokens are unavailable
 
   try {
     // Android: ensure a default channel exists
@@ -106,6 +125,10 @@ export async function deregisterPushTokenFromServer(token: string | null): Promi
  */
 export function configureForegroundHandler(): void {
   if (Platform.OS === 'web') return;
+
+  const Notifications = getNotifications();
+  if (!Notifications) return; // Expo Go — no notification handler to install
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,

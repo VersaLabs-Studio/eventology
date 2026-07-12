@@ -34,7 +34,8 @@
     "success": "Success",
     "copied": "Copied to clipboard",
     "eventsCount": "{{count}} events",
-    "browseArrow": "Browse →"
+    "browseArrow": "Browse →",
+    "goBack": "Go back"
   },
   "nav": {
     "home": "Home",
@@ -396,7 +397,33 @@
     "organizers": "Organizers",
     "categories": "Categories",
     "noResults": "No results found for \"{{query}}\"",
-    "tryAgain": "Try different search terms"
+    "tryAgain": "Try different search terms",
+    "title": "Search",
+    "subtitle": "Across Addis Ababa",
+    "result": "result",
+    "clear": "Clear",
+    "aiUnderstood": "AI understood",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "when": "When",
+    "price": "Price",
+    "type": "Type",
+    "sortNewest": "Newest",
+    "sortSoonest": "Soonest",
+    "sortPopular": "Popular",
+    "anyTime": "Any time",
+    "today": "Today",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "anyPrice": "Any price",
+    "free": "Free",
+    "paid": "Paid",
+    "anyType": "All types",
+    "emptyTitle": "Search events",
+    "emptyBody": "Find tech meetups, concerts, business forums, and more across Addis Ababa.",
+    "noResultsQuery": "Nothing matches",
+    "noResultsCategory": "No events in this category yet.",
+    "clearFilters": "Clear filters"
   },
   "footer": {
     "about": "About Eventology",
@@ -470,7 +497,17 @@
     "insightsTitle": "AI Insights",
     "insightsSubtitle": "Generate a narrative summary of this event's performance.",
     "recommendations": "Recommendations",
-    "rateLimited": "Too many AI requests. Try again shortly."
+    "rateLimited": "Too many AI requests. Try again shortly.",
+    "summarize": "Summarize with AI",
+    "aiSummary": "AI Summary",
+    "summarizing": "Summarizing…",
+    "highlights": "Highlights",
+    "send": "Send",
+    "signInForChat": "Sign in to chat with the assistant.",
+    "signInForRecommendations": "Sign in for personalized picks.",
+    "poweredByAi": "AI-generated · may be imperfect",
+    "assistantTitle": "Eventology AI",
+    "retry": "Retry"
   },
   "payments": {
     "comingSoon": "Payments coming soon",
@@ -556,5 +593,31 @@
     "en": "English",
     "am": "Amharic",
     "switchLabel": "Switch language"
+  },
+  "event": {
+    "about": "About",
+    "tags": "Tags",
+    "share": "Share",
+    "addToCalendar": "Add to calendar",
+    "featured": "Featured",
+    "organizer": "Organizer",
+    "orgEvents": "events",
+    "orgAttendees": "attendees",
+    "visitWebsite": "Visit website",
+    "reviews": "Reviews",
+    "similar": "You might also like"
+  },
+  "ticket": {
+    "title": "Ticket",
+    "loadErrorTitle": "Couldn't load this ticket",
+    "loadErrorBody": "Try again later.",
+    "showAtDoor": "Show this code at the door. Works offline.",
+    "tier": "Ticket type",
+    "attendee": "Attendee",
+    "when": "When",
+    "where": "Where",
+    "issued": "Issued",
+    "checkedIn": "Checked in",
+    "viewEvent": "View event"
   }
 }

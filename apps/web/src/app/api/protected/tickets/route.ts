@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     .from('tickets')
     .select(`
       *,
-      event:events(id, title, slug, banner_image, start_date, end_date, venue_name),
+      event:events(id, title, slug, banner_image, start_date, end_date, venue_name, category:categories(slug)),
       registration:registrations(id, attendee_name, attendee_email, ticket_tier_id)
     `, { count: 'exact' })
     .order('issued_at', { ascending: false })

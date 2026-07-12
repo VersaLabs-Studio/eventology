@@ -18,7 +18,6 @@ import {
   Text,
   TextInput,
   View,
-  useColorScheme,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,6 +31,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { useLocale } from '@/lib/i18n';
+import { usePalette } from '@/lib/palette';
 import { colors, radius, spacing, typography } from '@/lib/theme';
 
 // ---------------------------------------------------------------------------
@@ -104,12 +104,11 @@ const SCAN_COOLDOWN_MS = 1500;
 
 export default function CheckInScannerScreen(): React.ReactElement {
   const { eventId } = useLocalSearchParams<{ eventId: string }>();
-  const scheme = useColorScheme();
-  const isDark = scheme === 'dark';
-  const text = isDark ? colors.textDark : colors.text;
-  const textMuted = isDark ? colors.textMutedDark : colors.textMuted;
-  const border = isDark ? colors.borderDark : colors.border;
-  const surface = isDark ? colors.surfaceDark : colors.surface;
+  const p = usePalette();
+  const text = p.text;
+  const textMuted = p.textMuted;
+  const border = p.border;
+  const surface = p.surface;
   const { t } = useLocale();
   const router = useRouter();
   const qc = useQueryClient();
@@ -199,7 +198,7 @@ export default function CheckInScannerScreen(): React.ReactElement {
   // for organizers anyway).
   if (!meQ.isLoading && meQ.data && !meQ.data.organizerId) {
     return (
-      <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+      <View style={[styles.root, { backgroundColor: p.background }]}>
         <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
           <View style={{ padding: spacing.md }}>
             <EmptyState
@@ -215,7 +214,7 @@ export default function CheckInScannerScreen(): React.ReactElement {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: isDark ? colors.backgroundDark : colors.background }]}>
+    <View style={[styles.root, { backgroundColor: p.background }]}>
       <SafeAreaView edges={['bottom']} style={{ flex: 1 }}>
         <Stack.Screen options={{ title: eventQ.data?.title ?? t('organizer.scannerTitle') }} />
         <ScrollView contentContainerStyle={styles.content}>
