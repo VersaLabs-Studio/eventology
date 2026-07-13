@@ -30,6 +30,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { EventImage } from '@/components/ui/EventImage';
 import { EventCard, type MobileEvent } from '@/components/EventCard';
 import { EventSummaryCard } from '@/components/ai/EventSummaryCard';
+import { ReviewSheet } from '@/components/reviews/ReviewSheet';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { Scrim } from '@/components/ui/Gradient';
 import { usePalette } from '@/lib/palette';
@@ -185,6 +186,12 @@ export default function EventDetailScreen(): React.ReactElement {
   };
 
   const [selectedTierId, setSelectedTierId] = React.useState<string | null>(null);
+  const [reviewOpen, setReviewOpen] = React.useState(false);
+
+  // Reviews may be written once the event has ended (the server also enforces
+  // this via the attendance gate; this just controls when the CTA appears).
+  const eventEnded = event ? new Date(event.end_date) < new Date() : false;
+  const canReview = !!user && eventEnded && !!event;
 
   const selectableTiers = React.useMemo(() => {
     const all = event?.ticket_tiers ?? [];
@@ -524,6 +531,17 @@ export default function EventDetailScreen(): React.ReactElement {
               {/* ── Reviews ── */}
               <ReviewsSection data={reviewsQ.data} />
 
+              {/* ── Write a review (after the event has ended) ── */}
+              {canReview ? (
+                <Button
+                  label={t('review.cta')}
+                  variant="outline"
+                  leftIcon="star-outline"
+                  fullWidth
+                  onPress={() => setReviewOpen(true)}
+                />
+              ) : null}
+
               {/* ── Similar events ── */}
               {similarEvents.length > 0 ? (
                 <View style={styles.section}>
@@ -593,6 +611,17 @@ export default function EventDetailScreen(): React.ReactElement {
             )}
           </SafeAreaView>
         </View>
+      ) : null}
+
+      {/* ── Review sheet ── */}
+      {event ? (
+        <ReviewSheet
+          visible={reviewOpen}
+          onClose={() => setReviewOpen(false)}
+          eventId={event.id}
+          eventTitle={event.title}
+          onSubmitted={() => void qc.invalidateQueries({ queryKey: ['events', 'reviews', slug] })}
+        />
       ) : null}
     </View>
   );

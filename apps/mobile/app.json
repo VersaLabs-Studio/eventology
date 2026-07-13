@@ -27,7 +27,11 @@
         "NOTIFICATIONS",
         "CAMERA",
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "web": {
@@ -56,6 +60,18 @@
           "imageWidth": 220,
           "resizeMode": "contain",
           "backgroundColor": "#065F46"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Eventology uses your location to show events happening near you."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Eventology uses Face ID to unlock the app."
         }
       ],
       "expo-font"

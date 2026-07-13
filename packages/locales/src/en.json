@@ -35,7 +35,9 @@
     "copied": "Copied to clipboard",
     "eventsCount": "{{count}} events",
     "browseArrow": "Browse →",
-    "goBack": "Go back"
+    "goBack": "Go back",
+    "done": "Done",
+    "signIn": "Sign in"
   },
   "nav": {
     "home": "Home",
@@ -423,7 +425,12 @@
     "emptyBody": "Find tech meetups, concerts, business forums, and more across Addis Ababa.",
     "noResultsQuery": "Nothing matches",
     "noResultsCategory": "No events in this category yet.",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "nearby": "Near you",
+    "nearbySubtitle": "Events happening around you",
+    "enableLocation": "Enable location",
+    "locationDenied": "Location access is off. Turn it on to see nearby events.",
+    "away": "away"
   },
   "footer": {
     "about": "About Eventology",
@@ -619,5 +626,52 @@
     "issued": "Issued",
     "checkedIn": "Checked in",
     "viewEvent": "View event"
+  },
+  "review": {
+    "title": "Write a review",
+    "cta": "Write a review",
+    "submit": "Submit review",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Sum up your experience",
+    "bodyLabel": "Your review",
+    "bodyPlaceholder": "Share what the event was like",
+    "errNotAttended": "You can review this event after attending it.",
+    "errAlready": "You've already reviewed this event.",
+    "thanksTitle": "Thanks for your review!",
+    "thanksBody": "It will appear once it has been approved."
+  },
+  "status": {
+    "confirmed": "Confirmed",
+    "checkedIn": "Checked in",
+    "waitlisted": "Waitlisted",
+    "pending": "Pending",
+    "cancelled": "Cancelled",
+    "noShow": "No show"
+  },
+  "myEvents": {
+    "title": "My Events",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "cancelled": "Cancelled",
+    "empty": {
+      "upcoming": "No upcoming events",
+      "past": "No past events",
+      "cancelled": "No cancelled events"
+    },
+    "emptyBody": "Register for an event and it will show up here.",
+    "discover": "Discover events",
+    "signInTitle": "Sign in to see your events",
+    "signInBody": "Events you register for will appear here.",
+    "untitled": "Untitled event",
+    "waitlistPos": "Waitlist position",
+    "viewTicket": "View ticket"
+  },
+  "settings": {
+    "security": "Security",
+    "biometricLock": "Require Face ID / fingerprint",
+    "biometricHint": "Lock the app until you authenticate",
+    "biometricUnavailable": "Biometric unlock is not available on this device.",
+    "unlockPrompt": "Unlock Eventology",
+    "unlockCta": "Unlock"
   }
 }

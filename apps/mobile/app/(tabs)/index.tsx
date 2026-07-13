@@ -32,6 +32,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { EventCard, type MobileEvent } from '@/components/EventCard';
 import { CategoryPill } from '@/components/ui/CategoryPill';
 import { RecommendationRail } from '@/components/ai/RecommendationRail';
+import { NearbyRail } from '@/components/NearbyRail';
 import { Logo } from '@/components/ui/Logo';
 import { usePalette } from '@/lib/palette';
 import { useLocale } from '@/lib/i18n';
@@ -198,6 +199,11 @@ export default function DiscoverScreen(): React.ReactElement {
                   events={events}
                   onOpen={(slug) => router.push(`/event/${slug}`)}
                 />
+              ) : null}
+
+              {/* Events near you — opt-in GPS proximity rail */}
+              {!loading && category === '' ? (
+                <NearbyRail onOpen={(slug) => router.push(`/event/${slug}`)} />
               ) : null}
 
               {/* Featured carousel */}

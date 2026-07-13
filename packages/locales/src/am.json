@@ -35,7 +35,9 @@
     "copied": "ወደ ቅንጥብ ሰሌዳ ተቀድቷል",
     "eventsCount": "{{count}} ዝግጅቶች",
     "browseArrow": "ያስሱ →",
-    "goBack": "ተመለስ"
+    "goBack": "ተመለስ",
+    "done": "ተከናውኗል",
+    "signIn": "ግባ"
   },
   "nav": {
     "home": "መነሻ",
@@ -423,7 +425,12 @@
     "emptyBody": "የቴክ ስብሰባዎችን፣ ኮንሰርቶችን፣ የንግድ መድረኮችን እና ሌሎችንም በአዲስ አበባ ዙሪያ ያግኙ።",
     "noResultsQuery": "ምንም አይዛመድም",
     "noResultsCategory": "በዚህ ምድብ ውስጥ እስካሁን ዝግጅት የለም።",
-    "clearFilters": "ማጣሪያዎችን አጽዳ"
+    "clearFilters": "ማጣሪያዎችን አጽዳ",
+    "nearby": "በአቅራቢያዎ",
+    "nearbySubtitle": "በአካባቢዎ የሚካሄዱ ዝግጅቶች",
+    "enableLocation": "አካባቢን አንቃ",
+    "locationDenied": "የአካባቢ ፍቃድ ጠፍቷል። በአቅራቢያ ያሉ ዝግጅቶችን ለማየት ያብሩት።",
+    "away": "ርቀት"
   },
   "footer": {
     "about": "ስለ ኢቨንቶሎጂ",
@@ -619,5 +626,52 @@
     "issued": "የተሰጠበት",
     "checkedIn": "የገባበት",
     "viewEvent": "ዝግጅቱን ተመልከት"
+  },
+  "review": {
+    "title": "ግምገማ ጻፍ",
+    "cta": "ግምገማ ጻፍ",
+    "submit": "ግምገማ አስገባ",
+    "titleLabel": "ርዕስ",
+    "titlePlaceholder": "ተሞክሮዎን በአጭሩ ይግለጹ",
+    "bodyLabel": "ግምገማዎ",
+    "bodyPlaceholder": "ዝግጅቱ እንዴት እንደነበር ያካፍሉ",
+    "errNotAttended": "ይህን ዝግጅት መገምገም የሚችሉት ከተሳተፉ በኋላ ነው።",
+    "errAlready": "ይህን ዝግጅት አስቀድመው ገምግመዋል።",
+    "thanksTitle": "ስለ ግምገማዎ እናመሰግናለን!",
+    "thanksBody": "ከተመረመረ በኋላ ይታያል።"
+  },
+  "status": {
+    "confirmed": "ተረጋግጧል",
+    "checkedIn": "ገብቷል",
+    "waitlisted": "በመጠባበቂያ ዝርዝር",
+    "pending": "በመጠባበቅ ላይ",
+    "cancelled": "ተሰርዟል",
+    "noShow": "አልተገኘም"
+  },
+  "myEvents": {
+    "title": "የእኔ ዝግጅቶች",
+    "upcoming": "መጪ",
+    "past": "ያለፉ",
+    "cancelled": "የተሰረዙ",
+    "empty": {
+      "upcoming": "መጪ ዝግጅቶች የሉም",
+      "past": "ያለፉ ዝግጅቶች የሉም",
+      "cancelled": "የተሰረዙ ዝግጅቶች የሉም"
+    },
+    "emptyBody": "ለዝግጅት ይመዝገቡ፤ እዚህ ይታያል።",
+    "discover": "ዝግጅቶችን አስስ",
+    "signInTitle": "ዝግጅቶችዎን ለማየት ይግቡ",
+    "signInBody": "የሚመዘገቡባቸው ዝግጅቶች እዚህ ይታያሉ።",
+    "untitled": "ርዕስ የሌለው ዝግጅት",
+    "waitlistPos": "የመጠባበቂያ ቦታ",
+    "viewTicket": "ትኬት ይመልከቱ"
+  },
+  "settings": {
+    "security": "ደህንነት",
+    "biometricLock": "Face ID / የጣት አሻራ ይጠይቁ",
+    "biometricHint": "እስኪያረጋግጡ ድረስ መተግበሪያውን ይቆልፉ",
+    "biometricUnavailable": "ባዮሜትሪክ መክፈት በዚህ መሣሪያ ላይ አይገኝም።",
+    "unlockPrompt": "Eventology ክፈት",
+    "unlockCta": "ክፈት"
   }
 }

@@ -10,7 +10,7 @@
 // ============================================================================
 
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +19,12 @@ import { Badge } from '@/components/ui/Badge';
 import { Gradient } from '@/components/ui/Gradient';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  authenticate,
+  isBiometricAvailable,
+  isBiometricLockEnabled,
+  setBiometricLockEnabled,
+} from '@/lib/biometric';
 import { useLocale, LOCALES, LOCALE_NAMES, type Locale } from '@/lib/i18n';
 import { usePalette } from '@/lib/palette';
 import { colors, gradients, radius, shadows, spacing, typography } from '@/lib/theme';
@@ -30,6 +36,27 @@ export default function ProfileScreen(): React.ReactElement {
   const { user, signOut, loading } = useAuth();
   const { locale, setLocale, t } = useLocale();
   const router = useRouter();
+
+  const [bioAvailable, setBioAvailable] = React.useState(false);
+  const [bioEnabled, setBioEnabled] = React.useState(false);
+
+  React.useEffect(() => {
+    void (async () => {
+      setBioAvailable(await isBiometricAvailable());
+      setBioEnabled(await isBiometricLockEnabled());
+    })();
+  }, []);
+
+  const toggleBiometric = async (next: boolean) => {
+    if (next) {
+      // Prove it works before turning the lock on, so the user can't lock
+      // themselves out with a sensor that won't authenticate.
+      const ok = await authenticate(t('settings.unlockPrompt'));
+      if (!ok) return;
+    }
+    await setBiometricLockEnabled(next);
+    setBioEnabled(next);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -137,6 +164,26 @@ export default function ProfileScreen(): React.ReactElement {
             </View>
           </Section>
 
+          {/* ── Security ── */}
+          {bioAvailable ? (
+            <Section title={t('settings.security')}>
+              <View style={[styles.rowGroup, { backgroundColor: p.surface, borderColor: p.border }]}>
+                <View style={styles.switchRow}>
+                  <Ionicons name="finger-print" size={19} color={p.textMuted} />
+                  <View style={styles.flexMin}>
+                    <Text style={[styles.switchLabel, { color: p.text }]}>{t('settings.biometricLock')}</Text>
+                    <Text style={[styles.switchHint, { color: p.textMuted }]}>{t('settings.biometricHint')}</Text>
+                  </View>
+                  <Switch
+                    value={bioEnabled}
+                    onValueChange={(v) => void toggleBiometric(v)}
+                    trackColor={{ true: colors.primary }}
+                  />
+                </View>
+              </View>
+            </Section>
+          ) : null}
+
           {/* ── Navigation ── */}
           {user ? (
             <Section title="Account">
@@ -145,6 +192,11 @@ export default function ProfileScreen(): React.ReactElement {
                   icon="notifications-outline"
                   label="Notifications"
                   onPress={() => router.push('/notifications')}
+                />
+                <SettingsRow
+                  icon="calendar-outline"
+                  label={t('myEvents.title')}
+                  onPress={() => router.push('/my-events')}
                 />
                 <SettingsRow
                   icon="ticket-outline"
@@ -307,6 +359,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   settingsLabel: { ...typography.body, fontSize: 15, fontWeight: '500', flex: 1 },
+
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  switchLabel: { ...typography.body, fontSize: 15, fontWeight: '500' },
+  switchHint: { ...typography.caption, fontSize: 12, marginTop: 1 },
 
   signOut: { paddingHorizontal: spacing.md, marginTop: spacing.xs },
   footer: { ...typography.small, fontSize: 11, textAlign: 'center', marginTop: spacing.md },

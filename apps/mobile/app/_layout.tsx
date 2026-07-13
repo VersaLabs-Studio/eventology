@@ -16,6 +16,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { BiometricGate } from '@/components/BiometricGate';
 import { colors } from '@/lib/theme';
 import { fontAssets, installFontPatch } from '@/lib/fonts';
 
@@ -51,6 +52,7 @@ export default function RootLayout(): React.ReactElement {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <StatusBar style="auto" backgroundColor={colors.background} />
+          <BiometricGate>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="auth" />
@@ -61,6 +63,7 @@ export default function RootLayout(): React.ReactElement {
             <Stack.Screen name="organizer/checkin/[eventId]" options={{ headerShown: true, title: 'Check-in' }} />
             <Stack.Screen name="organizer/analytics/[eventId]" options={{ headerShown: true, title: 'Analytics' }} />
           </Stack>
+          </BiometricGate>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
