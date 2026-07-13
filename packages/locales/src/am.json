@@ -254,7 +254,49 @@
     "analyticsTiers": "የትኬት ደረጃዎች",
     "analyticsCities": "በክፍለ ከተማ",
     "backToEvents": "ወደ የእኔ ዝግጅቶች ተመለስ",
-    "organizerArea": "የአዘጋጅ ቦታ"
+    "organizerArea": "የአዘጋጅ ቦታ",
+    "attendees": {
+      "cta": "ተሳታፊዎች",
+      "all": "ሁሉም",
+      "searchPlaceholder": "በስም ወይም በኢሜይል ይፈልጉ",
+      "empty": "ተሳታፊዎች የሉም",
+      "emptyBody": "የዚህ ዝግጅት ምዝገባዎች እዚህ ይታያሉ።",
+      "loadError": "ተሳታፊዎችን ማቅረብ አልተሳካም።",
+      "notAuthorized": "ፈቃድ የለም",
+      "notAuthorizedBody": "የዝግጅቱ አዘጋጅ ብቻ ይህን ዝርዝር ማየት ይችላል።"
+    },
+    "revenue": {
+      "cta": "ገቢ",
+      "available": "ያለ ቀሪ ሒሳብ",
+      "earned": "የተገኘ",
+      "paidOut": "የተከፈለ",
+      "refunded": "ተመላሽ",
+      "history": "የክፍያ ታሪክ",
+      "webOnlyNote": "ክፍያን ከዌብ ዳሽቦርድ ይጠይቁ።",
+      "empty": "ክፍያ የለም",
+      "emptyBody": "ክፍያ እንደጠየቁ ታሪክዎ እዚህ ይታያል።"
+    },
+    "broadcast": {
+      "cta": "መልእክት",
+      "title": "ለተሳታፊዎች መልእክት",
+      "subtitle": "ለሁሉም የተረጋገጡ ተሳታፊዎች ማሳወቂያ ይላኩ።",
+      "subjectLabel": "ርዕስ",
+      "subjectPlaceholder": "ለምሳሌ የስፍራ መረጃ",
+      "bodyLabel": "መልእክት",
+      "bodyPlaceholder": "ማሳወቂያዎን ይጻፉ…",
+      "send": "ማሳወቂያ ላክ",
+      "sentTitle": "ማሳወቂያው ተልኳል",
+      "sentBody": "ተሳታፊዎች ተሳውቀዋል",
+      "errRateLimited": "በጣም ብዙ መልእክቶች ልከዋል። ኋላ እንደገና ይሞክሩ።"
+    },
+    "insights": {
+      "title": "የAI ትንታኔዎች",
+      "generate": "አመንጭ",
+      "generating": "በመተንተን ላይ…",
+      "attendanceRate": "የተሳትፎ መጠን",
+      "peak": "ከፍተኛ ምዝገባ",
+      "recommendations": "ምክሮች"
+    }
   },
   "dashboard": {
     "title": "ዳሽቦርድ",

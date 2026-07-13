@@ -2,8 +2,9 @@
 // Expo Push Provider
 // ============================================================================
 // Expo Push (https://docs.expo.dev/push-notifications/send-notifications/) —
-// V1 push provider. Config-deferred; web won't write tokens this phase.
-// Selection without env keys throws a LOUD error at factory-time.
+// V1.5 push provider. Expo's push endpoint is KEYLESS for standard sends, so
+// unlike email/SMS this channel is live by default; set EXPO_PUSH_LIVE=false
+// to fall back to the deferred log-only behaviour.
 // ============================================================================
 
 import type {
@@ -58,17 +59,10 @@ export class ExpoPushProvider implements NotificationChannelProvider {
       };
     }
 
-    const payload: ExpoPushMessage = {
-      to: tokens,
-      title: content.subject,
-      body: content.textBody,
-      ...(content.metadata ? { data: content.metadata } : {}),
-    };
-
     try {
-      if (process.env.EXPO_PUSH_LIVE !== 'true') {
+      if (process.env.EXPO_PUSH_LIVE === 'false') {
         console.log(
-          `[ExpoPushProvider:DEFERRED] to=${tokens.length} token(s) title="${payload.title}"`
+          `[ExpoPushProvider:DEFERRED] to=${tokens.length} token(s) title="${content.subject}"`
         );
         return {
           success: true,
@@ -77,9 +71,64 @@ export class ExpoPushProvider implements NotificationChannelProvider {
         };
       }
 
+      // Expo accepts up to 100 messages per request.
+      const CHUNK = 100;
+      const tickets: ExpoPushTicket[] = [];
+      for (let i = 0; i < tokens.length; i += CHUNK) {
+        const chunk = tokens.slice(i, i + CHUNK);
+        const messages: ExpoPushMessage[] = chunk.map((to) => ({
+          to,
+          title: content.subject,
+          body: content.textBody,
+          sound: 'default',
+          ...(content.metadata ? { data: content.metadata } : {}),
+        }));
+
+        const res = await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...(this.config.accessToken
+              ? { Authorization: `Bearer ${this.config.accessToken}` }
+              : {}),
+          },
+          body: JSON.stringify(messages),
+        });
+
+        if (!res.ok) {
+          return {
+            success: false,
+            error: `Expo push endpoint returned ${res.status}`,
+            providerName: 'expo_push',
+          };
+        }
+
+        const parsed = (await res.json()) as ExpoPushResponse;
+        tickets.push(...(parsed.data ?? []));
+      }
+
+      const errored = tickets.filter((t) => t.status === 'error');
+      if (errored.length > 0) {
+        // Stale tokens surface as DeviceNotRegistered tickets — log, don't
+        // fail the whole send when at least one ticket was accepted.
+        console.warn(
+          `[ExpoPushProvider] ${errored.length}/${tickets.length} ticket error(s): ` +
+            errored.map((t) => t.details?.error ?? t.message ?? 'unknown').join(', ')
+        );
+      }
+      const okTicket = tickets.find((t) => t.status === 'ok');
+      if (!okTicket) {
+        return {
+          success: false,
+          error: errored[0]?.details?.error ?? errored[0]?.message ?? 'All push tickets errored',
+          providerName: 'expo_push',
+        };
+      }
+
       return {
-        success: false,
-        error: 'ExpoPushProvider: live HTTP call not wired in this build',
+        success: true,
+        providerRef: okTicket.id ?? `expo_${Date.now()}`,
         providerName: 'expo_push',
       };
     } catch (err) {

@@ -140,4 +140,44 @@ export function configureForegroundHandler(): void {
   });
 }
 
+/**
+ * Subscribe to OS notification taps (background/quit → tap → app opens).
+ * Calls `onUrl` with the deep-link path carried in the push payload's
+ * `data.url` (set by the web comms layer). Also replays the cold-start
+ * tap once via getLastNotificationResponseAsync. Returns an unsubscribe.
+ * No-op in Expo Go / web (remote push unavailable there anyway).
+ */
+export function subscribeToNotificationTaps(onUrl: (url: string) => void): () => void {
+  if (Platform.OS === 'web') return () => {};
+
+  const Notifications = getNotifications();
+  if (!Notifications) return () => {};
+
+  const handled = new Set<string>();
+  const handle = (response: import('expo-notifications').NotificationResponse | null) => {
+    if (!response) return;
+    const id = response.notification.request.identifier;
+    if (handled.has(id)) return;
+    handled.add(id);
+    const data = response.notification.request.content.data as
+      | Record<string, unknown>
+      | undefined;
+    const url =
+      (typeof data?.url === 'string' && data.url) ||
+      (typeof data?.deepLink === 'string' && data.deepLink) ||
+      null;
+    if (url) onUrl(url);
+  };
+
+  const sub = Notifications.addNotificationResponseReceivedListener(handle);
+
+  // Cold start: the tap that launched the app fires before any listener
+  // exists — replay it once.
+  void Notifications.getLastNotificationResponseAsync()
+    .then(handle)
+    .catch(() => {});
+
+  return () => sub.remove();
+}
+
 export { API_BASE_URL };

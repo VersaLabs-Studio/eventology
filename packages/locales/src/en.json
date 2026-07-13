@@ -254,7 +254,49 @@
     "analyticsTiers": "Ticket tiers",
     "analyticsCities": "By sub-city",
     "backToEvents": "Back to my events",
-    "organizerArea": "Organizer area"
+    "organizerArea": "Organizer area",
+    "attendees": {
+      "cta": "Attendees",
+      "all": "All",
+      "searchPlaceholder": "Search by name or email",
+      "empty": "No attendees yet",
+      "emptyBody": "Registrations for this event will appear here.",
+      "loadError": "Failed to load attendees.",
+      "notAuthorized": "Not authorized",
+      "notAuthorizedBody": "Only the event organizer can view this attendee list."
+    },
+    "revenue": {
+      "cta": "Revenue",
+      "available": "Available balance",
+      "earned": "Earned",
+      "paidOut": "Paid out",
+      "refunded": "Refunded",
+      "history": "Payout history",
+      "webOnlyNote": "Request a payout from the web dashboard.",
+      "empty": "No payouts yet",
+      "emptyBody": "Your payout history will appear here once you request one."
+    },
+    "broadcast": {
+      "cta": "Message",
+      "title": "Message attendees",
+      "subtitle": "Send an announcement to all confirmed attendees.",
+      "subjectLabel": "Subject",
+      "subjectPlaceholder": "e.g. Venue update",
+      "bodyLabel": "Message",
+      "bodyPlaceholder": "Write your announcement…",
+      "send": "Send announcement",
+      "sentTitle": "Announcement sent",
+      "sentBody": "attendees notified",
+      "errRateLimited": "You’ve sent too many broadcasts. Try again later."
+    },
+    "insights": {
+      "title": "AI attendee insights",
+      "generate": "Generate",
+      "generating": "Analyzing…",
+      "attendanceRate": "attendance rate",
+      "peak": "Peak sign-ups",
+      "recommendations": "Recommendations"
+    }
   },
   "dashboard": {
     "title": "Dashboard",

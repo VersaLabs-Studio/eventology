@@ -196,6 +196,15 @@ export default function OrganizerHomeScreen(): React.ReactElement {
                 </View>
               )}
 
+              {/* Revenue entry point */}
+              <Button
+                label={t('organizer.revenue.cta')}
+                leftIcon="cash-outline"
+                variant="outline"
+                onPress={() => router.push('/organizer/revenue')}
+                fullWidth
+              />
+
               {/* Section title */}
               <Text style={[styles.sectionTitle, { color: p.text }]}>{t('organizer.manageEvents')}</Text>
 
@@ -330,6 +339,18 @@ function OrganizerEventCard({
             style={{ flex: 1 }}
           />
         </View>
+        <Button
+          label={t('organizer.attendees.cta')}
+          leftIcon="people-outline"
+          variant="ghost"
+          onPress={() =>
+            router.push({
+              pathname: '/organizer/attendees/[eventId]',
+              params: { eventId: event.id },
+            })
+          }
+          fullWidth
+        />
       </View>
     </View>
   );

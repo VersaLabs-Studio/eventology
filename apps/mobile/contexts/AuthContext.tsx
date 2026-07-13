@@ -8,9 +8,16 @@
 // ============================================================================
 
 import React from 'react';
+import { router } from 'expo-router';
 import { authClient, type Session } from '@/lib/auth';
 import { setAuthToken } from '@/lib/api';
-import { configureForegroundHandler, deregisterPushTokenFromServer, registerPushTokenWithServer } from '@/lib/push';
+import {
+  configureForegroundHandler,
+  deregisterPushTokenFromServer,
+  registerPushTokenWithServer,
+  subscribeToNotificationTaps,
+} from '@/lib/push';
+import { mapActionUrlToRoute } from '@/lib/notification-link';
 
 interface AuthState {
   session: Session | null;
@@ -59,6 +66,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false;
     };
   }, [refresh]);
+
+  // OS push tap → deep-link. The payload's data.url is a web action_url;
+  // map it to a mobile route (same mapping the in-app inbox uses).
+  React.useEffect(() => {
+    return subscribeToNotificationTaps((url) => {
+      const route = mapActionUrlToRoute(url);
+      // Defer one tick so the root navigator is mounted on cold start.
+      setTimeout(() => router.push(route as never), 0);
+    });
+  }, []);
 
   const signIn = React.useCallback(
     async (email: string, password: string) => {

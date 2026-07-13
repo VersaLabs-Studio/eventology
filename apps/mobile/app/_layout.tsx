@@ -62,6 +62,8 @@ export default function RootLayout(): React.ReactElement {
             <Stack.Screen name="organizer/index" options={{ headerShown: true, title: 'Organizer area' }} />
             <Stack.Screen name="organizer/checkin/[eventId]" options={{ headerShown: true, title: 'Check-in' }} />
             <Stack.Screen name="organizer/analytics/[eventId]" options={{ headerShown: true, title: 'Analytics' }} />
+            <Stack.Screen name="organizer/attendees/[eventId]" options={{ headerShown: true, title: 'Attendees' }} />
+            <Stack.Screen name="organizer/revenue" options={{ headerShown: true, title: 'Revenue' }} />
           </Stack>
           </BiometricGate>
         </AuthProvider>

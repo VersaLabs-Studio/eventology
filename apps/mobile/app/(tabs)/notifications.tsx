@@ -18,6 +18,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/Button';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { api } from '@/lib/api';
+import { mapActionUrlToRoute } from '@/lib/notification-link';
 import { useLocale } from '@/lib/i18n';
 import { usePalette } from '@/lib/palette';
 import { colors, radius, spacing, typography } from '@/lib/theme';
@@ -80,23 +81,7 @@ export default function NotificationsScreen(): React.ReactElement {
   const onPressNotification = (n: NotificationRow) => {
     if (!n.is_read) markOne.mutate(n.id);
     if (n.action_url) {
-      // Convert web action_url to a route the mobile app can handle.
-      // E.g. /my-tickets?reg=… → /(tabs)/tickets?registered=1
-      // /events/{slug} → /event/[slug]
-      try {
-        const u = new URL(n.action_url, 'http://x');
-        if (u.pathname.startsWith('/my-tickets')) {
-          router.push('/tickets?registered=1');
-        } else if (u.pathname.startsWith('/events/')) {
-          const slug = u.pathname.split('/').pop()!;
-          router.push(`/event/${slug}`);
-        } else {
-          // Fallback: open the Discover tab
-          router.push('/');
-        }
-      } catch {
-        router.push('/');
-      }
+      router.push(mapActionUrlToRoute(n.action_url) as never);
     }
   };
 

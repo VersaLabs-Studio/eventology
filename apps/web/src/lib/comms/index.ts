@@ -25,7 +25,7 @@ const stubCache: Partial<Record<NotificationChannel, NotificationChannelProvider
  * Selection is keyed off three independent env vars (one per channel):
  *   - EMAIL_PROVIDER  = 'stub' | 'resend'  (default 'stub')
  *   - SMS_PROVIDER    = 'stub' | 'africas_talking'  (default 'stub')
- *   - PUSH_PROVIDER   = 'stub' | 'expo_push'  (default 'stub')
+ *   - PUSH_PROVIDER   = 'stub' | 'expo_push'  (default 'expo_push' — keyless)
  *
  * If a real provider is selected without its env keys, throws a clear
  * config error. Misconfig must be obvious — no silent fallback to stub.
@@ -91,7 +91,9 @@ export function getChannelProvider(
       return (stubCache.sms ??= new StubChannelProvider('sms'));
     }
     case 'push': {
-      const providerName = (process.env.PUSH_PROVIDER ?? 'stub').toLowerCase();
+      // Expo push is keyless, so unlike email/SMS the real provider is the
+      // default; PUSH_PROVIDER=stub still opts out.
+      const providerName = (process.env.PUSH_PROVIDER ?? 'expo_push').toLowerCase();
       if (providerName === 'stub') {
         return (stubCache.push ??= new StubChannelProvider('push'));
       }

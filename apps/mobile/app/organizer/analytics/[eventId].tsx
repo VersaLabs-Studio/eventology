@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { AiInsightsCard } from '@/components/organizer/AiInsightsCard';
 import { useLocale } from '@/lib/i18n';
 import { usePalette } from '@/lib/palette';
 import { mono } from '@/lib/fonts';
@@ -229,6 +230,23 @@ export default function OrganizerAnalyticsScreen(): React.ReactElement {
               )}
             </View>
           </Card>
+
+          {/* AI attendee insights (on-demand) */}
+          <AiInsightsCard
+            eventId={eventId!}
+            input={{
+              event_title: '',
+              total_registrations: a.totalRegistrations,
+              checked_in_count: Math.round(a.totalRegistrations * a.conversionRate),
+              cancelled_count: 0,
+              ticket_tiers: a.tierDistribution.map((d) => ({
+                name: d.label,
+                sold: d.value,
+                capacity: d.value,
+              })),
+              top_sub_cities: a.subCityDistribution.map((d) => d.label),
+            }}
+          />
 
           <Button
             label={t('organizer.backToEvents')}

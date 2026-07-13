@@ -267,7 +267,13 @@ export async function notify(
 
   // Push
   if (channelPrefs.push && input.address.pushTokens && input.address.pushTokens.length > 0) {
-    const result = await dispatch(supabase, notificationId, 'push', input.address, channels.push);
+    // Carry the real deep-link (the in-app row's action_url) so a tapped
+    // push routes to the same place as a tapped bell item.
+    const pushContent = {
+      ...channels.push,
+      metadata: { ...channels.push.metadata, url: input.actionUrl ?? '/notifications' },
+    };
+    const result = await dispatch(supabase, notificationId, 'push', input.address, pushContent);
     deliveries.push({ channel: 'push', ...result });
   } else {
     await recordSkipped(supabase, notificationId, 'push');
@@ -325,9 +331,19 @@ export async function loadUserAddress(
     .eq('id', userId)
     .maybeSingle();
 
+  const { data: devices } = await supabase
+    .from('push_tokens')
+    .select('token')
+    .eq('profile_id', userId);
+
+  const pushTokens = (devices ?? [])
+    .map((d) => (d as { token: string }).token)
+    .filter(Boolean);
+
   return {
     ...(data?.email ? { email: data.email } : {}),
     ...(data?.phone ? { phone: data.phone } : {}),
+    ...(pushTokens.length > 0 ? { pushTokens } : {}),
   };
 }
 
