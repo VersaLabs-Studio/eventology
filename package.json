@@ -7,6 +7,10 @@
     "expo-font": "14.0.12",
     "react-native-svg": "15.12.1"
   },
+  "optionalDependencies": {
+    "lightningcss-linux-x64-gnu": "1.32.0",
+    "@tailwindcss/oxide-linux-x64-gnu": "4.3.0"
+  },
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
