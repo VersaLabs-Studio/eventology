@@ -20,6 +20,7 @@ export type { Tables, TablesInsert, TablesUpdate, Enums };
 
 export type ProfileRow = Tables<'profiles'>;
 export type OrganizerRow = Tables<'organizers'>;
+export type OrganizerFollowRow = Tables<'organizer_follows'>;
 export type OrganizerTeamMemberRow = Tables<'organizer_team_members'>;
 export type CategoryRow = Tables<'categories'>;
 export type VenueRow = Tables<'venues'>;
@@ -32,6 +33,7 @@ export type PayoutRow = Tables<'payouts'>;
 export type ConversationRow = Tables<'conversations'>;
 export type MessageRow = Tables<'messages'>;
 export type ReviewRow = Tables<'reviews'>;
+export type SavedEventRow = Tables<'saved_events'>;
 export type SponsorRow = Tables<'sponsors'>;
 export type NotificationRow = Tables<'notifications'>;
 export type NotificationDeliveryRow = Tables<'notification_deliveries'>;
