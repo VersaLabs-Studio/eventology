@@ -25,7 +25,9 @@
       "@eventology/locales": ["../../packages/locales/src"],
       "@eventology/locales/*": ["../../packages/locales/src/*"],
       "@eventology/ai": ["../../packages/ai/src"],
-      "@eventology/ai/*": ["../../packages/ai/src/*"]
+      "@eventology/ai/*": ["../../packages/ai/src/*"],
+      "@eventology/wallet": ["../../packages/wallet/src"],
+      "@eventology/wallet/*": ["../../packages/wallet/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts"],

@@ -68,6 +68,7 @@ interface RawEvent {
   venue_name: string | null;
   venue_address: string | null;
   sub_city: string | null;
+  location_type?: string;
   latitude: number | null;
   longitude: number | null;
   status: string;
@@ -187,6 +188,12 @@ export function normalizeEvent(raw: RawEvent): Event {
     location: raw.venue_name ?? 'Venue TBA',
     address: raw.venue_address ?? '',
     subCity: raw.sub_city ?? '',
+    // HO-I: virtual/hybrid marker (safe to expose; the URL itself stays
+    // server-gated and is stripped from public payloads).
+    locationType:
+      raw.location_type === 'online' || raw.location_type === 'hybrid'
+        ? raw.location_type
+        : 'in_person',
     coordinates: {
       lat: raw.latitude ?? 0,
       lng: raw.longitude ?? 0,

@@ -4,7 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
-import { EVENT_STATUSES, EVENT_TYPES, TICKET_TYPES } from '../enums';
+import { EVENT_STATUSES, EVENT_TYPES, TICKET_TYPES, LOCATION_TYPES, ONLINE_PROVIDERS } from '../enums';
 import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
@@ -38,6 +38,12 @@ export const eventSchema = z.object({
   latitude: z.number().min(-90).max(90).nullable(),
   longitude: z.number().min(-180).max(180).nullable(),
   location: z.unknown(), // PostGIS geometry
+  // HO-I: virtual / hybrid support. `online_url` is NEVER public — public
+  // payloads run through the sanitizer (lib/events/sanitize-event.ts) and
+  // the URL is served only via the gated join-link endpoint.
+  location_type: z.enum(LOCATION_TYPES).default('in_person'),
+  online_url: z.string().url().nullable(),
+  online_provider: z.enum(ONLINE_PROVIDERS).nullable(),
   status: z.enum(EVENT_STATUSES),
   rejection_reason: z.string().nullable(),
   is_featured: z.boolean(),
@@ -91,6 +97,10 @@ export const createEventSchema = eventSchema
     sub_city: z.string().nullish(),
     latitude: z.number().min(-90).max(90).nullish(),
     longitude: z.number().min(-180).max(180).nullish(),
+    // HO-I: virtual/hybrid fields. Optional on create — default in_person.
+    location_type: z.enum(LOCATION_TYPES).optional().default('in_person'),
+    online_url: z.string().url().nullish(),
+    online_provider: z.enum(ONLINE_PROVIDERS).nullish(),
     // Create-time only: draft (save) or pending (submit for review).
     // Server re-injects after stripping SERVER_CONTROLLED_FIELDS; never
     // accept approved/rejected/cancelled from the client.
@@ -131,6 +141,10 @@ export const updateEventSchema = z.object({
   sub_city: z.string().nullable().optional(),
   latitude: z.number().min(-90).max(90).nullable().optional(),
   longitude: z.number().min(-180).max(180).nullable().optional(),
+  // HO-I: virtual/hybrid fields
+  location_type: z.enum(LOCATION_TYPES).optional(),
+  online_url: z.string().url().nullable().optional(),
+  online_provider: z.enum(ONLINE_PROVIDERS).nullable().optional(),
   status: z.enum(EVENT_STATUSES).optional(),
   rejection_reason: z.string().nullable().optional(),
   is_featured: z.boolean().optional(),

@@ -205,3 +205,107 @@ export const PromoCodeKeys = {
   validate: (code: string, eventId: string) =>
     ['PromoCode', 'validate', code, eventId] as const,
 };
+
+// ---------------------------------------------------------------------------
+// UserFollow (user ↔ user social graph — HO-A)
+// ---------------------------------------------------------------------------
+
+export const UserFollowKeys = {
+  all: () => ['user-follows'] as const,
+  byUser: (userId: string) => ['user-follows', userId] as const,
+};
+
+// ---------------------------------------------------------------------------
+// Feed (materialized activity feed — HO-A)
+// ---------------------------------------------------------------------------
+
+export const FeedKeys = {
+  all: () => ['feed'] as const,
+  list: (opts?: object) => ['feed', 'list', opts] as const,
+};
+
+// ---------------------------------------------------------------------------
+// EventQ&A (event questions / answers / votes — HO-B)
+// ---------------------------------------------------------------------------
+
+export const EventQaKeys = {
+  all: () => ['event-qa'] as const,
+  byEvent: (eventId: string) => ['event-qa', eventId] as const,
+};
+
+// ---------------------------------------------------------------------------
+// Collections (curated lists — HO-C)
+// ---------------------------------------------------------------------------
+
+export const CollectionKeys = {
+  all: () => ['collections'] as const,
+  mine: (opts?: object) => ['collections', 'me', opts] as const,
+  bySlug: (slug: string) => ['collection', slug] as const,
+  featured: () => ['collections', 'featured'] as const,
+};
+
+// ---------------------------------------------------------------------------
+// Gamification (badges · points · streaks — HO-D)
+// ---------------------------------------------------------------------------
+
+export const GamificationKeys = {
+  all: () => ['gamification'] as const,
+  byUser: (userId: string) => ['gamification', userId] as const,
+  me: () => ['gamification', 'me'] as const,
+};
+
+// ---------------------------------------------------------------------------
+// Referral (invite program — HO-E)
+// ---------------------------------------------------------------------------
+
+export const ReferralKeys = {
+  all: () => ['referral'] as const,
+  me: () => ['referral', 'me'] as const,
+  leaderboard: () => ['referral', 'leaderboard'] as const,
+};
+
+// ---------------------------------------------------------------------------
+// EventMedia (post-event galleries — HO-F)
+// ---------------------------------------------------------------------------
+
+export const EventMediaKeys = {
+  all: () => ['event-media'] as const,
+  byEvent: (key: string) => ['event-media', key] as const,
+};
+
+// ---------------------------------------------------------------------------
+// TicketTransfers (ticket transfers & resale — HO-G)
+// ---------------------------------------------------------------------------
+
+export const TicketTransferKeys = {
+  all: () => ['transfers'] as const,
+  mine: (opts?: object) => ['transfers', 'me', opts] as const,
+};
+
+// ---------------------------------------------------------------------------
+// WalletPass (Apple/Google wallet passes — HO-H)
+// ---------------------------------------------------------------------------
+
+export const WalletPassKeys = {
+  all: () => ['wallet-pass'] as const,
+  byTicket: (ticketId: string) => ['wallet-pass', ticketId] as const,
+};
+
+// ---------------------------------------------------------------------------
+// EventForm — custom registration form fields + answers (HO-I)
+// Spec key: ['event-form', eventId].
+// ---------------------------------------------------------------------------
+
+export const EventFormKeys = {
+  all: () => ['event-form'] as const,
+  byEvent: (eventId: string) => ['event-form', eventId] as const,
+};
+
+// ---------------------------------------------------------------------------
+// JoinLink — gated virtual/hybrid stream URL (HO-I)
+// ---------------------------------------------------------------------------
+
+export const JoinLinkKeys = {
+  all: () => ['join-link'] as const,
+  byEvent: (eventId: string) => ['join-link', eventId] as const,
+};

@@ -1,6 +1,8 @@
 export type EventStatus = "draft" | "pending" | "approved" | "rejected" | "cancelled";
 export type EventType = "conference" | "workshop" | "meetup" | "seminar" | "networking" | "concert" | "exhibition" | "training";
 export type TicketType = "free" | "paid";
+/** HO-I: virtual/hybrid support (online_url stays server-gated). */
+export type EventLocationType = "in_person" | "online" | "hybrid";
 export type UserRole = "attendee" | "organizer" | "admin";
 export type RegistrationStatus = "confirmed" | "cancelled" | "checked_in" | "waitlisted";
 
@@ -56,6 +58,8 @@ export interface Event {
   location: string;
   address: string;
   subCity: string;
+  /** HO-I: in_person | online | hybrid. */
+  locationType: EventLocationType;
   coordinates: { lat: number; lng: number };
   bannerImage: string;
   gallery: string[];

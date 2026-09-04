@@ -46,6 +46,29 @@ export type PromoCodeRow = Tables<'promo_codes'>;
 export type AiCacheRow = Tables<'ai_cache'>;
 
 // ---------------------------------------------------------------------------
+// V2.0 Row type aliases (EPIC 1–3: social, engagement, ticketing) — 038..046
+// ---------------------------------------------------------------------------
+
+export type UserFollowRow = Tables<'user_follows'>;
+export type FeedActivityRow = Tables<'feed_activities'>;
+export type EventQuestionRow = Tables<'event_questions'>;
+export type EventAnswerRow = Tables<'event_answers'>;
+export type EventQuestionVoteRow = Tables<'event_question_votes'>;
+export type CollectionRow = Tables<'collections'>;
+export type CollectionItemRow = Tables<'collection_items'>;
+export type BadgeRow = Tables<'badges'>;
+export type UserBadgeRow = Tables<'user_badges'>;
+export type PointLedgerRow = Tables<'point_ledger'>;
+export type ReferralRow = Tables<'referrals'>;
+export type ReferralRedemptionRow = Tables<'referral_redemptions'>;
+export type EventMediaRow = Tables<'event_media'>;
+export type EventMediaReactionRow = Tables<'event_media_reactions'>;
+export type TicketTransferRow = Tables<'ticket_transfers'>;
+export type WalletPassRow = Tables<'wallet_passes'>;
+export type EventFormFieldRow = Tables<'event_form_fields'>;
+export type RegistrationAnswerRow = Tables<'registration_answers'>;
+
+// ---------------------------------------------------------------------------
 // Enum type aliases (derived from generated types)
 // ---------------------------------------------------------------------------
 
@@ -69,3 +92,14 @@ export type SectionType = Enums<'section_type'>;
 export type SeatStatus = Enums<'seat_status'>;
 export type VerificationStatus = Enums<'verification_status'>;
 export type FeaturedDuration = Enums<'featured_duration'>;
+
+// ---------------------------------------------------------------------------
+// V2.0 Enum type aliases — 038..046
+// ---------------------------------------------------------------------------
+
+export type FeedVerb = Enums<'feed_verb'>;
+export type CollectionVisibility = Enums<'collection_visibility'>;
+export type MediaStatus = Enums<'media_status'>;
+export type TransferStatus = Enums<'transfer_status'>;
+export type ReferralStatus = Enums<'referral_status'>;
+export type FormFieldType = Enums<'form_field_type'>;
