@@ -26,6 +26,7 @@ import type {
   SeatStatus,
   VerificationStatus,
   FeaturedDuration,
+  FormFieldType,
 } from './generated/database.types';
 
 // ---------------------------------------------------------------------------
@@ -208,4 +209,27 @@ export const FEATURED_DURATIONS: readonly FeaturedDuration[] = [
   '7_days',
   '14_days',
   '30_days',
+] as const;
+
+// ---------------------------------------------------------------------------
+// Virtual / Hybrid events (HO-I)
+// ---------------------------------------------------------------------------
+
+export const LOCATION_TYPES = ['in_person', 'online', 'hybrid'] as const;
+export type LocationType = (typeof LOCATION_TYPES)[number];
+
+export const ONLINE_PROVIDERS = ['zoom', 'meet', 'custom'] as const;
+export type OnlineProvider = (typeof ONLINE_PROVIDERS)[number];
+
+// ---------------------------------------------------------------------------
+// Custom Registration Forms (HO-I)
+// ---------------------------------------------------------------------------
+
+export const FORM_FIELD_TYPES: readonly FormFieldType[] = [
+  'text',
+  'textarea',
+  'select',
+  'multiselect',
+  'checkbox',
+  'number',
 ] as const;
