@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { LanguageSwitcher } from "@/components/shared/language-switcher";
 import { NotificationBell } from "@/components/comms/notification-bell";
+import { PointsPill } from "@/components/gamification/points-pill";
 import { useLocale } from "@/lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -176,6 +177,7 @@ function DesktopAuthControls() {
 
   return (
     <div className="hidden md:flex items-center gap-3" ref={menuRef}>
+      <PointsPill />
       <NotificationBell />
       <div className="relative">
         <button
@@ -207,6 +209,9 @@ function DesktopAuthControls() {
             </div>
 
             {/* Navigation links */}
+            <Link href="/feed" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+              {t("nav.feed")}
+            </Link>
             <Link href="/my-events" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
               {t("nav.myEvents")}
             </Link>
@@ -296,6 +301,7 @@ function MobileAuthControls() {
 
   return (
     <div className="flex flex-col gap-3 pt-6 border-t border-border/40 mt-8">
+      <PointsPill />
       <NotificationBell />
       {/* User info */}
       <div className="flex items-center gap-3 px-2">
@@ -313,6 +319,9 @@ function MobileAuthControls() {
       </div>
 
       {/* Navigation links */}
+      <Link href="/feed" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+        {t("nav.feed")}
+      </Link>
       <Link href="/my-events" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
         {t("nav.myEvents")}
       </Link>
