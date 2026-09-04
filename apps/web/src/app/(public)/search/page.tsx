@@ -54,6 +54,7 @@ function toDisplayEvent(e: PublicEvent): Event {
     location: '',
     address: '',
     subCity: '',
+    locationType: 'in_person',
     coordinates: { lat: 0, lng: 0 },
     bannerImage: e.banner_image ?? '',
     gallery: [],

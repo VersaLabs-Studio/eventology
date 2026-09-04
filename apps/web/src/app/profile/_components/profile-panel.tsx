@@ -8,7 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TrophyCase } from "@/components/gamification/trophy-case";
 import { toast } from "sonner";
 import { useLocale } from "@/lib/i18n";
 
@@ -21,6 +23,7 @@ interface Profile {
   role: string;
   bio: string | null;
   website: string | null;
+  activity_private?: boolean;
   created_at: string;
 }
 
@@ -36,6 +39,7 @@ export function ProfilePanel() {
     bio: "",
     website: "",
   });
+  const [activityPrivate, setActivityPrivate] = React.useState(false);
 
   React.useEffect(() => {
     let mounted = true;
@@ -46,6 +50,7 @@ export function ProfilePanel() {
         const data = (await res.json()) as Profile;
         if (mounted) {
           setProfile(data);
+          setActivityPrivate(data.activity_private ?? false);
           setForm({
             full_name: data.full_name ?? "",
             phone: data.phone ?? "",
@@ -83,6 +88,7 @@ export function ProfilePanel() {
           phone: form.phone || null,
           bio: form.bio || null,
           website: form.website || null,
+          activity_private: activityPrivate,
         }),
       });
       if (!res.ok) {
@@ -214,8 +220,11 @@ export function ProfilePanel() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">{t("profile.website")}</label>
+              <label className="text-sm font-medium text-foreground" htmlFor="website">
+                {t("profile.website")}
+              </label>
               <Input
+                id="website"
                 value={form.website}
                 onChange={(e) => updateField("website", e.target.value)}
                 placeholder={t("profile.websitePlaceholder")}
@@ -223,6 +232,42 @@ export function ProfilePanel() {
             </div>
           </CardContent>
         </Card>
+      </motion.div>
+
+      {/* Privacy (HO-A) — activity feed visibility */}
+      <motion.div initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("social.privacyTitle")}</CardTitle>
+            <CardDescription>{t("social.privacyDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium text-foreground">{t("social.activityPrivateLabel")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("social.activityPrivateHint")}</p>
+              </div>
+              <Switch
+                checked={activityPrivate}
+                onCheckedChange={(checked) => {
+                  setActivityPrivate(checked);
+                  setDirty(true);
+                }}
+                aria-label={t("social.activityPrivateLabel")}
+                id="activity-private"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Trophy case (HO-D) — badges, points, streak */}
+      <motion.div initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}>
+        <TrophyCase />
       </motion.div>
     </motion.div>
   );

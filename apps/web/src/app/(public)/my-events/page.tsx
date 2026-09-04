@@ -13,7 +13,9 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useMyRegistrations } from "@/hooks/use-registrations";
 import { formatDate } from "@/lib/utils";
-import { CalendarDays, Ticket, MapPin, Download, Calendar, ChevronDown } from "lucide-react";
+import { TransferTicketDialog } from "@/components/tickets/transfer-ticket-dialog";
+import { useLocale } from "@/lib/i18n";
+import { CalendarDays, Ticket, MapPin, Download, Calendar, ChevronDown, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import { formatUTCDateTimeForICS, escapeICSString } from "@/lib/calendar";
 
@@ -239,16 +241,51 @@ function RegistrationCard({ registration }: { registration: import("@/hooks/use-
             </div>
 
             {registration.ticket && (
-              <Link href={`/ticket/${registration.ticket.id}`}>
-                <Button variant="outline" size="sm">
-                  <Ticket className="mr-2 h-3 w-3" />
-                  View Ticket
-                </Button>
-              </Link>
+              <>
+                {registration.status === "confirmed" && (
+                  <TransferTicketButton
+                    ticketId={registration.ticket.id}
+                    eventStartDate={registration.event?.start_date ?? null}
+                  />
+                )}
+                <Link href={`/ticket/${registration.ticket.id}`}>
+                  <Button variant="outline" size="sm">
+                    <Ticket className="mr-2 h-3 w-3" />
+                    View Ticket
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+/** HO-G: Transfer action + dialog wiring for my-events ticket rows. */
+function TransferTicketButton({
+  ticketId,
+  eventStartDate,
+}: {
+  ticketId: string;
+  eventStartDate: string | null;
+}) {
+  const { t } = useLocale();
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <ArrowRightLeft className="mr-2 h-3 w-3" />
+        {t("transfer.title")}
+      </Button>
+      <TransferTicketDialog
+        ticketId={ticketId}
+        eventStartDate={eventStartDate}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }

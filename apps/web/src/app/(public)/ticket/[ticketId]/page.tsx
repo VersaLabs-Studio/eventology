@@ -8,7 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TicketView } from "@/components/public/ticket-view";
 import { useTicket } from "@/hooks/use-tickets";
-import { Ticket, Calendar } from "lucide-react";
+import { TransferTicketDialog } from "@/components/tickets/transfer-ticket-dialog";
+import { AddToWallet } from "@/components/tickets/add-to-wallet";
+import { useLocale } from "@/lib/i18n";
+import { Ticket, Calendar, ArrowRightLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -62,6 +65,7 @@ export default function TicketPage() {
       location: ticket.event.venue_name ?? "",
       address: "",
       subCity: "",
+      locationType: "in_person" as const,
       coordinates: { lat: 0, lng: 0 },
       bannerImage: ticket.event.banner_image ?? "",
       gallery: [],
@@ -90,6 +94,7 @@ export default function TicketPage() {
       location: "",
       address: "",
       subCity: "",
+      locationType: "in_person" as const,
       coordinates: { lat: 0, lng: 0 },
       bannerImage: "",
       gallery: [],
@@ -119,6 +124,21 @@ export default function TicketPage() {
         </div>
         <TicketView ticket={ticketData} />
 
+        {/* HO-G: transfer / release-to-waitlist (valid + pre-event only; server enforces) */}
+        {ticket.status === "valid" && (
+          <div className="mt-4 flex justify-center print:hidden">
+            <TransferTicketButton
+              ticketId={ticket.id}
+              eventStartDate={ticket.event?.start_date ?? null}
+            />
+          </div>
+        )}
+
+        {/* HO-H: add to Apple / Google Wallet (server-issued passes) */}
+        <div className="mt-4 print:hidden">
+          <AddToWallet ticketId={ticket.id} />
+        </div>
+
         <div className="mt-6 text-center print:hidden">
           <Link href="/my-events">
             <Button variant="outline">
@@ -129,5 +149,32 @@ export default function TicketPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+/** HO-G: Transfer action + dialog wiring for the ticket detail page. */
+function TransferTicketButton({
+  ticketId,
+  eventStartDate,
+}: {
+  ticketId: string;
+  eventStartDate: string | null;
+}) {
+  const { t } = useLocale();
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <>
+      <Button variant="outline" onClick={() => setOpen(true)} className="min-h-[44px] rounded-xl font-bold">
+        <ArrowRightLeft className="mr-2 h-4 w-4" />
+        {t("transfer.title")}
+      </Button>
+      <TransferTicketDialog
+        ticketId={ticketId}
+        eventStartDate={eventStartDate}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }

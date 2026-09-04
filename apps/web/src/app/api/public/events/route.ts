@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { stripOnlineUrl } from '@/lib/events/sanitize-event';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -230,8 +231,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  // HO-I: online_url never leaves the server on a public surface — the
+  // gated join-link endpoint is the only reveal path.
+  const rows = (data ?? []) as unknown[];
   return NextResponse.json({
-    data: (data ?? []) as unknown[],
+    data: rows.map((row) => stripOnlineUrl(row as Record<string, unknown>)),
     meta: { total: count ?? 0, page, limit },
   } satisfies ListEnvelope<unknown>);
 }

@@ -59,8 +59,9 @@ export async function PUT(req: NextRequest) {
     );
   }
 
-  // Only allow updating safe fields
-  const allowedFields = ['full_name', 'phone', 'avatar_url', 'bio', 'website', 'social_links', 'preferences'];
+  // Only allow updating safe fields. `activity_private` (038) gates whether
+  // the user's actions appear in followers' feeds.
+  const allowedFields = ['full_name', 'phone', 'avatar_url', 'bio', 'website', 'social_links', 'preferences', 'activity_private'];
   const updates: Record<string, unknown> = {};
   for (const key of allowedFields) {
     if (key in body) updates[key] = body[key];
@@ -88,4 +89,13 @@ export async function PUT(req: NextRequest) {
   }
 
   return NextResponse.json(data);
+}
+
+/**
+ * PATCH /api/protected/profile — partial update (HO-A: `activity_private`
+ * toggle). Shares the PUT whitelist/logic; only fields present in the body
+ * are applied.
+ */
+export async function PATCH(req: NextRequest) {
+  return PUT(req);
 }

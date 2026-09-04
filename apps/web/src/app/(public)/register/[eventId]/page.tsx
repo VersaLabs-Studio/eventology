@@ -15,6 +15,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ProfileKeys } from "@eventology/config";
 import { useEventBySlug } from "@/hooks/use-events";
 import { useCreateRegistration } from "@/hooks/use-registrations";
+import { useSubmitAnswers } from "@/hooks/use-event-form";
+import { DynamicRegistrationForm } from "@/components/forms/dynamic-registration-form";
+import { FriendsAttending } from "@/components/social/friends-attending";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { Calendar, MapPin, Ticket, CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
@@ -44,6 +47,20 @@ export default function RegisterPage() {
 
   const { data: event, isLoading, isError } = useEventBySlug(eventId);
   const createRegistration = useCreateRegistration();
+  const submitAnswers = useSubmitAnswers();
+
+  // HO-I: custom registration questions — answers accumulate keyed by
+  // field_id and POST to /api/protected/registrations/[id]/answers after
+  // the registration row exists.
+  const [answers, setAnswers] = React.useState<Record<string, unknown>>({});
+  const handleAnswerChange = React.useCallback((fieldId: string, value: unknown) => {
+    setAnswers((prev) => {
+      const next = { ...prev };
+      if (value === undefined) delete next[fieldId];
+      else next[fieldId] = value;
+      return next;
+    });
+  }, []);
 
   // Fetch the current user's profile for pre-fill (full_name, email, phone)
   const { data: profile } = useQuery({
@@ -156,6 +173,24 @@ export default function RegisterPage() {
       // R3 / A1: when payments are off, the server never returns a
       // `checkout_url` (the paid path is short-circuited server-side too).
       const resultData = result as { checkout_url?: string; registration?: { id: string } };
+
+      // HO-I: submit custom-form answers once the registration row exists.
+      // Best-effort: the registration has already succeeded; a failure here
+      // surfaces a toast (attendee answers aren't payment-critical) but the
+      // flow continues.
+      const registrationId = resultData.registration?.id;
+      if (registrationId && Object.keys(answers).length > 0) {
+        try {
+          await submitAnswers.mutateAsync({
+            registrationId,
+            answers: Object.entries(answers).map(([field_id, value]) => ({ field_id, value })),
+          });
+        } catch (answerErr) {
+          console.warn("[register] answers submission failed:", answerErr);
+          toast.error(t("forms.submitFailed"));
+        }
+      }
+
       if (resultData.checkout_url && paymentsOn) {
         toast.success(t('registration.successPaid'));
         router.push(resultData.checkout_url);
@@ -227,6 +262,9 @@ export default function RegisterPage() {
             </Badge>
           </CardContent>
         </Card>
+
+        {/* HO-A: people I follow who are registered (hidden when none) */}
+        <FriendsAttending eventId={event.id} />
 
         <Card>
           <CardContent className="p-6">
@@ -338,6 +376,13 @@ export default function RegisterPage() {
                   />
                 </div>
               </div>
+
+              {/* HO-I: organizer-defined custom questions (server-validated) */}
+              <DynamicRegistrationForm
+                slug={event.slug}
+                values={answers}
+                onChange={handleAnswerChange}
+              />
 
               <Button
                 type="submit"

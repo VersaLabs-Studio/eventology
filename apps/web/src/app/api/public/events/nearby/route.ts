@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { stripOnlineUrl } from '@/lib/events/sanitize-event';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 /**
@@ -84,6 +85,6 @@ export async function GET(req: NextRequest) {
     );
 
   return NextResponse.json(
-    { data: withDistance, meta: { total: withDistance.length, page: 1, limit } } satisfies ListEnvelope<unknown>
+    { data: withDistance.map((row) => stripOnlineUrl(row)), meta: { total: withDistance.length, page: 1, limit } } satisfies ListEnvelope<unknown>
   );
 }

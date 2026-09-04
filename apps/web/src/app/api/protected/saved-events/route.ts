@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAuthedClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 import { createSavedEventSchema } from '@eventology/schemas';
+import { stripOnlineUrl } from '@/lib/events/sanitize-event';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 // Reuse the public event card field set so the mobile `MobileEvent` shape
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest) {
     .filter((e): e is NonNullable<typeof e> => e != null);
 
   return NextResponse.json({
-    data: events,
+    data: events.map((row) => stripOnlineUrl(row as { online_url?: unknown; online_provider?: unknown })),
     meta: { total: count ?? 0, page, limit },
   } satisfies ListEnvelope<unknown>);
 }

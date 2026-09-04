@@ -22,7 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEventAnalytics } from "@/hooks/use-event-analytics";
 import { useEventRegistrations } from "@/hooks/use-registrations";
 import { formatDate } from "@/lib/utils";
-import { Calendar, Eye, TrendingUp, Percent, ExternalLink, Megaphone, Sparkles } from "lucide-react";
+import { Calendar, Eye, TrendingUp, Percent, ExternalLink, Megaphone, Sparkles, ListChecks, Download } from "lucide-react";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
 
@@ -178,6 +178,9 @@ export default function EventManagePage() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="registrations">Registrations</TabsTrigger>
+          <TabsTrigger value="form">
+            <ListChecks className="mr-1 h-3.5 w-3.5" /> Form
+          </TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="check-in">Check-In</TabsTrigger>
           <TabsTrigger value="sponsors">Sponsors</TabsTrigger>
@@ -250,7 +253,32 @@ export default function EventManagePage() {
         </TabsContent>
 
         <TabsContent value="registrations" className="mt-6">
+          <div className="flex justify-end mb-3">
+            <Button variant="outline" size="sm" className="rounded-xl font-bold" asChild>
+              <a href={`/api/protected/events/${event.id}/registrations/export`} download>
+                <Download className="h-4 w-4 mr-1.5" /> Export CSV
+              </a>
+            </Button>
+          </div>
           <RegistrationTable eventId={event.id} />
+        </TabsContent>
+
+        {/* HO-I: custom registration questions builder */}
+        <TabsContent value="form" className="mt-6">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 mb-6 flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="font-display font-semibold">Custom registration form</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Ask attendees questions at registration (dietary needs, t-shirt size, session picks).
+                Answers export with the CSV.
+              </p>
+            </div>
+            <Button variant="accent" size="sm" className="rounded-xl font-bold" asChild>
+              <Link href={`/org/events/${event.id}/form`}>
+                <ListChecks className="h-4 w-4 mr-1.5" /> Open form builder
+              </Link>
+            </Button>
+          </div>
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">

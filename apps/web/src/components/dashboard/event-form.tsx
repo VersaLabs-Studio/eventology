@@ -43,6 +43,14 @@ export function EventForm() {
   const [description, setDescription] = React.useState("");
   const [tags, setTags] = React.useState("");
 
+  // HO-I: virtual / hybrid location support. in_person events keep the
+  // existing venue fields; online/hybrid also capture the gated meeting URL.
+  const [locationType, setLocationType] = React.useState<
+    'in_person' | 'online' | 'hybrid'
+  >('in_person');
+  const [onlineUrl, setOnlineUrl] = React.useState("");
+  const [onlineProvider, setOnlineProvider] = React.useState<'zoom' | 'meet' | 'custom'>('custom');
+
   // Real media state — uploaded to Supabase Storage (event-banners bucket).
   const [bannerImage, setBannerImage] = React.useState<string | null>(null);
   const [gallery, setGallery] = React.useState<(string | null)[]>(Array(4).fill(null));
@@ -82,6 +90,12 @@ export function EventForm() {
       toast.error('Start date is required');
       return;
     }
+    // HO-I: online/hybrid events need a join URL (it is gated server-side,
+    // but the event is useless to attendees without one).
+    if (locationType !== 'in_person' && !onlineUrl.trim()) {
+      toast.error('Online events need a meeting URL');
+      return;
+    }
     try {
       // Single POST — status is set server-side from this field (draft|pending only).
       // No follow-up PUT: status is SERVER_CONTROLLED and events UPDATE RLS is strict.
@@ -102,6 +116,13 @@ export function EventForm() {
         venue_name: venue || undefined,
         venue_address: address || undefined,
         sub_city: subCity || undefined,
+        location_type: locationType,
+        online_url:
+          locationType !== 'in_person' && onlineUrl.trim()
+            ? onlineUrl.trim()
+            : undefined,
+        online_provider:
+          locationType !== 'in_person' ? onlineProvider : undefined,
         capacity: 100,
         tags: tags ? tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
         gallery: gallery.filter((u): u is string => Boolean(u)),
@@ -187,6 +208,50 @@ export function EventForm() {
       <section>
         <h3 className="font-display font-semibold text-lg mb-4">3. Location</h3>
         <div className="space-y-4">
+          <div>
+            <Label>Location Type</Label>
+            <Select
+              value={locationType}
+              onValueChange={(v) => setLocationType(v as typeof locationType)}
+            >
+              <SelectTrigger><SelectValue placeholder="Select location type" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="in_person">In person</SelectItem>
+                <SelectItem value="online">Online</SelectItem>
+                <SelectItem value="hybrid">Hybrid</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {locationType !== 'in_person' && (
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Meeting URL</Label>
+                <Input
+                  type="url"
+                  value={onlineUrl}
+                  onChange={(e) => setOnlineUrl(e.target.value)}
+                  placeholder="https://zoom.us/j/…"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Shown only to confirmed attendees after registration.
+                </p>
+              </div>
+              <div>
+                <Label>Provider</Label>
+                <Select
+                  value={onlineProvider}
+                  onValueChange={(v) => setOnlineProvider(v as typeof onlineProvider)}
+                >
+                  <SelectTrigger><SelectValue placeholder="Provider" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="zoom">Zoom</SelectItem>
+                    <SelectItem value="meet">Google Meet</SelectItem>
+                    <SelectItem value="custom">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
           <div>
             <Label>Venue Name</Label>
             <Input value={venue} onChange={(e) => setVenue(e.target.value)} placeholder="e.g., Millennium Hall" />

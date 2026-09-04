@@ -5,6 +5,46 @@ import { createReviewSchema } from '@eventology/schemas';
 import type { ErrorEnvelope } from '@/lib/api';
 
 /**
+ * GET /api/protected/reviews — List the caller's own reviews.
+ *
+ * Used by mobile's useProfileStats hook (reviews stat tile) and
+ * any future review-list surface. Returns { data, meta: { total, page, limit } }.
+ */
+export async function GET(req: NextRequest) {
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) {
+    return NextResponse.json(
+      { error: { code: 'UNAUTHORIZED', message: 'Authentication required' } } satisfies ErrorEnvelope,
+      { status: 401 }
+    );
+  }
+
+  const { searchParams } = new URL(req.url);
+  const page   = Number(searchParams.get('page') ?? 1);
+  const limit  = Number(searchParams.get('limit') ?? 20);
+  const offset = (page - 1) * limit;
+
+  const supabase = await createAuthedClient(session.user.id);
+
+  let query = supabase
+    .from('reviews')
+    .select('*', { count: 'exact' })
+    .eq('user_id', session.user.id)
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  const { data, error, count } = await query;
+  if (error) {
+    return NextResponse.json(
+      { error: { code: 'DB_ERROR', message: error.message } } satisfies ErrorEnvelope,
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ data, meta: { total: count ?? 0, page, limit } });
+}
+
+/**
  * POST /api/protected/reviews
  * Submit a review for an event the caller attended.
  *
@@ -130,6 +170,10 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  // HO-D: reviewer badge award (fire-and-forget; fn_award_badge is a no-op
+  // until the 'reviewer' badge exists in the catalog seed).
+  void supabase.rpc('fn_award_badge', { p_user: session.user.id, p_code: 'reviewer' });
 
   return NextResponse.json(data, { status: 201 });
 }
