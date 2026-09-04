@@ -237,7 +237,10 @@ export interface GeneratePerformancePredictionOutput {
 // 9. Moderate Content
 export interface ModerateContentInput {
   content: string;
-  content_type: 'event_description' | 'review' | 'message' | 'profile_bio';
+  // HO-B/HO-F: 'event_question' and 'event_photo' added additively
+  // (type-level only) so Q&A and gallery content can be consumed through the
+  // existing moderation seam — no behavior change.
+  content_type: 'event_description' | 'review' | 'message' | 'profile_bio' | 'event_question' | 'event_photo';
   context?: string;
 }
 
