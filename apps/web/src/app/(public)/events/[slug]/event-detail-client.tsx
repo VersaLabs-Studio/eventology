@@ -18,7 +18,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useEventBySlug, useEvents } from "@/hooks/use-events";
 import { formatDate, formatCurrency, getInitials } from "@/lib/utils";
 import {
-  Calendar, Clock, MapPin, Share2, CheckCircle, Copy, ExternalLink, CalendarPlus, Download, Check, AlertTriangle
+Calendar, Clock, MapPin, Share2, CheckCircle, Copy, ExternalLink, CalendarPlus, Download, Check, AlertTriangle, MonitorPlay
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -29,6 +29,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { downloadSingleEventICS, getGoogleCalendarLink } from "@/lib/calendar";
 import { EventReviews } from "@/components/events/event-reviews-polished";
+import { FriendsAttending } from "@/components/social/friends-attending";
+import { QuestionThread } from "@/components/qa/question-thread";
+import { SaveToList } from "@/components/collections/save-to-list";
+import { EventGallery } from "@/components/gallery/event-gallery";
+import { JoinOnlineButton } from "@/components/events/join-online-button";
+import { useLocale } from "@/lib/i18n";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { paymentsEnabled } from "@/lib/config/features";
 
@@ -123,6 +129,7 @@ interface EventDetailClientProps {
 }
 
 export default function EventDetailClient({ slug }: EventDetailClientProps) {
+  const { t } = useLocale();
   const { data: event, isLoading, isError } = useEventBySlug(slug);
 
   if (isLoading) {
@@ -180,6 +187,7 @@ export default function EventDetailClient({ slug }: EventDetailClientProps) {
 }
 
 function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
+  const { t } = useLocale();
   const [galleryOpen, setGalleryOpen] = React.useState<string | null>(null);
   const paymentsOn = paymentsEnabled();
   // R3 / A1: when payments are off, suppress the "From X" price badge
@@ -261,6 +269,12 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
           <div className="absolute bottom-4 left-4 right-4 z-20">
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="secondary" className="backdrop-blur-md bg-secondary/90 text-white border-none">{event.category.name}</Badge>
+              {event.locationType !== 'in_person' && (
+                <Badge className="backdrop-blur-md border-none shadow-none bg-primary/90 text-white">
+                  <MonitorPlay className="h-3 w-3 mr-1" />
+                  {event.locationType === 'hybrid' ? t('events.hybridBadge') : t('events.onlineBadge')}
+                </Badge>
+              )}
               {event.isFeatured && <Badge variant="accent" className="shadow-accent-glow border-none">Featured</Badge>}
             </div>
             <h1 className="font-display font-bold text-3xl text-white drop-shadow-lg">{event.title}</h1>
@@ -300,6 +314,9 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
             </div>
             
             <div className="flex items-center gap-2 shrink-0">
+              {/* HO-C: add event to a user list */}
+              <SaveToList eventId={event.id} />
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -425,8 +442,14 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
               )}
             </section>
 
+            {/* HO-F: attendee photo gallery (RLS-scoped, moderation-gated) */}
+            <EventGallery slug={event.slug} />
+
             {/* Verified Attendee Reviews Section */}
             <EventReviews event={{ id: event.id, slug: event.slug, title: event.title, date: event.date }} />
+
+            {/* HO-B: Event Q&A / Discussion */}
+            <QuestionThread slug={event.slug} eventId={event.id} />
 
             {similar.length > 0 && (
               <section className="mt-12">
@@ -469,6 +492,9 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
               </CardContent>
             </Card>
 
+            {/* HO-A: people I follow who are registered (hidden when none) */}
+            <FriendsAttending eventId={event.id} />
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -490,15 +516,30 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
 
             <Card>
               <CardContent className="p-4">
-                <h4 className="font-medium text-sm mb-2">Location</h4>
-                <VenueMap
-                  lat={event.coordinates.lat}
-                  lng={event.coordinates.lng}
-                  title={event.location}
-                  address={event.address}
-                  height="200px"
-                />
-                <p className="text-xs text-muted-foreground mt-2">{event.address}, {event.subCity}</p>
+                <h4 className="font-medium text-sm mb-2">
+                  {event.locationType === 'online' ? t('events.onlineLocation') : t('events.locationCard')}
+                </h4>
+                {/* HO-I: online events — gated join button instead of a map */}
+                {event.locationType === 'online' ? (
+                  <JoinOnlineButton eventId={event.id} />
+                ) : (
+                  <>
+                    <VenueMap
+                      lat={event.coordinates.lat}
+                      lng={event.coordinates.lng}
+                      title={event.location}
+                      address={event.address}
+                      height="200px"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">{event.address}, {event.subCity}</p>
+                  </>
+                )}
+                {/* HO-I: hybrid — map + gated join button */}
+                {event.locationType === 'hybrid' && (
+                  <div className="mt-3">
+                    <JoinOnlineButton eventId={event.id} />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

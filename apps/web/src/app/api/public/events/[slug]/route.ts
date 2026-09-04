@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { stripOnlineUrl } from '@/lib/events/sanitize-event';
 import type { ErrorEnvelope } from '@/lib/api';
 
 const SELECT_FIELDS = `
@@ -42,5 +43,7 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(data);
+  // HO-I: online_url never leaves the server on a public surface — the
+  // gated join-link endpoint is the only reveal path.
+  return NextResponse.json(stripOnlineUrl(data));
 }

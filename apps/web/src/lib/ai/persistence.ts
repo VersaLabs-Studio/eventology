@@ -72,7 +72,10 @@ export async function writeFraudSignal(
 // ---------------------------------------------------------------------------
 
 export interface ModerationInsert {
-  content_type: 'event_description' | 'review' | 'message' | 'profile_bio';
+  // HO-B/HO-F: 'event_question' and 'event_photo' added additively
+  // (type-level only) to persist Q&A and gallery moderation verdicts through
+  // the existing pipeline — no behavior change.
+  content_type: 'event_description' | 'review' | 'message' | 'profile_bio' | 'event_question' | 'event_photo';
   content_id: string;
   author_id: string | null;
   is_safe: boolean;

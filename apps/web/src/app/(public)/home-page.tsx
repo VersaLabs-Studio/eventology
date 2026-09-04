@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Search, UserPlus, Ticket, ArrowRight, Globe2, ShieldCheck, Zap } from "lucide-react";
 import { useEvents } from "@/hooks/use-events";
 import { useLocale } from "@/lib/i18n";
+import { RefCapture } from "@/components/referral/ref-capture";
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
@@ -51,6 +52,11 @@ export function PublicHomePage() {
 
   return (
     <>
+      {/* HO-E: capture ?ref= before anything else (Suspense for useSearchParams) */}
+      <React.Suspense fallback={null}>
+        <RefCapture />
+      </React.Suspense>
+
       <HeroSection />
 
       {/* Featured Carousel — above the fold */}

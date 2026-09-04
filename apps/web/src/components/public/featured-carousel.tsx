@@ -22,6 +22,7 @@ interface PublicEvent {
   event_type: string;
   ticket_type: 'free' | 'paid';
   is_featured: boolean;
+  location_type?: string;
   category?: { id: string; name: string; slug: string; color: string } | null;
   organizer?: { id: string; name: string; slug: string; is_verified: boolean } | null;
   ticket_tiers?: Array<{ id: string; name: string; price: number; currency: string }>;
@@ -71,6 +72,7 @@ export function FeaturedCarousel() {
     location: '',
     address: '',
     subCity: '',
+    locationType: (e.location_type === 'online' || e.location_type === 'hybrid' ? e.location_type : 'in_person') as Event['locationType'],
     coordinates: { lat: 0, lng: 0 },
     bannerImage: e.banner_image ?? '',
     gallery: [],
