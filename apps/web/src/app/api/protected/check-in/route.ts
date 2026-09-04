@@ -102,6 +102,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // HO-G: reject rotated (transferred) tickets whose QR predates the rotation.
+  // The transfer fn bumps tickets.qr_version atomically; a stale scanned
+  // version means the presented code was invalidated by a transfer. Legacy
+  // payloads parse as version 0, matching untransferred tickets.
+  const ticketVersion = (ticket as { qr_version?: number }).qr_version ?? 0;
+  if (payload.version !== ticketVersion) {
+    return NextResponse.json(
+      { error: { code: 'QR_EXPIRED', message: 'This QR code was invalidated by a ticket transfer' } } satisfies ErrorEnvelope,
+      { status: 400 }
+    );
+  }
+
   // SEV-3: Verify the organizer owns THIS event before disclosing ticket state
   const { data: event } = await supabase
     .from('events')
