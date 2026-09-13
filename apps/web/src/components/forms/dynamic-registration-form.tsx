@@ -39,42 +39,51 @@ export function DynamicRegistrationForm({ slug, values, onChange }: Props) {
 
   const renderField = (field: PublicFormField) => {
     const value = values[field.id];
+    const fieldId = `form-field-${field.id}`;
+    const describedBy = `${fieldId}-label`;
     switch (field.field_type) {
       case "text":
         return (
           <Input
+            id={fieldId}
             type="text"
             value={(value as string) ?? ""}
             onChange={(e) => onChange(field.id, e.target.value)}
             required={field.required}
             maxLength={2000}
+            aria-labelledby={describedBy}
           />
         );
       case "textarea":
         return (
           <textarea
+            id={fieldId}
             className="flex min-h-[80px] w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             value={(value as string) ?? ""}
             onChange={(e) => onChange(field.id, e.target.value)}
             required={field.required}
             maxLength={2000}
+            aria-labelledby={describedBy}
           />
         );
       case "number":
         return (
           <Input
+            id={fieldId}
             type="number"
             value={typeof value === "number" ? String(value) : ""}
             onChange={(e) =>
               onChange(field.id, e.target.value === "" ? undefined : Number(e.target.value))
             }
             required={field.required}
+            aria-labelledby={describedBy}
           />
         );
       case "checkbox":
         return (
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-sm" htmlFor={fieldId}>
             <input
+              id={fieldId}
               type="checkbox"
               checked={value === true}
               onChange={(e) => onChange(field.id, e.target.checked)}
@@ -86,10 +95,12 @@ export function DynamicRegistrationForm({ slug, values, onChange }: Props) {
       case "select":
         return (
           <select
+            id={fieldId}
             className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             value={(value as string) ?? ""}
             onChange={(e) => onChange(field.id, e.target.value || undefined)}
             required={field.required}
+            aria-labelledby={describedBy}
           >
             <option value="">{t("forms.selectOption")}</option>
             {(field.options ?? []).map((opt) => (
@@ -101,7 +112,7 @@ export function DynamicRegistrationForm({ slug, values, onChange }: Props) {
         );
       case "multiselect":
         return (
-          <div className="space-y-1.5">
+          <div className="space-y-1.5" role="group" aria-labelledby={describedBy}>
             {(field.options ?? []).map((opt) => {
               const arr = Array.isArray(value) ? (value as string[]) : [];
               const checked = arr.includes(opt);
@@ -135,7 +146,7 @@ export function DynamicRegistrationForm({ slug, values, onChange }: Props) {
       {fields.map((field) => (
         <div key={field.id}>
           {field.field_type !== "checkbox" && (
-            <Label className="mb-1 block">
+            <Label id={`form-field-${field.id}-label`} className="mb-1 block">
               {field.label}
               {field.required && " *"}
             </Label>
