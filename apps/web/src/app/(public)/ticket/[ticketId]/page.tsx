@@ -7,19 +7,74 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TicketView } from "@/components/public/ticket-view";
-import { useTicket } from "@/hooks/use-tickets";
+import { useTicket, type TicketWithRelations } from "@/hooks/use-tickets";
 import { TransferTicketDialog } from "@/components/tickets/transfer-ticket-dialog";
 import { AddToWallet } from "@/components/tickets/add-to-wallet";
 import { useLocale } from "@/lib/i18n";
-import { Ticket, Calendar, ArrowRightLeft } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  setTicketCachePartition,
+  putTicket,
+  getTicket,
+  evictIfVersionChanged,
+  evictTicket,
+} from "@/lib/pwa/ticket-cache";
+import type { CachedTicket } from "@/lib/pwa/types";
+import { Ticket, Calendar, ArrowRightLeft, WifiOff, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function TicketPage() {
   const params = useParams();
   const ticketId = params.ticketId as string;
+  const { t } = useLocale();
+  const { user } = useAuth();
 
-  const { data: ticket, isLoading, isError } = useTicket(ticketId);
+  const { data: ticketQ, isLoading, isError } = useTicket(ticketId);
+
+  // HO-L: partition the offline cache by the signed-in profile BEFORE any
+  // cache read/write — cross-user isolation is namespaced by profile id.
+  React.useEffect(() => {
+    setTicketCachePartition(user?.id ?? null);
+  }, [user?.id]);
+
+  const [cached, setCached] = React.useState<CachedTicket | null>(null);
+  const [showingFromCache, setShowingFromCache] = React.useState(false);
+
+  // Online success: reconcile versions (a transfer rotates qr_version —
+  // HO-G), refresh the cache with the server payload, and surface the
+  // "available offline / last synced" state.
+  React.useEffect(() => {
+    if (!ticketQ) return;
+    void (async () => {
+      await evictIfVersionChanged(ticketId, ticketQ.qr_version);
+      await putTicket(ticketId, ticketQ);
+      setCached(await getTicket(ticketId));
+      setShowingFromCache(false);
+    })();
+  }, [ticketQ, ticketId]);
+
+  // Fetch error: if we're OFFLINE, fall back to the cached payload; if
+  // we're ONLINE, the denial is authoritative (e.g. ticket transferred
+  // away) — evict so the stale QR can't be used offline later.
+  React.useEffect(() => {
+    if (!isError) return;
+    void (async () => {
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        await evictTicket(ticketId);
+        setCached(null);
+        return;
+      }
+      const entry = await getTicket(ticketId);
+      if (entry) {
+        setCached(entry);
+        setShowingFromCache(true);
+      }
+    })();
+  }, [isError, ticketId]);
+
+  // The payload to render: live server data, or the verbatim cached copy.
+  const source = (showingFromCache ? cached?.payload : ticketQ) as TicketWithRelations | undefined;
 
   if (isLoading) {
     return (
@@ -31,19 +86,20 @@ export default function TicketPage() {
     );
   }
 
-  if (isError || !ticket) {
+  if (!source) {
     return (
       <div className="max-w-lg mx-auto px-4 py-8">
         <EmptyState
           icon={Ticket}
-          title="Ticket not found"
-          description="This ticket may have been removed or you don't have access to it."
-          action={{ label: "My Events", onClick: () => window.location.href = "/my-events" }}
+          title={t("ticket.notFoundTitle")}
+          description={t("ticket.notFoundBody")}
+          action={{ label: t("ticket.myEvents"), onClick: () => window.location.href = "/my-events" }}
         />
       </div>
     );
   }
 
+  const ticket = source;
   // Transform ticket data for TicketView component
   const ticketData = {
     id: ticket.id,
@@ -120,12 +176,41 @@ export default function TicketPage() {
     <div className="max-w-lg mx-auto px-4 py-8 print:max-w-none print:p-0">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="print:hidden">
-          <PageHeader title={`Your Ticket — ${ticket.event?.title ?? "Event"}`} />
+          <PageHeader title={t("ticket.yourTicket", { event: source.event?.title ?? "Event" })} />
         </div>
+
+        {/* HO-L: offline / last-synced state — never silently show a cached QR */}
+        {showingFromCache ? (
+          <div
+            className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2.5 text-xs print:hidden"
+            role="status"
+          >
+            <WifiOff className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <span className="text-muted-foreground">
+              {t("pwa.offlineNotice", {
+                time: cached ? new Date(cached.cachedAt).toLocaleString() : "",
+              })}
+            </span>
+          </div>
+        ) : (
+          cached && (
+            <div
+              className="mb-3 flex items-center gap-2 px-1 text-xs text-muted-foreground print:hidden"
+              role="status"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
+              {t("pwa.availableOffline", {
+                time: new Date(cached.cachedAt).toLocaleTimeString(),
+              })}
+            </div>
+          )
+        )}
+
         <TicketView ticket={ticketData} />
 
-        {/* HO-G: transfer / release-to-waitlist (valid + pre-event only; server enforces) */}
-        {ticket.status === "valid" && (
+        {/* HO-G: transfer / release-to-waitlist (valid + pre-event only; server enforces).
+            Hidden when rendering from cache — these actions need the network. */}
+        {ticket.status === "valid" && !showingFromCache && (
           <div className="mt-4 flex justify-center print:hidden">
             <TransferTicketButton
               ticketId={ticket.id}
@@ -134,16 +219,18 @@ export default function TicketPage() {
           </div>
         )}
 
-        {/* HO-H: add to Apple / Google Wallet (server-issued passes) */}
-        <div className="mt-4 print:hidden">
-          <AddToWallet ticketId={ticket.id} />
-        </div>
+        {/* HO-H: add to Apple / Google Wallet (server-issued passes). Hidden offline. */}
+        {!showingFromCache && (
+          <div className="mt-4 print:hidden">
+            <AddToWallet ticketId={ticket.id} />
+          </div>
+        )}
 
         <div className="mt-6 text-center print:hidden">
           <Link href="/my-events">
             <Button variant="outline">
               <Calendar className="mr-2 h-4 w-4" />
-              View All My Events
+              {t("ticket.myEvents")}
             </Button>
           </Link>
         </div>
