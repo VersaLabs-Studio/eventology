@@ -214,6 +214,41 @@ export type Database = {
           },
         ]
       }
+      calendar_feed_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          profile_id: string
+          revoked: boolean
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          profile_id: string
+          revoked?: boolean
+          token: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          profile_id?: string
+          revoked?: boolean
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_feed_tokens_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           color: string
@@ -472,6 +507,45 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "event_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_announcements: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          event_id: string
+          id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          event_id: string
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_announcements_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_announcements_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
             referencedColumns: ["id"]
           },
         ]
