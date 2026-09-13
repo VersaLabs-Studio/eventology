@@ -1,10 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { MotionConfig } from "framer-motion";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { I18nProvider, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
+import { SWRegister } from "@/components/pwa/sw-register";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -40,6 +43,13 @@ export const metadata: Metadata = {
     // shared source; Next/Image derives smaller variants per device.
     icon: "/logo.png",
   },
+  // HO-L: installable PWA (hand-rolled service worker, see public/sw.js).
+  manifest: "/manifest.json",
+};
+
+// HO-L: theme color for the browser chrome / installed app window.
+export const viewport: Viewport = {
+  themeColor: "#6366f1",
 };
 
 /**
@@ -69,12 +79,13 @@ export default async function RootLayout({
   const initialLocale = await resolveInitialLocale();
 
   return (
-    <html
-      lang={initialLocale}
-      suppressHydrationWarning
-      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
-    >
-      <head>
+    <MotionConfig reducedMotion="user">
+      <html
+        lang={initialLocale}
+        suppressHydrationWarning
+        className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
+      >
+        <head>
         {/*
           R4 / W1: Preload the LCP logo so first paint doesn't wait on
           the PNG round-trip. The hero <Image> and the <Logo> in the
@@ -103,10 +114,14 @@ export default async function RootLayout({
               {children}
             </TooltipProvider>
             <Toaster position="bottom-right" richColors closeButton />
+            {/* HO-L: SW registration + update prompt, and the install UI */}
+            <SWRegister />
+            <InstallPrompt />
           </QueryProvider>
         </I18nProvider>
       </body>
-    </html>
+      </html>
+    </MotionConfig>
   );
 }
 
