@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEventAnalytics } from "@/hooks/use-event-analytics";
 import { useEventRegistrations } from "@/hooks/use-registrations";
 import { formatDate } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n";
 import { Calendar, Eye, TrendingUp, Percent, ExternalLink, Megaphone, Sparkles, ListChecks, Download } from "lucide-react";
 import { notFound } from "next/navigation";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ const statusVariant: Record<string, "success" | "destructive" | "outline" | "def
 export default function EventManagePage() {
   const params = useParams();
   const eventId = params.eventId as string;
+  const { t } = useLocale();
 
   const meQ = useQuery<{ organizerId: string | null }>({
     queryKey: ['organizer-me'],
@@ -256,7 +258,7 @@ export default function EventManagePage() {
           <div className="flex justify-end mb-3">
             <Button variant="outline" size="sm" className="rounded-xl font-bold" asChild>
               <a href={`/api/protected/events/${event.id}/registrations/export`} download>
-                <Download className="h-4 w-4 mr-1.5" /> Export CSV
+                <Download className="h-4 w-4 mr-1.5" /> {t('forms.exportCsv')}
               </a>
             </Button>
           </div>
@@ -267,15 +269,14 @@ export default function EventManagePage() {
         <TabsContent value="form" className="mt-6">
           <div className="rounded-2xl border border-border/60 bg-card p-5 mb-6 flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <p className="font-display font-semibold">Custom registration form</p>
+              <p className="font-display font-semibold">{t('forms.tabTitle')}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Ask attendees questions at registration (dietary needs, t-shirt size, session picks).
-                Answers export with the CSV.
+                {t('forms.tabDescription')}
               </p>
             </div>
             <Button variant="accent" size="sm" className="rounded-xl font-bold" asChild>
               <Link href={`/org/events/${event.id}/form`}>
-                <ListChecks className="h-4 w-4 mr-1.5" /> Open form builder
+                <ListChecks className="h-4 w-4 mr-1.5" /> {t('forms.openBuilder')}
               </Link>
             </Button>
           </div>
