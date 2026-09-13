@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 const navLinks = [
   { href: "/", labelKey: "nav.home" },
   { href: "/events", labelKey: "nav.events" },
+  { href: "/discover", labelKey: "nav.discover" }, // HO-J: discovery hub
   { href: "/search", labelKey: "nav.search" },
 ];
 
