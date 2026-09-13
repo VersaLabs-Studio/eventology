@@ -67,6 +67,14 @@ export function useAuth() {
    * Sign out the current user and redirect to home.
    */
   const logout = async () => {
+    // HO-L: clear THIS user's offline ticket cache before the session dies,
+    // so no ticket data survives an account switch.
+    try {
+      const { clearTicketCache } = await import('@/lib/pwa/ticket-cache');
+      await clearTicketCache();
+    } catch {
+      // cache clearing is best-effort — never block sign-out
+    }
     await signOut();
     toast.success('Logged out successfully.');
     router.push('/');
