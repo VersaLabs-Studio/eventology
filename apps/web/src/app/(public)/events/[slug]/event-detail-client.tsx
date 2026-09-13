@@ -34,6 +34,7 @@ import { QuestionThread } from "@/components/qa/question-thread";
 import { SaveToList } from "@/components/collections/save-to-list";
 import { EventGallery } from "@/components/gallery/event-gallery";
 import { JoinOnlineButton } from "@/components/events/join-online-button";
+import { LivePanel } from "@/components/live/live-panel";
 import { useLocale } from "@/lib/i18n";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { paymentsEnabled } from "@/lib/config/features";
@@ -126,9 +127,13 @@ const VenueMap = dynamic(
 
 interface EventDetailClientProps {
   slug: string;
+  /** HO-M: server-computed live window (start_date <= now <= end_date). */
+  liveWindow?: boolean;
+  /** HO-M: event id — the live panel needs the id (slug page knows it server-side). */
+  eventId?: string;
 }
 
-export default function EventDetailClient({ slug }: EventDetailClientProps) {
+export default function EventDetailClient({ slug, liveWindow, eventId }: EventDetailClientProps) {
   const { t } = useLocale();
   const { data: event, isLoading, isError } = useEventBySlug(slug);
 
@@ -183,10 +188,18 @@ export default function EventDetailClient({ slug }: EventDetailClientProps) {
     );
   }
 
-  return <EventDetailContent event={event} />;
+  return <EventDetailContent event={event} liveWindow={liveWindow} eventId={eventId} />;
 }
 
-function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
+function EventDetailContent({
+  event,
+  liveWindow,
+  eventId,
+}: {
+  event: import("@/lib/types").Event;
+  liveWindow?: boolean;
+  eventId?: string;
+}) {
   const { t } = useLocale();
   const [galleryOpen, setGalleryOpen] = React.useState<string | null>(null);
   const paymentsOn = paymentsEnabled();
@@ -464,6 +477,9 @@ function EventDetailContent({ event }: { event: import("@/lib/types").Event }) {
           </div>
 
           <div className="space-y-6">
+            {/* HO-M: live event layer — mounts only inside the server-computed window */}
+            <LivePanel eventId={eventId ?? event.id} isLive={liveWindow === true} />
+
             <Card className="sticky top-24 shadow-lg overflow-hidden border-border/60">
               <CardHeader>
                 <CardTitle className="font-display font-extrabold tracking-tight">Select Tickets</CardTitle>
