@@ -23,6 +23,26 @@ export async function signSupabaseJWT(profileId: string): Promise<string> {
 }
 
 /**
+ * HO-M: short-lived Supabase JWT for REALTIME socket auth.
+ *
+ * Same HS256 secret and claim shape as `signSupabaseJWT` (sub = profile id,
+ * role/aud = 'authenticated' — the claims RLS policies evaluate), but with
+ * a 10-MINUTE TTL (LOCKED): a socket-scoped token must not outlive the
+ * browsing session the way the 1h PostgREST token does. The live hook
+ * refreshes it ~60s before expiry and re-calls `realtime.setAuth`.
+ */
+export async function signRealtimeJWT(profileId: string): Promise<string> {
+  const secret = new TextEncoder().encode(process.env.SUPABASE_JWT_SECRET!);
+
+  return new SignJWT({ sub: profileId, role: 'authenticated' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('10m')
+    .setAudience('authenticated')
+    .sign(secret);
+}
+
+/**
  * Creates an authenticated Supabase server client that carries the
  * caller's Supabase JWT. This client passes RLS checks because
  * `auth.uid()` resolves to the profile UUID in the JWT.
