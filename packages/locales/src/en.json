@@ -42,6 +42,7 @@
   "nav": {
     "home": "Home",
     "events": "Events",
+    "discover": "Discover",
     "categories": "Categories",
     "organizers": "Organizers",
     "about": "About",
@@ -747,7 +748,11 @@
     "where": "Where",
     "issued": "Issued",
     "checkedIn": "Checked in",
-    "viewEvent": "View event"
+    "viewEvent": "View event",
+    "notFoundTitle": "Ticket not found",
+    "notFoundBody": "This ticket may have been removed or you don't have access to it.",
+    "myEvents": "My Events",
+    "yourTicket": "Your Ticket — {{event}}"
   },
   "review": {
     "title": "Write a review",
@@ -939,9 +944,69 @@
     "passIssued": "Pass ready",
     "passFailed": "Could not create the pass"
   },
+  "discover": {
+    "title": "Discover",
+    "subtitle": "Curated events, lists and places — handpicked for Addis Ababa.",
+    "weekendTitle": "This weekend",
+    "trendingTitle": "Trending now",
+    "forYouTitle": "Because you follow…",
+    "nearbyTitle": "Near you",
+    "collectionsTitle": "Featured lists",
+    "seeAll": "See all",
+    "mapView": "Map",
+    "listView": "List",
+    "noNearby": "No upcoming events nearby right now.",
+    "clusterCount": "{count} events here",
+    "clusterExpandHint": "Tap to zoom in",
+    "mapA11yNote": "Map view of nearby events. Use the List view for a keyboard-navigable equivalent."
+  },
+  "calendarFeed": {
+    "title": "Calendar subscriptions",
+    "description": "Subscribe from Google Calendar, Apple Calendar or Outlook and your events stay in sync automatically.",
+    "myEvents": "My registered events",
+    "myEventsHint": "Every event you register for appears in your calendar automatically.",
+    "saved": "Saved events",
+    "savedHint": "Events you've saved stay visible while you decide whether to register.",
+    "create": "Create feed",
+    "rotate": "Rotate",
+    "revoke": "Revoke",
+    "copied": "Feed URL copied",
+    "copyFailed": "Could not copy — select the URL text manually",
+    "rotateFailed": "Could not rotate the feed",
+    "rotated": "New feed created — the old link no longer works",
+    "revokeFailed": "Could not revoke the feed",
+    "revoked": "Feed revoked — calendar apps will stop syncing",
+    "urlMasked": "webcal feed URL (hidden — copy or rotate below)",
+    "copyUrl": "Copy feed URL",
+    "securityNote": "Anyone with this link can see your event schedule — treat it like a password. Rotating creates a new link and instantly invalidates the old one."
+  },
+  "pwa": {
+    "newVersion": "New version available",
+    "reload": "Reload",
+    "dismiss": "Dismiss",
+    "installTitle": "Install Eventology",
+    "installBody": "Add Eventology to your home screen for a faster, full-screen experience.",
+    "install": "Install",
+    "later": "Later",
+    "offlineNotice": "You're offline — showing your ticket saved at {time}. The QR code below still scans.",
+    "availableOffline": "Available offline (last synced {time})"
+  },
+  "live": {
+    "title": "Happening now",
+    "connecting": "Connecting to the live feed…",
+    "error": "Live feed unavailable right now — try refreshing.",
+    "composerTitle": "Announce to attendees",
+    "placeholder": "Share something with everyone at the event right now…",
+    "post": "Announce",
+    "posting": "Sending…",
+    "emptyBody": "Write something first",
+    "postFailed": "Could not post the announcement",
+    "empty": "No announcements yet — you'll see updates here in real time.",
+    "emptyHost": "No announcements yet. Post the first update below.",
+    "attendees": "{count} checked in"
+  },
   "forms": {
-    "builderTitle": "Registration Form",
-    "builderDescription": "Ask attendees custom questions when they register. Answers appear in the registrations CSV export.",
+    "builderTitle": "Registration Form",    "builderDescription": "Ask attendees custom questions when they register. Answers appear in the registrations CSV export.",
     "emptyTitle": "No custom questions yet",
     "emptyDescription": "Add your first question below — dietary needs, t-shirt size, anything.",
     "addField": "Add a question",
@@ -969,7 +1034,11 @@
     "selectOption": "Select an option",
     "loadFailed": "Could not load the form",
     "submitFailed": "Answer not saved — the registration itself succeeded",
-    "hostOnly": "Only the event host can manage this form."
+    "hostOnly": "Only the event host can manage this form.",
+    "exportCsv": "Export CSV",
+    "tabTitle": "Custom registration form",
+    "tabDescription": "Ask attendees questions at registration (dietary needs, t-shirt size, session picks). Answers export with the CSV.",
+    "openBuilder": "Open form builder"
   },
   "settings": {
     "security": "Security",

@@ -42,6 +42,7 @@
   "nav": {
     "home": "መነሻ",
     "events": "ዝግጅቶች",
+    "discover": "ግኝት",
     "categories": "ምድቦች",
     "organizers": "አዘጋጆች",
     "about": "ስለ እኛ",
@@ -739,15 +740,19 @@
   "ticket": {
     "title": "ትኬት",
     "loadErrorTitle": "ይህን ትኬት መጫን አልተቻለም",
-    "loadErrorBody": "እባክዎ ቆይተው ይሞክሩ።",
-    "showAtDoor": "ይህን ኮድ በሩ ላይ ያሳዩ። ከመስመር ውጭ ይሰራል።",
+    "loadErrorBody": "በኋላ እንደገና ይሞክሩ።",
+    "showAtDoor": "ይህን ኮድ በመግቢያው ላይ ያሳዩ። ከመስመር ውጭም ይሰራል።",
     "tier": "የትኬት አይነት",
     "attendee": "ተሳታፊ",
     "when": "መቼ",
     "where": "የት",
-    "issued": "የተሰጠበት",
-    "checkedIn": "የገባበት",
-    "viewEvent": "ዝግጅቱን ተመልከት"
+    "issued": "የተሰጠው",
+    "checkedIn": "ገብቷል",
+    "viewEvent": "ዝግጅቱን ይመልከቱ",
+    "notFoundTitle": "ትኬቱ አልተገኘም",
+    "notFoundBody": "ይህ ትኬት የተወገደ ሊሆን ይችላል ወይም የመዳረሻ መብት የለዎትም።",
+    "myEvents": "ዝግጅቶቼ",
+    "yourTicket": "ትኬትዎ — {{event}}"
   },
   "review": {
     "title": "ግምገማ ጻፍ",
@@ -939,6 +944,67 @@
     "passIssued": "ፓሱ ተዘጋጅቷል",
     "passFailed": "ፓሱን መፍጠር አልተቻለም"
   },
+  "discover": {
+    "title": "ግኝት",
+    "subtitle": "የተመረጡ ዝግጅቶች፣ ዝርዝሮች እና ቦታዎች — ለአዲስ አበባ ተመርጠዋል።",
+    "weekendTitle": "ይህ ቅዳሜ እና እሁድ",
+    "trendingTitle": "አሁን ተወዳጅ የሆኑ",
+    "forYouTitle": "በሚከተሏቸው ምክንያት…",
+    "nearbyTitle": "አቅራቢያዎ",
+    "collectionsTitle": "ምርጥ ዝርዝሮች",
+    "seeAll": "ሁሉንም ይመልከቱ",
+    "mapView": "ካርታ",
+    "listView": "ዝርዝር",
+    "noNearby": "በአቅራቢያዎ ምንም መጪ ዝግጅቶች የሉም።",
+    "clusterCount": "እዚህ {count} ዝግጅቶች አሉ",
+    "clusterExpandHint": "ለማሳየት ይንኩ",
+    "mapA11yNote": "የአቅራቢያ ዝግጅቶች የካርታ እይታ። በኪቦርድ ለመቃኘት የዝርዝር እይታውን ይጠቀሙ።"
+  },
+  "calendarFeed": {
+    "title": "የቀን መቁጠሪያ ደብዳቤዎች",
+    "description": "ከGoogle Calendar፣ Apple Calendar ወይም Outlook ይመዝገቡ — ዝግጅቶችዎ በራስ-ሰር በዝቅ ይስተካከላሉ።",
+    "myEvents": "የተመዘገብናቸው ዝግጅቶቼ",
+    "myEventsHint": "የሚመዘገቡት ሁሉ ዝግጅቶች በቀን መቁጠሪያዎ ውስጥ በራስ-ሰር ይታያሉ።",
+    "saved": "የተቀመጡ ዝግጅቶች",
+    "savedHint": "የተቀመጡ ዝግጅቶች እስኪመዘግቡ ድረስ ይታያሉ።",
+    "create": "ደብዳቤ ፍጠር",
+    "rotate": "ቀይር",
+    "revoke": "ሰርዝ",
+    "copied": "የደብዳቤ አድራሻ ተቀድቷል",
+    "copyFailed": "መቅዳት አልተቻለም — አድራሻውን በእጅ ይምረጡ",
+    "rotateFailed": "ደብዳቤውን መቀየር አልተቻለም",
+    "rotated": "አዲስ ደብዳቤ ተፈጥሯል — የድሮው ሊንክ አይሰራም",
+    "revokeFailed": "ደብዳቤውን መሰረዝ አልተቻለም",
+    "revoked": "ደብዳቤው ተሰርዟል — የቀን መቁጠሪያ መተግበሪያዎች ማመሳሰል ያቆማሉ",
+    "urlMasked": "የwebcal አድራሻ (ደብቅነው — ከታች ቅዳ ወይም ቀይር)",
+    "copyUrl": "የደብዳቤ አድራሻ ቅዳ",
+    "securityNote": "ይህን ሊንክ የሚያዘው ማንኛውም ሰው የዝግጅት ፕሮግራምዎን ማየት ይችላል — እንደ የይለፍ ቃል ይጠብቁት። መቀየር አዲስ ሊንክ ይፈጥራል እና የድሮውን ወዲያውኑ ያጠፋል።"
+  },
+  "pwa": {
+    "newVersion": "አዲስ ስሪት ደርሷል",
+    "reload": "እንደገና ጫን",
+    "dismiss": "እንቢ",
+    "installTitle": "Eventology ይጫኑ",
+    "installBody": "Eventologyን ወደ መነሻ ስክሪንዎ ይጨምሩት — ፈጣን እና ሙሉ-ስክሪን ልምድ ለማግኘት።",
+    "install": "ጫን",
+    "later": "በኋላ",
+    "offlineNotice": "ከመስመር ውጭ ነዎት — በ{time} የተቀመጠውን ትኬትዎን እያሳየ ነው። ከታች ያለው QR ኮድ አሁንም ይሰራል።",
+    "availableOffline": "ከመስመር ውጭ ይገኛል (መጨረሻ ሲመሳሰል {time})"
+  },
+  "live": {
+    "title": "በአሁኑ ጊዜ",
+    "connecting": "ከቀጥታ ግንኙነት ጋር በመገናኘት ላይ…",
+    "error": "የቀጥታ ግንኙነቱ አሁን አይገኝም — እንደገና ይሞክሩ።",
+    "composerTitle": "ለተሳታፊዎች አስተዋውቅ",
+    "placeholder": "አሁን ለዝግጅቱ ሁሉ ሰው ያስተዋውቁ…",
+    "post": "አስተዋውቅ",
+    "posting": "በመላክ ላይ…",
+    "emptyBody": "መጀመሪያ ጽሑፍ ይጻፉ",
+    "postFailed": "ማስታወቂያውን መላክ አልተቻለም",
+    "empty": "ገና ማስታወቂያ የለም — ዝማኔዎችን እዚህ በቀጥታ ይከታተላሉ።",
+    "emptyHost": "ገና ማስታወቂያ የለም። የመጀመሪያውን ዝማኔ ከታች ይላኩ።",
+    "attendees": "{count} ገብተዋል"
+  },
   "forms": {
     "builderTitle": "የምዝገባ ቅጽ",
     "builderDescription": "ተሳታፊዎች ሲመዘገቡ የተለያዩ ጥያቄዎችን ይጠይቁ። መልሶች በምዝገባዎች CSV ኤክስፖርት ይታያሉ።",
@@ -969,7 +1035,11 @@
     "selectOption": "ምርጫ ይምረጡ",
     "loadFailed": "ቅጹን መጫን አልተቻለም",
     "submitFailed": "መልሱ አልተቀመጠም — ምዝገባው በራሱ ግን ተሳክቷል",
-    "hostOnly": "ይህን ቅጽ የዝግጅቱ አስተናጋጅ ብቻ ነው የሚያስተዳድረው።"
+    "hostOnly": "ይህን ቅጽ የዝግጅቱ አስተናጋጅ ብቻ ነው የሚያስተዳድረው።",
+    "exportCsv": "CSV አውጣ",
+    "tabTitle": "ብጁ የምዝገባ ቅጽ",
+    "tabDescription": "ተሳታፊዎች ሲመዘገቡ ጥያቄዎችን ይጠይቁ (የምግብ ምርጫ፣ የልብስ መጠን፣ የክፍለ ጊዜ ምርጫ)። መልሶች ከCSV ጋር ይወጣሉ።",
+    "openBuilder": "የቅጽ ገንቢ ክፈት"
   },
   "settings": {
     "security": "ደህንነት",
