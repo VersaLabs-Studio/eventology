@@ -42,6 +42,7 @@ export type PushTokenRow = Tables<'push_tokens'>;
 export type PromoRedemptionRow = Tables<'promo_redemptions'>;
 export type EventViewRow = Tables<'event_views'>;
 export type AuditLogRow = Tables<'audit_log'>;
+export type CalendarFeedTokenRow = Tables<'calendar_feed_tokens'>;
 export type PromoCodeRow = Tables<'promo_codes'>;
 export type AiCacheRow = Tables<'ai_cache'>;
 
@@ -66,6 +67,7 @@ export type EventMediaReactionRow = Tables<'event_media_reactions'>;
 export type TicketTransferRow = Tables<'ticket_transfers'>;
 export type WalletPassRow = Tables<'wallet_passes'>;
 export type EventFormFieldRow = Tables<'event_form_fields'>;
+export type EventAnnouncementRow = Tables<'event_announcements'>;
 export type RegistrationAnswerRow = Tables<'registration_answers'>;
 
 // ---------------------------------------------------------------------------

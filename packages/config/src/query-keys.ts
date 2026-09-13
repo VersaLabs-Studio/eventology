@@ -309,3 +309,40 @@ export const JoinLinkKeys = {
   all: () => ['join-link'] as const,
   byEvent: (eventId: string) => ['join-link', eventId] as const,
 };
+
+// ---------------------------------------------------------------------------
+// Discover — curated discovery hub rails (HO-J). Pure composition over
+// existing endpoints; the keys namespace the hub's own client queries so
+// rail data never collides with the catalog caches.
+// ---------------------------------------------------------------------------
+
+export const DiscoverKeys = {
+  all: () => ['discover'] as const,
+  weekend: () => ['discover', 'weekend'] as const,
+  nearby: (bbox: string) => ['discover', 'nearby', bbox] as const,
+  forYou: () => ['discover', 'for-you'] as const,
+  featuredCollections: () => ['discover', 'featured-collections'] as const,
+};
+
+// ---------------------------------------------------------------------------
+// CalendarFeed — tokenized ICS subscribe feeds (HO-K)
+// ---------------------------------------------------------------------------
+
+export const CalendarFeedKeys = {
+  all: () => ['calendar-feed'] as const,
+  mine: () => ['calendar-feed', 'me'] as const,
+};
+
+// ---------------------------------------------------------------------------
+// Announcements / Live — realtime live-event layer (HO-M)
+// ---------------------------------------------------------------------------
+
+export const AnnouncementKeys = {
+  all: () => ['announcements'] as const,
+  list: (eventId: string) => ['announcements', eventId] as const,
+};
+
+export const LiveCountKeys = {
+  all: () => ['live-count'] as const,
+  byEvent: (eventId: string) => ['live-count', eventId] as const,
+};
