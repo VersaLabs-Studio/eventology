@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useLocale } from "@/lib/i18n";
+import { CalendarSubscribeCard } from "@/components/settings/calendar-subscribe-card";
 
 interface NotificationPreferences {
   profile_id: string;
@@ -249,6 +250,9 @@ export function NotificationPreferencesPanel() {
           </Card>
         </motion.div>
       )}
+
+      {/* HO-K: calendar subscribe feeds (tokenized ICS) — settings surface */}
+      <CalendarSubscribeCard />
     </motion.div>
   );
 }

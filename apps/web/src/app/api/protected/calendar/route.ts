@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAuthedClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
-import { createEvents, EventAttributes } from 'ics';
+import { buildIcsFromEvents, type IcsEventSource } from '@/lib/calendar/build-ics';
 import type { ErrorEnvelope } from '@/lib/api';
 
 /**
  * GET /api/protected/calendar
  * Returns a multi-VEVENT ICS file for the caller's registered events.
+ *
+ * HO-K refactor: the event→VEVENT mapping now lives in lib/calendar/build-ics.ts,
+ * shared with the tokenized subscribe feed (/api/public/calendar/[token]) —
+ * no duplicated ICS logic. Response shape unchanged.
  */
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
@@ -35,7 +39,8 @@ export async function GET(req: NextRequest) {
         end_date,
         timezone,
         venue_name,
-        venue_address
+        venue_address,
+        location_type
       )
     `)
     .eq('user_id', session.user.id)
@@ -48,54 +53,13 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const events: EventAttributes[] = [];
+  const rows = (registrations ?? [])
+    .map((reg) => (reg as { event?: unknown }).event)
+    .filter((e): e is IcsEventSource => e != null);
 
-  for (const reg of registrations ?? []) {
-    const event = reg.event as any;
-    if (!event) continue;
+  const { value, error: icsError } = buildIcsFromEvents(rows);
 
-    const startDate = new Date(event.start_date);
-    const endDate = new Date(event.end_date);
-
-    const start: [number, number, number, number, number] = [
-      startDate.getUTCFullYear(),
-      startDate.getUTCMonth() + 1,
-      startDate.getUTCDate(),
-      startDate.getUTCHours(),
-      startDate.getUTCMinutes(),
-    ];
-
-    const end: [number, number, number, number, number] = [
-      endDate.getUTCFullYear(),
-      endDate.getUTCMonth() + 1,
-      endDate.getUTCDate(),
-      endDate.getUTCHours(),
-      endDate.getUTCMinutes(),
-    ];
-
-    const location = event.venue_name
-      ? (event.venue_address ? `${event.venue_name}, ${event.venue_address}` : event.venue_name)
-      : (event.venue_address || 'Online');
-
-    const desc = event.short_description || event.description?.replace(/<[^>]*>/g, '') || '';
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const url = `${baseUrl}/events/${event.slug}`;
-
-    events.push({
-      start,
-      end,
-      title: event.title,
-      description: desc,
-      location,
-      url,
-      startInputType: 'utc',
-      startOutputType: 'utc',
-    });
-  }
-
-  const { error: icsError, value } = createEvents(events);
-
-  if (icsError) {
+  if (icsError || value === undefined) {
     return NextResponse.json(
       { error: { code: 'CALENDAR_ERROR', message: 'Failed to generate calendar file' } } satisfies ErrorEnvelope,
       { status: 500 }
