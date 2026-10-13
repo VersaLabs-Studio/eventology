@@ -1,0 +1,72 @@
+# Gates every PR and every push to main: locale parity, type-checks for each
+# workspace, and a production build of the web app. Mirrors the checks run by
+# hand before each merge, so they no longer depend on someone remembering.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Parity, types, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Locale parity (en/am)
+        run: node scripts/check-locale-parity.mjs
+
+      - name: Type-check packages
+        run: |
+          for p in ai config locales schemas utils wallet; do
+            echo "::group::packages/$p"
+            npx tsc --noEmit -p "packages/$p/tsconfig.json"
+            echo "::endgroup::"
+          done
+
+      - name: Type-check web
+        run: npx tsc --noEmit -p apps/web/tsconfig.json
+
+      # Mobile pins TypeScript ~5.9 (Expo SDK 54); the hoisted root compiler is 6.x
+      # and rejects its baseUrl, so run the workspace's own tsc.
+      - name: Type-check mobile
+        working-directory: apps/mobile
+        run: npx tsc --noEmit
+
+      - name: Build web
+        working-directory: apps/web
+        run: npx next build
+        # Placeholders only: the build must not need real secrets. Nothing here
+        # is reachable; any page that queries data at build time should fail loudly.
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          BETTER_AUTH_URL: http://localhost:3000
+          BETTER_AUTH_SECRET: ci-placeholder-secret-not-used-for-anything-real
+          NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder
+          SUPABASE_JWT_SECRET: ci-placeholder
+          SUPABASE_DB_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+          TICKET_HMAC_SECRET: ci-placeholder
+          AI_PROVIDER: stub
+          PAYMENT_PROVIDER: stub
+          NEXT_PUBLIC_PAYMENTS_ENABLED: "false"
