@@ -23,7 +23,7 @@ import { BroadcastSheet } from '@/components/organizer/BroadcastSheet';
 import { useLocale } from '@/lib/i18n';
 import { usePalette } from '@/lib/palette';
 import { colors, radius, spacing, typography } from '@/lib/theme';
-import { formatDateTime } from '@eventology/utils';
+import { formatDateTime, isCheckedIn, registrationDisplayStatus } from '@eventology/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -113,7 +113,7 @@ export default function OrganizerAttendeesScreen(): React.ReactElement {
     const all = regsQ.data?.data ?? [];
     const q = search.trim().toLowerCase();
     return all.filter((r) => {
-      if (filter !== 'all' && r.status !== filter) return false;
+      if (filter !== 'all' && registrationDisplayStatus(r) !== filter) return false;
       if (!q) return true;
       return (
         r.attendee_name.toLowerCase().includes(q) || r.attendee_email.toLowerCase().includes(q)
@@ -125,7 +125,7 @@ export default function OrganizerAttendeesScreen(): React.ReactElement {
     const all = regsQ.data?.data ?? [];
     return {
       confirmed: all.filter((r) => r.status === 'confirmed' || r.status === 'checked_in').length,
-      checkedIn: all.filter((r) => r.status === 'checked_in').length,
+      checkedIn: all.filter(isCheckedIn).length,
     };
   }, [regsQ.data]);
 
@@ -256,7 +256,10 @@ export default function OrganizerAttendeesScreen(): React.ReactElement {
                       ) : null}
                     </View>
                   </View>
-                  <Badge label={t(statusKey(item.status))} variant={badgeVariant(item.status)} />
+                  <Badge
+                    label={t(statusKey(registrationDisplayStatus(item)))}
+                    variant={badgeVariant(registrationDisplayStatus(item))}
+                  />
                 </View>
               );
             }}

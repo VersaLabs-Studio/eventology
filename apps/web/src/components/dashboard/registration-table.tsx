@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { registrationDisplayStatus } from '@eventology/utils';
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,13 +46,14 @@ const columns: Column<RegistrationRow>[] = [
     key: 'status',
     header: 'Status',
     render: (reg) => {
+      const status = registrationDisplayStatus(reg);
       const variant =
-        reg.status === 'confirmed' ? 'success' :
-        reg.status === 'checked_in' ? 'default' :
-        reg.status === 'cancelled' ? 'destructive' :
-        reg.status === 'pending_payment' ? 'warning' :
+        status === 'confirmed' ? 'success' :
+        status === 'checked_in' ? 'default' :
+        status === 'cancelled' ? 'destructive' :
+        status === 'pending_payment' ? 'warning' :
         'warning';
-      return <Badge variant={variant}>{reg.status.replace('_', ' ')}</Badge>;
+      return <Badge variant={variant}>{status.replace('_', ' ')}</Badge>;
     },
     sortable: true,
   },

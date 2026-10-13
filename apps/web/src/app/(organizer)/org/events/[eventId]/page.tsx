@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { isCheckedIn } from "@eventology/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -122,7 +123,7 @@ export default function EventManagePage() {
     : null;
 
   const registrations = regsQ.data?.data ?? [];
-  const checkedIn = registrations.filter((r) => r.status === "checked_in").length;
+  const checkedIn = registrations.filter(isCheckedIn).length;
   const totalAttendees = registrations.filter((r) => r.status === "confirmed" || r.status === "checked_in").length;
 
   return (

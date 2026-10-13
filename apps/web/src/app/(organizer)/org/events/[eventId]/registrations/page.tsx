@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { isCheckedIn } from "@eventology/utils";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
@@ -19,9 +20,10 @@ export default function RegistrationsPage() {
   const registrations = (regsQ.data?.data ?? []) as Array<{
     id: string;
     status: 'confirmed' | 'cancelled' | 'checked_in' | 'waitlisted' | 'pending_payment';
+    checked_in_at: string | null;
   }>;
 
-  const checkedIn = registrations.filter((r) => r.status === "checked_in").length;
+  const checkedIn = registrations.filter(isCheckedIn).length;
   const cancelled = registrations.filter((r) => r.status === "cancelled").length;
   const waitlisted = registrations.filter((r) => r.status === "waitlisted").length;
   const confirmed = registrations.filter((r) => r.status === "confirmed").length;

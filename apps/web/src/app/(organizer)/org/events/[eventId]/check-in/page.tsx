@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { isCheckedIn } from "@eventology/utils";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
@@ -17,7 +18,7 @@ export default function CheckInPage() {
   const { data: registrationsData, isLoading, isError } = useEventRegistrations(eventId);
   const registrations = registrationsData?.data ?? [];
 
-  const checkedIn = registrations.filter((r) => r.status === "checked_in").length;
+  const checkedIn = registrations.filter(isCheckedIn).length;
   const totalAttendees = registrations.filter((r) => r.status === "confirmed" || r.status === "checked_in").length;
 
   if (isLoading) {
