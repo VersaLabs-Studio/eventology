@@ -207,6 +207,22 @@ export const PromoCodeKeys = {
 };
 
 // ---------------------------------------------------------------------------
+// SavedEvent + OrganizerFollow (V1.6 owner-scoped joins — 036/037)
+// ---------------------------------------------------------------------------
+
+export const SavedEventKeys = {
+  all: () => ['saved-events'] as const,
+  list: () => ['saved-events', 'list'] as const,
+  ids: () => ['saved-events', 'ids'] as const,
+};
+
+export const OrganizerFollowKeys = {
+  all: () => ['organizer-follows'] as const,
+  list: () => ['organizer-follows', 'list'] as const,
+  ids: () => ['organizer-follows', 'ids'] as const,
+};
+
+// ---------------------------------------------------------------------------
 // UserFollow (user ↔ user social graph — HO-A)
 // ---------------------------------------------------------------------------
 

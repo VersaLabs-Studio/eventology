@@ -18,6 +18,9 @@ const EVENT_CARD_SELECT = `
  * GET /api/protected/saved-events
  * List the caller's saved events (newest first), joined to the full event
  * card shape. Returns { data: EventCard[], meta }.
+ *
+ * `?view=ids` returns just the saved event ids ({ data: string[] }) — the
+ * membership set the web Save toggles read, without the event join.
  */
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
@@ -33,6 +36,22 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, Number(searchParams.get('page') ?? 1));
   const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') ?? 20)));
   const offset = (page - 1) * limit;
+
+  if (searchParams.get('view') === 'ids') {
+    const { data: rows, error: idsError } = await supabase
+      .from('saved_events')
+      .select('event_id')
+      .eq('profile_id', session.user.id)
+      .limit(1000);
+
+    if (idsError) {
+      return NextResponse.json(
+        { error: { code: 'DB_ERROR', message: idsError.message } } satisfies ErrorEnvelope,
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ data: (rows ?? []).map((r) => r.event_id) });
+  }
 
   const { data, error, count } = await supabase
     .from('saved_events')

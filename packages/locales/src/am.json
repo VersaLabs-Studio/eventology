@@ -60,7 +60,9 @@
     "myRegistrations": "የእኔ ምዝገባዎች",
     "myTickets": "የእኔ ትኬቶች",
     "becomeOrganizer": "አዘጋጅ ሁን",
-    "search": "ፈልግ"
+    "search": "ፈልግ",
+    "saved": "የተቀመጡ",
+    "following": "የሚከተሏቸው"
   },
   "navbar": {
     "navigation": "አሰሳ",
@@ -779,7 +781,31 @@
     "signInTitle": "የተቀመጡ ዝግጅቶችን ለማየት ይግቡ",
     "signInBody": "የሚቀመጡት ዝግጅቶች እዚህ ይታያሉ።",
     "loadErrorTitle": "የተቀመጡ ዝግጅቶችን ማሰው አልተቻለም",
-    "loadErrorBody": "አገናኝዎን ያረጋግጡ እና ለማደስ ወደ ታች ይሳቡ።"
+    "loadErrorBody": "አገናኝዎን ያረጋግጡ እና ለማደስ ወደ ታች ይሳቡ።",
+    "save": "አስቀምጥ",
+    "saveAria": "ዝግጅቱን አስቀምጥ",
+    "unsaveAria": "ከተቀመጡት አስወግድ",
+    "savedToast": "ተቀምጧል። በተቀመጡ ዝግጅቶች ውስጥ ያገኙታል።",
+    "removedToast": "ከተቀመጡ ዝግጅቶች ተወግዷል",
+    "count": "{{count}} ተቀምጠዋል"
+  },
+  "following": {
+    "title": "የሚከተሏቸው",
+    "subtitle": "የሚከተሏቸው አዘጋጆች በአንድ ቦታ።",
+    "follow": "ተከተል",
+    "following": "እየተከተሉ",
+    "unfollow": "መከተል አቁም",
+    "followAria": "{{name}}ን ተከተል",
+    "unfollowAria": "{{name}}ን መከተል አቁም",
+    "followedToast": "{{name}}ን እየተከተሉ ነው",
+    "unfollowedToast": "{{name}}ን መከተል አቁመዋል",
+    "emptyTitle": "እስካሁን ምንም አዘጋጅ አይከተሉም",
+    "emptyBody": "የሚያዘጋጇቸውን ለመከታተል አዘጋጆችን ከዝግጅት ገጾቻቸው ይከተሉ።",
+    "signInTitle": "የሚከተሏቸውን ለማየት ይግቡ",
+    "signInBody": "የሚከተሏቸው አዘጋጆች እዚህ ይታያሉ።",
+    "loadErrorTitle": "የሚከተሏቸውን አዘጋጆች መጫን አልተቻለም",
+    "verified": "የተረጋገጠ አዘጋጅ",
+    "count": "{{count}} አዘጋጆች"
   },
   "status": {
     "confirmed": "ተረጋግጧል",

@@ -13,6 +13,9 @@ const ORGANIZER_CARD_SELECT = `
  * GET /api/protected/follows
  * List organizers the caller follows (newest first), joined to the organizer
  * card shape. Returns { data: OrganizerCard[], meta }.
+ *
+ * `?view=ids` returns just the followed organizer ids ({ data: string[] }) —
+ * the membership set the web Follow toggles read, without the join.
  */
 export async function GET(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
@@ -28,6 +31,22 @@ export async function GET(req: NextRequest) {
   const page = Math.max(1, Number(searchParams.get('page') ?? 1));
   const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit') ?? 20)));
   const offset = (page - 1) * limit;
+
+  if (searchParams.get('view') === 'ids') {
+    const { data: rows, error: idsError } = await supabase
+      .from('organizer_follows')
+      .select('organizer_id')
+      .eq('profile_id', session.user.id)
+      .limit(1000);
+
+    if (idsError) {
+      return NextResponse.json(
+        { error: { code: 'DB_ERROR', message: idsError.message } } satisfies ErrorEnvelope,
+        { status: 500 }
+      );
+    }
+    return NextResponse.json({ data: (rows ?? []).map((r) => r.organizer_id) });
+  }
 
   const { data, error, count } = await supabase
     .from('organizer_follows')
