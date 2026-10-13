@@ -58,7 +58,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${event.title} | Eventology`;
   const description = event.short_description || 'Join us for this exciting event on Eventology.';
   const url = `${process.env.NEXT_PUBLIC_APP_URL || 'https://eventology.app'}/events/${slug}`;
-  const ogImageUrl = `${url}/opengraph-image`;
+
+  // No `images` here: the sibling opengraph-image.tsx / twitter-image.tsx
+  // inject their own tags. Inside a route group Next serves them at a
+  // build-hashed path (/opengraph-image-<hash>), so a hand-built
+  // `${url}/opengraph-image` URL 404s and breaks every share preview.
 
   return {
     title,
@@ -68,21 +72,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url,
       siteName: 'Eventology',
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: event.title,
-        },
-      ],
       type: 'article',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [ogImageUrl],
     },
   };
 }
