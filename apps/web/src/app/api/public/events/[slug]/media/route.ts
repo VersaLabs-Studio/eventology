@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createAuthedClient } from '@/lib/supabase/server';
+import { createClient, createAuthedClient, createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
@@ -11,7 +11,10 @@ import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
  * (as host) everything for their events. Sorted newest first.
  *
  * Session enhancements: `myReaction` per photo + `viewer.isHost` to reveal
- * moderation controls. Reaction counts come from an embedded count join.
+ * moderation controls. Reaction counts are aggregated via service-role for
+ * the RLS-visible photo ids only: `event_media_reactions` is revoked from
+ * anon (it names who reacted), so embedding it in the anon query failed
+ * every signed-out gallery view with "permission denied".
  */
 export async function GET(
   req: NextRequest,
@@ -51,8 +54,7 @@ export async function GET(
     .from('event_media')
     .select(
       `id, storage_path, caption, status, created_at, uploader_id,
-       uploader:profiles(id, full_name, avatar_url),
-       reactions:event_media_reactions(count)`,
+       uploader:profiles(id, full_name, avatar_url)`,
       { count: 'exact' }
     )
     .eq('event_id', eventId)
@@ -66,6 +68,28 @@ export async function GET(
     );
   }
 
+  const mediaIds = (data ?? []).map((m) => (m as { id: string }).id);
+
+  // Aggregate only — ids come from the RLS-scoped query above, and the
+  // response carries counts, never reactor identities.
+  const reactionCounts = new Map<string, number>();
+  if (mediaIds.length > 0) {
+    const { data: counted, error: countError } = await createServiceClient()
+      .from('event_media')
+      .select('id, reactions:event_media_reactions(count)')
+      .in('id', mediaIds);
+    if (countError) {
+      return NextResponse.json(
+        { error: { code: 'DB_ERROR', message: countError.message } } satisfies ErrorEnvelope,
+        { status: 500 }
+      );
+    }
+    for (const row of counted ?? []) {
+      const r = row as { id: string; reactions: Array<{ count: number }> | null };
+      reactionCounts.set(r.id, r.reactions?.[0]?.count ?? 0);
+    }
+  }
+
   // Optional session enhancements.
   const session = await auth.api.getSession({ headers: req.headers });
   let myReactions = new Set<string>();
@@ -73,7 +97,6 @@ export async function GET(
 
   if (session) {
     const authed = await createAuthedClient(session.user.id);
-    const mediaIds = (data ?? []).map((m) => (m as { id: string }).id);
     if (mediaIds.length > 0) {
       const { data: reactions } = await authed
         .from('event_media_reactions')
@@ -91,12 +114,9 @@ export async function GET(
 
   const media = (data ?? []).map((row) => {
     const r = row as Record<string, unknown>;
-    const reactions = r.reactions as Array<{ count: number }> | null;
-    const { reactions: _drop, ...rest } = r;
-    void _drop;
     return {
-      ...rest,
-      reaction_count: reactions?.[0]?.count ?? 0,
+      ...r,
+      reaction_count: reactionCounts.get(r.id as string) ?? 0,
       my_reaction: myReactions.has(r.id as string),
     };
   });

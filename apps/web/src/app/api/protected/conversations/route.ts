@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { createAuthedClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
@@ -60,9 +61,9 @@ export async function GET(req: NextRequest) {
 }
 
 const createSchema = z.object({
-  participant_ids: z.array(z.string().uuid()).min(1).max(50),
+  participant_ids: z.array(pgUuid()).min(1).max(50),
   type: z.enum(['direct', 'event_inquiry', 'support']).default('direct'),
-  event_id: z.string().uuid().optional().nullable(),
+  event_id: pgUuid().optional().nullable(),
   subject: z.string().max(200).optional().nullable(),
   initial_message: z.string().max(2000).optional().nullable(),
 });

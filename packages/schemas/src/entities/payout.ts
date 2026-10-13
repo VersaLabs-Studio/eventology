@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { PAYOUT_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,9 +12,9 @@ import { PAYOUT_STATUSES } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const payoutSchema = z.object({
-  id: z.string().uuid(),
-  organizer_id: z.string().uuid(),
-  event_id: z.string().uuid().nullable(),
+  id: pgUuid(),
+  organizer_id: pgUuid(),
+  event_id: pgUuid().nullable(),
   amount: z.number().min(0),
   currency: z.string().min(3).max(3),
   status: z.enum(PAYOUT_STATUSES),

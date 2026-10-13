@@ -82,8 +82,13 @@ export function verifyQRPayload(
     return { ticketId, registrationId, version };
   }
 
-  // Legacy format → version 0 (never transferred).
-  const match = payload.match(/^EVT-([0-9a-f-]+)-([0-9a-f-]+)-(.+)$/);
+  // Legacy format → version 0 (never transferred). Same bounded uuid groups
+  // as v2: an unbounded `[0-9a-f-]+` is greedy and split every real
+  // `EVT-{uuid}-{uuid}-{sig}` inside the second uuid, so no new ticket
+  // could be checked in.
+  const match = payload.match(
+    /^EVT-([0-9a-fA-F-]{36})-([0-9a-fA-F-]{36})-([A-Za-z0-9_-]+)$/
+  );
   if (!match) {
     return null;
   }

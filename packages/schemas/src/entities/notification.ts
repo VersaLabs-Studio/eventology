@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { NOTIFICATION_TYPES, NOTIFICATION_CHANNELS } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,8 +12,8 @@ import { NOTIFICATION_TYPES, NOTIFICATION_CHANNELS } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const notificationSchema = z.object({
-  id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: pgUuid(),
+  user_id: pgUuid(),
   type: z.enum(NOTIFICATION_TYPES),
   title: z.string().min(1).max(255),
   message: z.string().min(1),
@@ -20,7 +21,7 @@ export const notificationSchema = z.object({
   is_read: z.boolean(),
   read_at: z.string().datetime().nullable(),
   reference_type: z.string().nullable(),
-  reference_id: z.string().uuid().nullable(),
+  reference_id: pgUuid().nullable(),
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -66,8 +67,8 @@ export const DELIVERY_STATUSES = ['queued', 'sent', 'failed', 'skipped'] as cons
 export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
 
 export const notificationDeliverySchema = z.object({
-  id: z.string().uuid(),
-  notification_id: z.string().uuid(),
+  id: pgUuid(),
+  notification_id: pgUuid(),
   channel: z.enum(NOTIFICATION_CHANNELS),
   status: z.enum(DELIVERY_STATUSES),
   provider: z.string().nullable(),
@@ -88,7 +89,7 @@ export const SUPPORTED_LOCALES = ['en', 'am'] as const;
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 export const notificationPreferencesSchema = z.object({
-  profile_id: z.string().uuid(),
+  profile_id: pgUuid(),
   email_enabled: z.boolean(),
   sms_enabled: z.boolean(),
   push_enabled: z.boolean(),
@@ -121,8 +122,8 @@ export const PUSH_PLATFORMS = ['ios', 'android', 'web'] as const;
 export type PushPlatform = (typeof PUSH_PLATFORMS)[number];
 
 export const pushTokenSchema = z.object({
-  id: z.string().uuid(),
-  profile_id: z.string().uuid(),
+  id: pgUuid(),
+  profile_id: pgUuid(),
   token: z.string().min(1),
   platform: z.enum(PUSH_PLATFORMS),
   last_seen: z.string().datetime(),

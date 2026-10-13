@@ -6,6 +6,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { AUDIT_ACTIONS } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -13,11 +14,11 @@ import { AUDIT_ACTIONS } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const auditLogSchema = z.object({
-  id: z.string().uuid(),
-  actor_id: z.string().uuid().nullable(),
+  id: pgUuid(),
+  actor_id: pgUuid().nullable(),
   action: z.enum(AUDIT_ACTIONS),
   target_type: z.string().min(1),
-  target_id: z.string().uuid().nullable(),
+  target_id: pgUuid().nullable(),
   target_label: z.string().nullable(),
   details: z.string().nullable(),
   old_values: z.record(z.string(), z.unknown()).nullable(),

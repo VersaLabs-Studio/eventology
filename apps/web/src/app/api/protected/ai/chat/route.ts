@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { auth } from '@/lib/auth';
 import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
 import { getCallerContext, resolveChatTier } from '@/lib/ai/role-guard';
@@ -21,13 +22,13 @@ import type { ChatbotMessage } from '@eventology/ai';
 import type { ErrorEnvelope } from '@/lib/api';
 
 const RequestSchema = z.object({
-  session_id: z.string().uuid().optional(),
+  session_id: pgUuid().optional(),
   message: z.string().min(1).max(4000),
   context: z
     .object({
       user_name: z.string().optional(),
       current_page: z.string().optional(),
-      event_id: z.string().uuid().optional(),
+      event_id: pgUuid().optional(),
       event_title: z.string().optional(),
     })
     .optional(),

@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { auth } from '@/lib/auth';
 import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/ai/role-guard';
@@ -18,7 +19,7 @@ import type { ErrorEnvelope } from '@/lib/api';
 
 const RequestSchema = z.object({
   content_type: z.enum(['event_description', 'review', 'message', 'profile_bio']),
-  content_id: z.string().uuid(),
+  content_id: pgUuid(),
   text: z.string().min(1).max(50_000),
   context: z.string().max(2000).optional(),
 });

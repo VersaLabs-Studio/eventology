@@ -4,11 +4,12 @@ import { auth } from '@/lib/auth';
 import { requestPayout, computeOrganizerBalance } from '@/lib/payments/payouts';
 import { getPaymentProvider } from '@/lib/payments';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 const createPayoutRequestSchema = z.object({
   amount: z.number().positive(),
-  event_id: z.string().uuid().nullable().optional(),
+  event_id: pgUuid().nullable().optional(),
   bank_account: z.record(z.string(), z.unknown()).default({}),
 });
 
