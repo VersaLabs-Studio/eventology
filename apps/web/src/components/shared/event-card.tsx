@@ -10,6 +10,7 @@ import { cn, formatDate, formatCurrency, getInitials } from "@/lib/utils";
 import type { Event } from "@/lib/types";
 import { motion } from "framer-motion";
 import { FallbackImage } from "./fallback-image";
+import { SaveEventButton } from "@/components/events/save-event-button";
 
 interface EventCardProps {
   event: Event;
@@ -17,9 +18,12 @@ interface EventCardProps {
   className?: string;
 }
 
+// The Save toggle is a sibling of the card link, never a child: a button
+// nested inside <a> is invalid HTML and breaks keyboard/AT navigation.
 export function EventCard({ event, variant = "grid", className }: EventCardProps) {
   if (variant === "horizontal") {
     return (
+      <div className="relative">
       <Link href={`/events/${event.slug}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
         <Card hoverable className={cn("flex flex-row overflow-hidden h-52", className)}>
           <div className="relative w-56 shrink-0 flex items-stretch">
@@ -52,11 +56,15 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
           </CardContent>
         </Card>
       </Link>
+      <SaveEventButton eventId={event.id} className="absolute top-3 left-3 z-30" />
+      </div>
     );
   }
 
   if (variant === "featured") {
     return (
+      // Fixed-width hero card: size the wrapper to it so the toggle pins to the card, not the rail cell.
+      <div className="relative w-fit shrink-0">
       <Link href={`/events/${event.slug}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl">
         <motion.div
           whileHover={{ y: -6, scale: 1.01 }}
@@ -86,11 +94,14 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
           </div>
         </motion.div>
       </Link>
+      <SaveEventButton eventId={event.id} className="absolute top-4 right-4 z-30" />
+      </div>
     );
   }
 
   return (
-    <Link href={`/events/${event.slug}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
+    <div className="relative h-full">
+    <Link href={`/events/${event.slug}`} className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl group">
       <Card hoverable className={cn("overflow-hidden flex flex-col h-full border-border/60 transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-xl", className)}>
         <div className="relative aspect-[16/10] w-full shrink-0">
           <FallbackImage 
@@ -100,14 +111,13 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
             aspectRatio="none"
             className="w-full h-full rounded-b-none" 
           />
-          <div className="absolute top-3 left-3 z-20">
+          {/* Top-right is reserved for the Save toggle, so Featured joins the category badge. */}
+          <div className="absolute top-3 left-3 right-16 z-20 flex flex-wrap items-center gap-1.5">
             <Badge variant="secondary" className="shadow-sm backdrop-blur-md bg-secondary/90 text-white border-none font-medium text-[11px]">{event.category?.name ?? ''}</Badge>
-          </div>
-          {event.isFeatured && (
-            <div className="absolute top-3 right-3 z-20">
+            {event.isFeatured && (
               <Badge variant="accent" className="shadow-accent-glow animate-pulse border-none font-bold">Featured</Badge>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         <CardContent className="p-5 flex-1 flex flex-col justify-between">
           <div>
@@ -136,6 +146,8 @@ export function EventCard({ event, variant = "grid", className }: EventCardProps
         </CardContent>
       </Card>
     </Link>
+    <SaveEventButton eventId={event.id} className="absolute top-3 right-3 z-30" />
+    </div>
   );
 }
 

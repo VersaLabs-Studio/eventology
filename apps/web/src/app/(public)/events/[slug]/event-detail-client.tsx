@@ -32,6 +32,8 @@ import { EventReviews } from "@/components/events/event-reviews-polished";
 import { FriendsAttending } from "@/components/social/friends-attending";
 import { QuestionThread } from "@/components/qa/question-thread";
 import { SaveToList } from "@/components/collections/save-to-list";
+import { SaveEventButton } from "@/components/events/save-event-button";
+import { FollowOrganizerButton } from "@/components/organizers/follow-organizer-button";
 import { EventGallery } from "@/components/gallery/event-gallery";
 import { JoinOnlineButton } from "@/components/events/join-online-button";
 import { LivePanel } from "@/components/live/live-panel";
@@ -327,6 +329,9 @@ function EventDetailContent({
             </div>
             
             <div className="flex items-center gap-2 shrink-0">
+              {/* V1.6 HO-4: bookmark (synced with mobile Saved) */}
+              <SaveEventButton eventId={event.id} variant="toolbar" />
+
               {/* HO-C: add event to a user list */}
               <SaveToList eventId={event.id} />
 
@@ -527,6 +532,12 @@ function EventDetailContent({
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2">{event.organizer.bio}</p>
+                {/* V1.6 HO-4: follow the organizer (synced with mobile) */}
+                <FollowOrganizerButton
+                  organizerId={event.organizer.id}
+                  organizerName={event.organizer.name}
+                  className="w-full mt-3"
+                />
               </CardContent>
             </Card>
 
