@@ -60,7 +60,9 @@
     "myRegistrations": "My registrations",
     "myTickets": "My tickets",
     "becomeOrganizer": "Become an organizer",
-    "search": "Search"
+    "search": "Search",
+    "saved": "Saved",
+    "following": "Following"
   },
   "navbar": {
     "navigation": "Navigation",
@@ -779,7 +781,31 @@
     "signInTitle": "Sign in to see saved events",
     "signInBody": "Events you save will appear here.",
     "loadErrorTitle": "Couldn't load saved events",
-    "loadErrorBody": "Check your connection and pull down to retry."
+    "loadErrorBody": "Check your connection and pull down to retry.",
+    "save": "Save",
+    "saveAria": "Save event",
+    "unsaveAria": "Remove from saved",
+    "savedToast": "Saved. Find it under Saved events.",
+    "removedToast": "Removed from saved events",
+    "count": "{{count}} saved"
+  },
+  "following": {
+    "title": "Following",
+    "subtitle": "Organizers you follow, all in one place.",
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow",
+    "followAria": "Follow {{name}}",
+    "unfollowAria": "Unfollow {{name}}",
+    "followedToast": "You're following {{name}}",
+    "unfollowedToast": "You unfollowed {{name}}",
+    "emptyTitle": "You're not following any organizers yet",
+    "emptyBody": "Follow organizers from their event pages to keep up with what they host.",
+    "signInTitle": "Sign in to see who you follow",
+    "signInBody": "Organizers you follow will appear here.",
+    "loadErrorTitle": "Couldn't load the organizers you follow",
+    "verified": "Verified organizer",
+    "count": "{{count}} organizers"
   },
   "status": {
     "confirmed": "Confirmed",
