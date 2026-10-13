@@ -216,6 +216,12 @@ function DesktopAuthControls() {
             <Link href="/my-events" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
               {t("nav.myEvents")}
             </Link>
+            <Link href="/saved" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+              {t("nav.saved")}
+            </Link>
+            <Link href="/following" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
+              {t("nav.following")}
+            </Link>
             <Link href="/settings/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl hover:bg-primary/10 hover:text-primary transition-colors">
               {t("nav.notifications")}
             </Link>
@@ -325,6 +331,12 @@ function MobileAuthControls() {
       </Link>
       <Link href="/my-events" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
         {t("nav.myEvents")}
+      </Link>
+      <Link href="/saved" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+        {t("nav.saved")}
+      </Link>
+      <Link href="/following" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
+        {t("nav.following")}
       </Link>
       <Link href="/settings/notifications" className="min-h-[44px] flex items-center px-4 rounded-xl text-sm font-bold text-foreground hover:bg-muted/50 transition-colors">
         {t("nav.notifications")}
