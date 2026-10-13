@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { auth } from '@/lib/auth';
 import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
 import { requireOrganizerOwnership, getCallerContext } from '@/lib/ai/role-guard';
@@ -44,7 +45,7 @@ const TaskSchema = z.enum([
 
 const RequestSchema = z.object({
   task: TaskSchema,
-  event_id: z.string().uuid().optional(),
+  event_id: pgUuid().optional(),
   input: z.record(z.string(), z.unknown()).optional(),
 });
 

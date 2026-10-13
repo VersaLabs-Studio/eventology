@@ -13,6 +13,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { auth } from '@/lib/auth';
 import { createAuthedClient, createServiceClient } from '@/lib/supabase/server';
 import { aiGenerateEventSummary } from '@/lib/ai/service';
@@ -21,7 +22,7 @@ import { initializeAI } from '@/lib/ai/init';
 import type { ErrorEnvelope } from '@/lib/api';
 
 const RequestSchema = z.object({
-  event_id: z.string().uuid(),
+  event_id: pgUuid(),
 });
 
 interface SummaryResponse {

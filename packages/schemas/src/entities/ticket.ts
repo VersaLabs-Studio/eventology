@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { TICKET_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,10 +12,10 @@ import { TICKET_STATUSES } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const ticketSchema = z.object({
-  id: z.string().uuid(),
-  registration_id: z.string().uuid(),
-  event_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: pgUuid(),
+  registration_id: pgUuid(),
+  event_id: pgUuid(),
+  user_id: pgUuid(),
   ticket_number: z.string().min(1),
   qr_data: z.string().min(1),
   tier_name: z.string().min(1),

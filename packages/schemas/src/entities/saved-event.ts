@@ -4,19 +4,20 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 
 // Full row shape (mirrors the generated `SavedEventRow` from database.types.ts).
 export const savedEventSchema = z.object({
-  id: z.string().uuid(),
-  profile_id: z.string().uuid(),
-  event_id: z.string().uuid(),
+  id: pgUuid(),
+  profile_id: pgUuid(),
+  event_id: pgUuid(),
   created_at: z.string().datetime(),
 });
 
 // Create payload — only `event_id` is supplied by the client.
 // `profile_id` is injected server-side from the session (never trusted from client).
 export const createSavedEventSchema = z.object({
-  event_id: z.string().uuid(),
+  event_id: pgUuid(),
 });
 
 // Inferred types

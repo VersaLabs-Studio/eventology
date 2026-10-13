@@ -12,10 +12,10 @@ import { pgUuid } from '../primitives';
 // ---------------------------------------------------------------------------
 
 export const eventSchema = z.object({
-  id: z.string().uuid(),
-  organizer_id: z.string().uuid(),
-  category_id: z.string().uuid(),
-  venue_id: z.string().uuid().nullable(),
+  id: pgUuid(),
+  organizer_id: pgUuid(),
+  category_id: pgUuid(),
+  venue_id: pgUuid().nullable(),
   title: z.string().min(1, 'Title is required').max(255),
   slug: z
     .string()

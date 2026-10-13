@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { PAYMENT_STATUSES, PAYMENT_METHODS } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,10 +12,10 @@ import { PAYMENT_STATUSES, PAYMENT_METHODS } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const paymentSchema = z.object({
-  id: z.string().uuid(),
-  registration_id: z.string().uuid(),
-  event_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: pgUuid(),
+  registration_id: pgUuid(),
+  event_id: pgUuid(),
+  user_id: pgUuid(),
   amount: z.number().min(0),
   currency: z.string().min(3).max(3),
   method: z.enum(PAYMENT_METHODS),
@@ -29,7 +30,7 @@ export const paymentSchema = z.object({
   refunded_at: z.string().datetime().nullable(),
   refund_amount: z.number().min(0).nullable(),
   refund_reason: z.string().nullable(),
-  refunded_by: z.string().uuid().nullable(),
+  refunded_by: pgUuid().nullable(),
   notes: z.string().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),

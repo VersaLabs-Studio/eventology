@@ -4,13 +4,14 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
 // ---------------------------------------------------------------------------
 
 export const categorySchema = z.object({
-  id: z.string().uuid(),
+  id: pgUuid(),
   name: z.string().min(1, 'Category name is required').max(100),
   slug: z
     .string()

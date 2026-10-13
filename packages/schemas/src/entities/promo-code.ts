@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { PROMO_DISCOUNT_TYPES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,9 +12,9 @@ import { PROMO_DISCOUNT_TYPES } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const promoCodeSchema = z.object({
-  id: z.string().uuid(),
-  event_id: z.string().uuid().nullable(),
-  organizer_id: z.string().uuid().nullable(),
+  id: pgUuid(),
+  event_id: pgUuid().nullable(),
+  organizer_id: pgUuid().nullable(),
   code: z
     .string()
     .min(3, 'Code must be at least 3 characters')
@@ -29,7 +30,7 @@ export const promoCodeSchema = z.object({
   is_active: z.boolean(),
   starts_at: z.string().datetime(),
   expires_at: z.string().datetime().nullable(),
-  applicable_tiers: z.array(z.string().uuid()).nullable(),
+  applicable_tiers: z.array(pgUuid()).nullable(),
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
@@ -68,8 +69,8 @@ export const createPromoCodeSchema = promoCodeSchema
 // ---------------------------------------------------------------------------
 
 export const updatePromoCodeSchema = z.object({
-  event_id: z.string().uuid().nullable().optional(),
-  organizer_id: z.string().uuid().nullable().optional(),
+  event_id: pgUuid().nullable().optional(),
+  organizer_id: pgUuid().nullable().optional(),
   code: z
     .string()
     .min(3, 'Code must be at least 3 characters')
@@ -85,7 +86,7 @@ export const updatePromoCodeSchema = z.object({
   is_active: z.boolean().optional(),
   starts_at: z.string().datetime().optional(),
   expires_at: z.string().datetime().nullable().optional(),
-  applicable_tiers: z.array(z.string().uuid()).nullable().optional(),
+  applicable_tiers: z.array(pgUuid()).nullable().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 

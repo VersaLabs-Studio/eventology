@@ -4,22 +4,23 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
 // ---------------------------------------------------------------------------
 
 export const reviewSchema = z.object({
-  id: z.string().uuid(),
-  event_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: pgUuid(),
+  event_id: pgUuid(),
+  user_id: pgUuid(),
   rating: z.number().int().min(1).max(5),
   title: z.string().max(255).nullable(),
   content: z.string().max(5000).nullable(),
   is_approved: z.boolean(),
   is_flagged: z.boolean(),
   flag_reason: z.string().nullable(),
-  moderated_by: z.string().uuid().nullable(),
+  moderated_by: pgUuid().nullable(),
   moderated_at: z.string().datetime().nullable(),
   metadata: z.record(z.string(), z.unknown()).default({}),
   created_at: z.string().datetime(),
@@ -53,7 +54,7 @@ export const updateReviewSchema = z.object({
   is_approved: z.boolean().optional(),
   is_flagged: z.boolean().optional(),
   flag_reason: z.string().nullable().optional(),
-  moderated_by: z.string().uuid().nullable().optional(),
+  moderated_by: pgUuid().nullable().optional(),
   moderated_at: z.string().datetime().nullable().optional(),
 });
 

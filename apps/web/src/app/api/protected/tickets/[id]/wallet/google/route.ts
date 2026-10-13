@@ -39,6 +39,10 @@ export async function GET(
       registration:registrations(id, attendee_name, attendee_email)
     `)
     .eq('id', id)
+    // Owner only. RLS also lets the event's organizer read this ticket, and
+    // getOrIssuePass would then re-bind the pass to the organizer and rotate
+    // its serial, invalidating the attendee's pass.
+    .eq('user_id', session.user.id)
     .maybeSingle();
 
   if (error) {

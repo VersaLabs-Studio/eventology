@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createAuthedClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
-import { createSponsorSchema } from '@eventology/schemas';
+import { createSponsorSchema, pgUuid } from '@eventology/schemas';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
 
 export interface SponsorRow {
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
 }
 
 const createBodySchema = createSponsorSchema.extend({
-  event_id: z.string().uuid(),
+  event_id: pgUuid(),
 });
 
 export async function POST(req: NextRequest) {

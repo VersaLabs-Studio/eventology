@@ -12,10 +12,10 @@ import { pgUuid } from '../primitives';
 // ---------------------------------------------------------------------------
 
 export const registrationSchema = z.object({
-  id: z.string().uuid(),
-  event_id: z.string().uuid(),
-  user_id: z.string().uuid(),
-  ticket_tier_id: z.string().uuid(),
+  id: pgUuid(),
+  event_id: pgUuid(),
+  user_id: pgUuid(),
+  ticket_tier_id: pgUuid(),
   attendee_name: z.string().min(1, 'Attendee name is required'),
   attendee_email: z.string().email(),
   attendee_phone: z.string().nullable(),

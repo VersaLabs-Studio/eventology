@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { VERIFICATION_STATUSES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,8 +12,8 @@ import { VERIFICATION_STATUSES } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const organizerSchema = z.object({
-  id: z.string().uuid(),
-  profile_id: z.string().uuid(),
+  id: pgUuid(),
+  profile_id: pgUuid(),
   name: z.string().min(1, 'Organization name is required').max(255),
   slug: z
     .string()

@@ -4,13 +4,14 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
 // ---------------------------------------------------------------------------
 
 export const venueSchema = z.object({
-  id: z.string().uuid(),
+  id: pgUuid(),
   name: z.string().min(1, 'Venue name is required').max(255),
   slug: z
     .string()

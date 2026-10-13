@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { USER_ROLES } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,7 +12,7 @@ import { USER_ROLES } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const profileSchema = z.object({
-  id: z.string().uuid(),
+  id: pgUuid(),
   full_name: z.string().min(1, 'Full name is required').max(255),
   email: z.string().email('Invalid email address'),
   phone: z.string().nullable(),

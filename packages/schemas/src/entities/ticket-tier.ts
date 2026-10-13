@@ -4,14 +4,15 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 
 // ---------------------------------------------------------------------------
 // Base schema (matches DB constraints exactly)
 // ---------------------------------------------------------------------------
 
 export const ticketTierSchema = z.object({
-  id: z.string().uuid(),
-  event_id: z.string().uuid(),
+  id: pgUuid(),
+  event_id: pgUuid(),
   name: z.string().min(1, 'Tier name is required').max(255),
   description: z.string().max(1000).nullable(),
   price: z.number().min(0),

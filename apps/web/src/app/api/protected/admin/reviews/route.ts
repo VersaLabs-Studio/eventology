@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { pgUuid } from '@eventology/schemas';
 import { createAuthedClient } from '@/lib/supabase/server';
 import { requireAdminRoute } from '@/lib/api/admin-guard';
 import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
@@ -14,7 +15,7 @@ import type { ErrorEnvelope, ListEnvelope } from '@/lib/api';
  */
 
 const moderateSchema = z.object({
-  id: z.string().uuid(),
+  id: pgUuid(),
   is_approved: z.boolean().optional(),
   is_flagged: z.boolean().optional(),
   flag_reason: z.string().nullable().optional(),

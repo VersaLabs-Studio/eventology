@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { z } from 'zod';
+import { pgUuid } from '../primitives';
 import { SPONSOR_TIERS } from '../enums';
 
 // ---------------------------------------------------------------------------
@@ -11,8 +12,8 @@ import { SPONSOR_TIERS } from '../enums';
 // ---------------------------------------------------------------------------
 
 export const sponsorSchema = z.object({
-  id: z.string().uuid(),
-  event_id: z.string().uuid(),
+  id: pgUuid(),
+  event_id: pgUuid(),
   name: z.string().min(1, 'Sponsor name is required').max(255),
   logo_url: z.string().url().nullable(),
   website: z.string().url().nullable(),
