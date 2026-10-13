@@ -99,8 +99,9 @@ export async function GET(req: NextRequest) {
     const [{ count: total }, { count: checkedIn }] = await Promise.all([
       supabase.from('registrations').select('id', { count: 'exact', head: true })
         .eq('event_id', e.id).in('status', ['confirmed', 'checked_in']),
+      // Check-in stamps checked_in_at; status stays 'confirmed'.
       supabase.from('registrations').select('id', { count: 'exact', head: true })
-        .eq('event_id', e.id).eq('status', 'checked_in'),
+        .eq('event_id', e.id).not('checked_in_at', 'is', null),
     ]);
 
     const result = await aiGenerateEventRecap({

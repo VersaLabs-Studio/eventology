@@ -68,7 +68,9 @@ export async function GET(
     .from('registrations')
     .select('id', { count: 'exact', head: true })
     .eq('event_id', id)
-    .eq('status', 'checked_in');
+    // Check-in stamps checked_in_at and keeps status 'confirmed' (see
+    // @eventology/utils isCheckedIn); counting status='checked_in' was always 0.
+    .not('checked_in_at', 'is', null);
 
   if (error) {
     return NextResponse.json(
