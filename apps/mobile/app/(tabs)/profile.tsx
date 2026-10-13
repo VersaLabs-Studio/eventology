@@ -1,23 +1,33 @@
 // ============================================================================
-// Profile screen
+// Profile screen — Account hub (HO-3)
 // ============================================================================
-// Signed in  → identity card over a brand wash, then settings rows.
-// Signed out → a single sign-in prompt; the settings that don't need a session
-//              (language) stay available.
+// Signed in  → identity card (avatar image or initials) over a brand wash, a
+//              3-tile stats strip (Attended · Upcoming · Reviews), a 2x2
+//              quick-actions grid, then sections: Account / Saved / Preferences
+//              / Security / About.
+// Signed out → a single sign-in prompt; language chips stay available.
 //
 // The organizer link is shown on a role claim, but the organizer route
 // re-validates ownership server-side — this is an affordance, not a gate.
+// Role is NEVER elevated client-side (become-organizer stays server-pending).
 // ============================================================================
 
 import React from 'react';
+import { Image as ExpoImage } from 'expo-image';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Gradient } from '@/components/ui/Gradient';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { StatTile } from '@/components/ui/StatTile';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { QuickActions, type QuickAction } from '@/components/profile/QuickActions';
+import { useProfileStats } from '@/lib/hooks/useProfileStats';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   authenticate,
@@ -31,6 +41,19 @@ import { colors, gradients, radius, shadows, spacing, typography } from '@/lib/t
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
+interface ProfileRow {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  phone: string | null;
+}
+
+async function fetchProfileMe(): Promise<ProfileRow> {
+  return api.get<ProfileRow>('/api/protected/profile');
+}
+
 export default function ProfileScreen(): React.ReactElement {
   const p = usePalette();
   const { user, signOut, loading } = useAuth();
@@ -39,6 +62,19 @@ export default function ProfileScreen(): React.ReactElement {
 
   const [bioAvailable, setBioAvailable] = React.useState(false);
   const [bioEnabled, setBioEnabled] = React.useState(false);
+
+  const { stats, isLoading: statsLoading } = useProfileStats();
+
+  // F2 fix: source identity name + avatar from the profiles table (same
+  // source Edit Profile writes to) so changes reflect live without restart.
+  const profileQ = useQuery({
+    queryKey: ['profile', 'me'],
+    queryFn: fetchProfileMe,
+    enabled: !!user,
+  });
+
+  const profileName = profileQ.data?.full_name ?? null;
+  const profileAvatar = profileQ.data?.avatar_url ?? null;
 
   React.useEffect(() => {
     void (async () => {
@@ -49,8 +85,6 @@ export default function ProfileScreen(): React.ReactElement {
 
   const toggleBiometric = async (next: boolean) => {
     if (next) {
-      // Prove it works before turning the lock on, so the user can't lock
-      // themselves out with a sensor that won't authenticate.
       const ok = await authenticate(t('settings.unlockPrompt'));
       if (!ok) return;
     }
@@ -60,19 +94,27 @@ export default function ProfileScreen(): React.ReactElement {
 
   const handleSignOut = async () => {
     await signOut();
-    router.replace('/');
+    router.replace('/' as never);
   };
 
-  const name = (user as { name?: string } | null)?.name ?? 'Eventology user';
+  // Identity card: prefer profile data (F2), fall back to session data.
+  const name = profileName ?? ((user as { name?: string } | null)?.name ?? 'Eventology user');
   const email = (user as { email?: string } | null)?.email ?? '';
   const role = (user as { role?: string } | null)?.role;
   const isOrganizer = Boolean(role) && role !== 'attendee';
+
+  const quickActions: QuickAction[] = [
+    { key: 'tickets', label: t('myEvents.title'), icon: 'ticket-outline', onPress: () => router.push('/tickets' as never) },
+    { key: 'events', label: t('nav.myEvents'), icon: 'calendar-outline', onPress: () => router.push('/my-events' as never) },
+    { key: 'saved', label: t('profile.savedEvents'), icon: 'bookmark-outline', onPress: () => router.push('/saved' as never) },
+    { key: 'notifications', label: t('profile.preferences'), icon: 'notifications-outline', onPress: () => router.push('/profile/notifications' as never) },
+  ];
 
   return (
     <View style={[styles.root, { backgroundColor: p.background }]}>
       <SafeAreaView edges={['top']} style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <ScreenHeader title="Profile" />
+          <ScreenHeader title={t('profile.title')} />
 
           {/* ── Identity ── */}
           {loading ? (
@@ -85,11 +127,15 @@ export default function ProfileScreen(): React.ReactElement {
               style={[styles.identityCard, shadows.md]}
             >
               <View style={styles.identityRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>
-                    {(name || email || '?').slice(0, 1).toUpperCase()}
-                  </Text>
-                </View>
+                {profileAvatar ? (
+                  <ExpoImage source={{ uri: profileAvatar }} style={styles.avatarImg} contentFit="cover" />
+                ) : (
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {(name || email || '?').slice(0, 1).toUpperCase()}
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.flexMin}>
                   <Text style={styles.identityName} numberOfLines={1}>
                     {name}
@@ -100,6 +146,15 @@ export default function ProfileScreen(): React.ReactElement {
                     </Text>
                   ) : null}
                 </View>
+                <Pressable
+                  onPress={() => router.push('/profile/edit' as never)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('profile.editProfile')}
+                  hitSlop={8}
+                  style={styles.editBtn}
+                >
+                  <Ionicons name="create-outline" size={18} color={colors.white} />
+                </Pressable>
               </View>
               {role ? (
                 <Badge
@@ -114,30 +169,50 @@ export default function ProfileScreen(): React.ReactElement {
               <View style={[styles.signedOutIcon, { backgroundColor: `${colors.primary}1A` }]}>
                 <Ionicons name="person-outline" size={22} color={colors.primary} />
               </View>
-              <Text style={[styles.signedOutTitle, { color: p.text }]}>You're not signed in</Text>
+              <Text style={[styles.signedOutTitle, { color: p.text }]}>{t('profile.signInPrompt')}</Text>
               <Text style={[styles.signedOutBody, { color: p.textMuted }]}>
-                Sign in to register for events and keep your tickets in one place.
+                {t('profile.signInPromptBody')}
               </Text>
               <View style={styles.signedOutActions}>
                 <Button
                   label="Sign in"
                   leftIcon="log-in-outline"
                   fullWidth
-                  onPress={() => router.push('/auth/login')}
+                  onPress={() => router.push('/auth/login' as never)}
                 />
                 <Button
                   label="Create account"
                   variant="outline"
                   leftIcon="person-add-outline"
                   fullWidth
-                  onPress={() => router.push('/auth/signup')}
+                  onPress={() => router.push('/auth/signup' as never)}
                 />
               </View>
             </View>
           )}
 
+          {/* ── Stats strip (signed-in only) ── */}
+          {user ? (
+            statsLoading ? (
+              <View style={styles.statsRow}>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} height={76} radius={radius.lg} style={styles.statSkeleton} />
+                ))}
+              </View>
+            ) : (
+              <View style={styles.statsRow}>
+                <StatTile label={t('profile.stats.attended')} value={String(stats.attended)} icon="checkmark-done-outline" />
+                <StatTile label={t('profile.stats.upcoming')} value={String(stats.upcoming)} icon="calendar-outline" />
+                <StatTile label={t('profile.stats.reviews')} value={String(stats.reviews)} icon="star-outline" />
+              </View>
+            )
+          ) : null}
+
+          {/* ── Quick actions (signed-in only) ── */}
+          {user ? <QuickActions actions={quickActions} /> : null}
+
           {/* ── Language ── */}
-          <Section title="Language">
+          <Section title={t('language.label')}>
             <View style={styles.langRow}>
               {LOCALES.map((l) => {
                 const active = l === locale;
@@ -164,6 +239,43 @@ export default function ProfileScreen(): React.ReactElement {
             </View>
           </Section>
 
+          {/* ── Account ── */}
+          {user ? (
+            <Section title={t('nav.account')}>
+              <View style={[styles.rowGroup, { backgroundColor: p.surface, borderColor: p.border }]}>
+                <SettingsRow
+                  icon="person-outline"
+                  label={t('profile.editProfile')}
+                  onPress={() => router.push('/profile/edit' as never)}
+                />
+                <SettingsRow
+                  icon="bookmark-outline"
+                  label={t('profile.savedEvents')}
+                  onPress={() => router.push('/saved' as never)}
+                />
+                <SettingsRow
+                  icon="notifications-outline"
+                  label={t('profile.preferences')}
+                  onPress={() => router.push('/profile/notifications' as never)}
+                />
+                {!isOrganizer ? (
+                  <SettingsRow
+                    icon="briefcase-outline"
+                    label={t('profile.applyToOrganize')}
+                    onPress={() => router.push('/profile/become-organizer' as never)}
+                  />
+                ) : (
+                  <SettingsRow
+                    icon="briefcase-outline"
+                    label={t('organizer.manageEvents')}
+                    onPress={() => router.push('/organizer' as never)}
+                    last
+                  />
+                )}
+              </View>
+            </Section>
+          ) : null}
+
           {/* ── Security ── */}
           {bioAvailable ? (
             <Section title={t('settings.security')}>
@@ -180,37 +292,6 @@ export default function ProfileScreen(): React.ReactElement {
                     trackColor={{ true: colors.primary }}
                   />
                 </View>
-              </View>
-            </Section>
-          ) : null}
-
-          {/* ── Navigation ── */}
-          {user ? (
-            <Section title="Account">
-              <View style={[styles.rowGroup, { backgroundColor: p.surface, borderColor: p.border }]}>
-                <SettingsRow
-                  icon="notifications-outline"
-                  label="Notifications"
-                  onPress={() => router.push('/notifications')}
-                />
-                <SettingsRow
-                  icon="calendar-outline"
-                  label={t('myEvents.title')}
-                  onPress={() => router.push('/my-events')}
-                />
-                <SettingsRow
-                  icon="ticket-outline"
-                  label="My tickets"
-                  onPress={() => router.push('/tickets')}
-                />
-                {isOrganizer ? (
-                  <SettingsRow
-                    icon="briefcase-outline"
-                    label={t('organizer.manageEvents')}
-                    onPress={() => router.push('/organizer')}
-                    last
-                  />
-                ) : null}
               </View>
             </Section>
           ) : null}
@@ -300,9 +381,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.32)',
   },
+  avatarImg: { width: 56, height: 56, borderRadius: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.32)' },
   avatarText: { fontSize: 22, fontWeight: '800', color: colors.white },
   identityName: { ...typography.h2, fontSize: 19, color: colors.white },
   identityEmail: { ...typography.caption, fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 2 },
+  editBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   roleBadge: { alignSelf: 'flex-start' },
 
   signedOut: {
@@ -324,6 +414,9 @@ const styles = StyleSheet.create({
   signedOutTitle: { ...typography.h3, fontSize: 16 },
   signedOutBody: { ...typography.caption, fontSize: 12, textAlign: 'center', maxWidth: 260, lineHeight: 17 },
   signedOutActions: { alignSelf: 'stretch', gap: spacing.sm, marginTop: spacing.md },
+
+  statsRow: { flexDirection: 'row', gap: spacing.md, marginHorizontal: spacing.md },
+  statSkeleton: { flex: 1 },
 
   section: { gap: spacing.sm },
   sectionTitle: {

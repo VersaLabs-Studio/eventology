@@ -64,6 +64,11 @@ export default function RootLayout(): React.ReactElement {
             <Stack.Screen name="organizer/analytics/[eventId]" options={{ headerShown: true, title: 'Analytics' }} />
             <Stack.Screen name="organizer/attendees/[eventId]" options={{ headerShown: true, title: 'Attendees' }} />
             <Stack.Screen name="organizer/revenue" options={{ headerShown: true, title: 'Revenue' }} />
+            {/* HO-3 profile write-flows + saved surface */}
+            <Stack.Screen name="profile/edit" options={{ headerShown: false }} />
+            <Stack.Screen name="profile/become-organizer" options={{ headerShown: false }} />
+            <Stack.Screen name="profile/notifications" options={{ headerShown: false }} />
+            <Stack.Screen name="saved" options={{ headerShown: false }} />
           </Stack>
           </BiometricGate>
         </AuthProvider>
