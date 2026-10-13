@@ -45,8 +45,11 @@ jobs:
       - name: Type-check web
         run: npx tsc --noEmit -p apps/web/tsconfig.json
 
+      # Mobile pins TypeScript ~5.9 (Expo SDK 54); the hoisted root compiler is 6.x
+      # and rejects its baseUrl, so run the workspace's own tsc.
       - name: Type-check mobile
-        run: npx tsc --noEmit -p apps/mobile/tsconfig.json
+        working-directory: apps/mobile
+        run: npx tsc --noEmit
 
       - name: Build web
         working-directory: apps/web
